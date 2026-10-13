@@ -1,7 +1,7 @@
 /**
- * Universal CarPlay — Virtual iPhone & Web Avtomobil Monitoru Serveri
+ * CarTwin — Virtual iPhone & Web Avtomobil Monitoru Serveri
  * 
- * 1. HTTP Server (Port 9999): Brauzerdə (Chrome / Edge) canlı avtomobil monitorunu açır: http://localhost:9999
+ * 1. HTTP Server (Port 9999): Brauzerdə canlı avtomobil monitorunu açır: http://localhost:9999
  * 2. TCP Socket Server (Port 9998): Android tətbiqlərinin video/audio axını üçün
  */
 
@@ -16,22 +16,39 @@ const TCP_PORT = 9998;
 // ==========================================
 // 1. HTTP Web Server (Brauzer Monitoru)
 // ==========================================
-const htmlPath = path.join(__dirname, 'public', 'index.html');
+const publicDir = path.join(__dirname, 'public');
 
 const httpServer = http.createServer((req, res) => {
-    if ((req.method === 'GET' || req.method === 'HEAD') && (req.url === '/' || req.url === '/index.html')) {
+    let reqUrl = req.url.split('?')[0];
+    if (reqUrl === '/') reqUrl = '/index.html';
+
+    const filePath = path.join(publicDir, reqUrl);
+
+    if ((req.method === 'GET' || req.method === 'HEAD') && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        const ext = path.extname(filePath).toLowerCase();
+        const contentTypes = {
+            '.html': 'text/html; charset=utf-8',
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.svg': 'image/svg+xml',
+            '.css': 'text/css',
+            '.js': 'application/javascript'
+        };
+        const contentType = contentTypes[ext] || 'application/octet-stream';
+
         if (req.method === 'HEAD') {
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.writeHead(200, { 'Content-Type': contentType });
             res.end();
             return;
         }
-        fs.readFile(htmlPath, 'utf8', (err, content) => {
+
+        fs.readFile(filePath, (err, content) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-                res.end('Veb monitor faylı tapılmadı.');
+                res.end('Fayl oxunmadı.');
                 return;
             }
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.writeHead(200, { 'Content-Type': contentType });
             res.end(content);
         });
     } else if (req.method === 'POST' && req.url === '/api/event') {
@@ -57,7 +74,7 @@ const httpServer = http.createServer((req, res) => {
 
 httpServer.listen(HTTP_PORT, () => {
     console.log(`\n================================================================`);
-    console.log(`🎉 VIRTUAL AVTOMOBİL MONITORU HAZIRDIR!`);
+    console.log(`🎉 CARTWIN — VIRTUAL AVTOMOBİL MONITORU HAZIRDIR!`);
     console.log(`🌐 Brauzerinizdə bu linki açın:  http://localhost:${HTTP_PORT}`);
     console.log(`================================================================`);
 });

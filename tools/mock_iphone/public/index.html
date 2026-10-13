@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal CarPlay — Lüks Reklam Çarxı Şousu & Avtomobil Loqoları</title>
+    <title>CarTwin — Premium Connect (Apple CarPlay Receiver)</title>
     <style>
         :root {
             --bg-dark: #05070e;
             --panel-bg: rgba(16, 22, 36, 0.88);
-            --brand-color: #00f2fe;
-            --brand-glow: rgba(0, 242, 254, 0.5);
-            --brand-gradient: linear-gradient(135deg, #00f2fe, #4facfe);
+            --brand-color: #e5b869;
+            --brand-glow: rgba(229, 184, 105, 0.5);
+            --brand-gradient: linear-gradient(135deg, #e5b869, #ffd60a);
             --accent-cyan: #00f2fe;
             --accent-blue: #0a84ff;
             --accent-green: #30d158;
@@ -913,16 +913,20 @@
 
     <header>
         <div class="header-left">
+            <img src="cartwin_logo.png" alt="CarTwin" style="height: 38px; border-radius: 8px; box-shadow: 0 0 15px rgba(229,184,105,0.4); margin-right: 6px;">
             <div class="brand-badge-pill" id="brandPill">
-                <span style="font-size: 18px;" id="brandIcon">⚡</span>
-                <span class="brand-badge-text" id="brandBadgeTitle">BYD DiLink OS</span>
+                <span style="font-size: 18px;" id="brandIcon">♾️</span>
+                <span class="brand-badge-text" id="brandBadgeTitle">CarTwin Premium Connect</span>
             </div>
-            <span style="font-size: 13px; color: var(--text-muted);">| Universal CarPlay</span>
+            <span style="font-size: 13px; color: var(--text-muted);">| Apple CarPlay</span>
         </div>
 
         <!-- Avtomobil Loqoları Seçimi -->
         <div class="car-selector-group">
-            <button class="btn-car-brand active" onclick="triggerCommercialIntro('byd')">
+            <button class="btn-car-brand active" onclick="triggerCommercialIntro('cartwin')">
+                <span>♾️</span> CarTwin (Original)
+            </button>
+            <button class="btn-car-brand" onclick="triggerCommercialIntro('byd')">
                 <span>⚡</span> BYD
             </button>
             <button class="btn-car-brand" onclick="triggerCommercialIntro('changan')">
@@ -1236,7 +1240,7 @@
 
     <script>
         let currentTemp = 22.0;
-        let currentBrandKey = 'byd';
+        let currentBrandKey = 'cartwin';
 
         // Saat
         setInterval(() => {
@@ -1258,6 +1262,26 @@
         // 🌟 ORİJİNAL BREND VƏ REKLAM ÇARXI ŞOUSU KONFİQURASİYASI
         // ==============================================================
         const brandConfigs = {
+            cartwin: {
+                name: 'CarTwin',
+                title: 'CarTwin Premium Connect',
+                model: 'Universal Wireless Edition',
+                commercialTitle: 'CARTWIN',
+                commercialSub: 'PREMIUM CONNECT • WIRELESS CARPLAY',
+                desc: 'CarTwin Flagship Şousu',
+                sub: 'Orijinal qoşa qızıl və gümüş həlqələr ilə sonsuzluq və qoşulma aurası.',
+                color: '#e5b869',
+                glow: 'rgba(229, 184, 105, 0.55)',
+                icon: '♾️',
+                carEmoji: '🏎️',
+                range: 'UNLIMITED',
+                aspect: '16 / 9',
+                svg: `
+                    <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <img src="cartwin_logo.png" style="max-width: 280px; max-height: 140px; object-fit: contain; border-radius: 16px; filter: drop-shadow(0 0 25px rgba(229,184,105,0.6));">
+                    </div>
+                `
+            },
             byd: {
                 name: 'BYD',
                 title: 'BYD DiLink OS',

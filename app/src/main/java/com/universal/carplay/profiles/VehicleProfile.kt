@@ -20,15 +20,15 @@ sealed class VehicleProfile(
     val supportsHudNavigation: Boolean = false
 ) {
     /**
-     * Standart Universal Rejim (Bütün Android monitorlar üçün)
+     * Standart Universal Rejim (CarTwin Premium Connect - Bütün Android monitorlar üçün)
      */
     object Universal : VehicleProfile(
         id = "universal",
-        name = "Universal Android",
-        commercialTitle = "UNIVERSAL CARPLAY",
-        commercialTagline = "WIRELESS INFOTAINMENT • BÜTÜN MONİTORLAR",
-        logoResId = R.drawable.ic_logo_universal,
-        accentColorHex = "#0A84FF",
+        name = "CarTwin Universal",
+        commercialTitle = "CARTWIN",
+        commercialTagline = "PREMIUM CONNECT • WIRELESS CARPLAY",
+        logoResId = R.drawable.cartwin_logo,
+        accentColorHex = "#E5B869",
         defaultWidth = 1920,
         defaultHeight = 1080,
         targetFps = 60,

@@ -43,38 +43,39 @@ jobs:
     - name: Copy and Rename APK for Release
       run: |
         mkdir -p release_output
-        cp app/build/outputs/apk/debug/*.apk release_output/UniversalCarPlay-v1.1.apk
+        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.2.apk
         ls -la release_output/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: UniversalCarPlay-v1.1-apk
-        path: release_output/UniversalCarPlay-v1.1.apk
+        name: CarTwin-v1.2-apk
+        path: release_output/CarTwin-v1.2.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.1.0
-        name: "Universal CarPlay v1.1.0 (Hazır APK — Brauzer & YouTube İnteqrasiyalı)"
+        tag_name: v1.2.0
+        name: "CarTwin v1.2.0 (Premium Connect — Rəsmi Buraxılış & Orijinal Loqo)"
         body: |
-          ## 🚗 Universal Apple CarPlay Android Receiver v1.1.0
+          ## 🌟 CarTwin — Premium Connect (Android CarPlay Receiver v1.2.0)
 
-          Bu buraxılış **BYD (DiLink), Changan (Deepal/Avatr), Li Auto (L7/L8/L9), Zeekr və bütün Android monitorlar** üçün daxili **İnternet Brauzeri və Multimedia Veb Pəncərəsi** ilə təchiz olunmuş tam hazır APK faylıdır.
+          **CarTwin (Premium Connect)** — **BYD (DiLink), Changan (Deepal/Avatr), Li Auto (L7/L8/L9), Zeekr və bütün Android monitorlar** üçün hazırlanmış rəsmi brendləşdirilmiş, daxili **İnternet Brauzeri, Orijinal Sonsuzluq Loqosu və Çoxdilli Səsli Köməkçisi** ilə təchiz olunmuş ən son buraxılışdır.
 
           ### 📥 Necə Yükləmək və Quraşdırmaq olar:
-          1. Aşağıdakı **`UniversalCarPlay-v1.1.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
+          1. Aşağıdakı **`CarTwin-v1.2.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
           2. Faylı USB fleşkarta (flash drive) köçürün və avtomobilin USB portuna taxın.
-          3. Monitorun daxili **"File Manager" (Fayl Meneceri)** tətbiqini açıb `UniversalCarPlay-v1.1.apk` üzərinə vurun və quraşdırın.
+          3. Monitorun daxili **"File Manager" (Fayl Meneceri)** tətbiqini açıb `CarTwin-v1.2.apk` üzərinə vurun və quraşdırın.
 
-          ### ✨ Yeni və Əsas Funksiyalar (v1.1.0):
+          ### ✨ Yeni və Əsas Funksiyalar (v1.2.0):
+          * 💎 **Yeni Brend və Rəsmi Loqo:** Metalik sonsuzluq ilmələri (gümüşü "C" və qızılı "T"), "CARTWIN PREMIUM CONNECT" xüsusi açılış loqosu və tətbiq simvolu (launcher icon).
           * 🌐 **İnteqrasiya Olunmuş İnternet Brauzeri:** Google, YouTube, Vikipediya və istənilən veb-sayta birbaşa multimedia ekranından daxil olun.
           * 🎙️ **Səsli Əmrlə Brauzer və YouTube:** Azərbaycan dilində *"Brauzeri aç"* və ya *"YouTube-u başlat"* deyərək pəncərəni aktivləşdirin.
-          * 🎬 **Reklam Çarxı Stilində Açılış Şousu:** BYD, Changan, Li Auto və Zeekr orijinal vektor loqoları ilə dinamik animasiya.
+          * 🎬 **Reklam Çarxı Stilində Açılış Şousu:** CarTwin, BYD, Changan, Li Auto və Zeekr orijinal vektor loqoları ilə dinamik animasiya.
           * 🚗 **Avtomobil Modelini 100% Avtomatik Tanıma:** Heç bir əl konfiqurasiyası tələb olunmur.
           * 📶 **Simsiz və Simli CarPlay:** Bluetooth LE + Wi-Fi Hotspot və USB Plug-and-Play dəstəyi.
           * 🗣️ **Çoxdilli AI Səs Köməkçisi:** Azərbaycan dili (`az-AZ`), Türk, Rus və İngilis dillərində kondisioner, naviqasiya və zəng idarəetməsi.
           * 🎛️ **Lüks Split-Screen Dashboard:** Sürətölçən (km/h), batareya faizi, ikili iqlim nəzarəti və YouTube Park Rejimi.
-        files: release_output/UniversalCarPlay-v1.1.apk
+        files: release_output/CarTwin-v1.2.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

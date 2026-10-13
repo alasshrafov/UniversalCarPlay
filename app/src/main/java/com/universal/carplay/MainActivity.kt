@@ -345,7 +345,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         super.onResume()
         vehicleStateManager.register()
         usbManager.start()
-        sessionCoordinator?.startDiscovery(carName = "CarPlay-${currentProfile.name}")
+        sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
     }
 
     override fun onPause() {
@@ -378,7 +378,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun setupProfile(profile: VehicleProfile) {
         currentProfile = profile
-        tvCurrentProfile.text = "Profil: ${profile.name}"
+        tvCurrentProfile.text = "CarTwin • ${profile.name}"
         ivTopBarLogo.setImageResource(profile.logoResId)
 
         touchManager = TouchManager(
