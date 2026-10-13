@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.universal.carplay.connectivity.CarPlaySessionCoordinator
 import com.universal.carplay.engine.AudioEngine
 import com.universal.carplay.engine.TouchManager
 import com.universal.carplay.engine.VideoDecoder
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private var audioEngine: AudioEngine? = null
     private var touchManager: TouchManager? = null
     private var mockClient: MockCarPlayClient? = null
+    private var sessionCoordinator: CarPlaySessionCoordinator? = null
 
     private var currentProfile: VehicleProfile = VehicleProfile.Universal
 
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         initViews()
         setupProfile(VehicleProfile.Universal)
+        initSessionCoordinator()
     }
 
     private fun initViews() {
@@ -69,6 +72,35 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         btnConnectMock.setOnClickListener {
             startMockConnection()
         }
+    }
+
+    private fun initSessionCoordinator() {
+        sessionCoordinator = CarPlaySessionCoordinator(this) { state, message ->
+            runOnUiThread {
+                tvDetail.text = message
+                when (state) {
+                    CarPlaySessionCoordinator.SessionState.CONNECTED -> {
+                        statusOverlay.visibility = View.GONE
+                    }
+                    CarPlaySessionCoordinator.SessionState.WAITING_FOR_DEVICE -> {
+                        statusOverlay.visibility = View.VISIBLE
+                        tvStatus.text = "iPhone Axtarılır…"
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Tətbiq açılan kimi simsiz CarPlay Bluetooth və mDNS xidmətləri aktivləşir
+        sessionCoordinator?.startDiscovery(carName = "CarPlay-${currentProfile.name}")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sessionCoordinator?.stopDiscovery()
     }
 
     private fun setupProfile(profile: VehicleProfile) {
@@ -167,5 +199,6 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         videoDecoder?.stop()
         audioEngine?.stop()
         mockClient?.disconnect()
+        sessionCoordinator?.stopDiscovery()
     }
 }
