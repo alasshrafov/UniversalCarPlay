@@ -30,7 +30,14 @@ jobs:
 
     - name: Build Debug APK
       run: |
-        gradle assembleDebug -x lint --no-daemon --stacktrace
+        gradle assembleDebug -x lint --no-daemon --stacktrace 2>&1 | tee build.log
+
+    - name: Upload Error Log on Failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: gradle-error-log
+        path: build.log
 
     - name: Copy and Rename APK for Release
       run: |

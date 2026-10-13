@@ -36,11 +36,11 @@ class CarPlayUsbManager(
 
             when (action) {
                 UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
-                    val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val device: UsbDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
                     } else {
                         @Suppress("DEPRECATION")
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as? UsbDevice
                     }
                     device?.let { handleDeviceAttached(it) }
                 }
@@ -49,11 +49,11 @@ class CarPlayUsbManager(
                     onDeviceDisconnected()
                 }
                 ACTION_USB_PERMISSION -> {
-                    val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val device: UsbDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
                     } else {
                         @Suppress("DEPRECATION")
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as? UsbDevice
                     }
                     val permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                     if (permissionGranted && device != null) {
