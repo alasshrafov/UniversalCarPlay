@@ -1,0 +1,12 @@
+{
+  "name": "virtual-carplay-host",
+  "version": "1.0.0",
+  "description": "Virtual iPhone CarPlay Test Host for Universal CarPlay Receiver",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["carplay", "mock", "simulator"],
+  "author": "UniversalCarPlay Team",
+  "license": "MIT"
+}

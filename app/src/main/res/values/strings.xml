@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">CarPlay</string>
+    <string name="waiting_for_connection">iPhone və ya Virtual Server gözlənilir…</string>
+    <string name="settings">Tənzimləmələr</string>
+    <string name="profile_byd">BYD Rejimi (15.6\" Fırlanan)</string>
+    <string name="profile_changan">Changan / Deepal Rejimi</string>
+    <string name="profile_liauto">Li Auto Rejimi (15.7\" 3K)</string>
+    <string name="profile_universal">Universal Android Rejimi</string>
+    <string name="status_connected">Qoşuldu</string>
+    <string name="status_disconnected">Qoşulmayıb</string>
+</resources>

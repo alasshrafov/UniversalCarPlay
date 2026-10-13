@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <!-- 1. CarPlay Video Göstərici Təbəqəsi (Aşağı Gecikməli SurfaceView) -->
+    <com.universal.carplay.ui.CarPlaySurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
+
+    <!-- 2. Gözləmə və Status Təbəqəsi (Bağlantı Olmayanda Görünür) -->
+    <LinearLayout
+        android:id="@+id/statusOverlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="@drawable/bg_card">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminateTint="@color/car_accent" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/waiting_for_connection"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Wi-Fi / Bluetooth və ya Virtual Host gözlənilir…"
+            android:textColor="@color/car_text_gray"
+            android:textSize="14sp" />
+
+        <!-- Mock Host ilə birbaşa əlaqə düyməsi (Test Mühiti Üçün) -->
+        <Button
+            android:id="@+id/btnConnectMock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Virtual iPhone-a Qoşul (Test)"
+            android:backgroundTint="@color/car_accent"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <!-- 3. Avtomobil Profil və Tənzimləmə Paneli (Yuxarı Künc) -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvCurrentProfile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Profil: Universal Rejim"
+            android:textColor="@color/car_text_gray"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnSettings"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tənzimləmələr ⚙️"
+            android:textColor="@color/car_accent" />
+    </LinearLayout>
+
+</FrameLayout>
