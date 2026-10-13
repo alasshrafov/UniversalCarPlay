@@ -89,7 +89,12 @@ class VehicleStateManager(
             addAction("com.android.internal.action.REVERSE_GEAR")
         }
         try {
-            context.registerReceiver(reverseGearReceiver, filter)
+            androidx.core.content.ContextCompat.registerReceiver(
+                context,
+                reverseGearReceiver,
+                filter,
+                androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         } catch (ignored: Exception) {}
     }
 

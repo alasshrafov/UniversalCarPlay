@@ -16,6 +16,7 @@ import java.util.UUID
  * 
  * iPhone yaxınlaşdıqda bu BLE yayımını tutur və avtomobili CarPlay qəbuledicisi kimi tanıyır.
  */
+@android.annotation.SuppressLint("MissingPermission")
 class CarPlayBluetoothAdvertiser(private val context: Context) {
 
     private val TAG = "CarPlay_BLE"
