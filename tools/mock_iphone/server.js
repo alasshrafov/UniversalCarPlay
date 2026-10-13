@@ -1,103 +1,90 @@
 /**
- * Virtual iPhone CarPlay Host Simulyatoru (Laboratoriya Test Serveri)
+ * Universal CarPlay — Virtual iPhone & Web Avtomobil Monitoru Serveri
  * 
- * Bu skript kompüterinizdə iPhone-u simulyasiya edir:
- * 1. Port 9999 üzərindən Android monitorun (tətbiqimizin) qoşulmasını gözləyir.
- * 2. Real vaxtda video və audio paketləri axını təmin edir.
- * 3. Ekrandakı toxunma jestlərini (Touch events) və sükandakı düymələri (Steering Wheel) qəbul edir.
+ * 1. HTTP Server (Port 9999): Brauzerdə (Chrome / Edge) canlı avtomobil monitorunu açır: http://localhost:9999
+ * 2. TCP Socket Server (Port 9998): Android tətbiqlərinin video/audio axını üçün
  */
 
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const net = require('net');
 
-const PORT = 9999;
-const HOST = '0.0.0.0';
+const HTTP_PORT = 9999;
+const TCP_PORT = 9998;
 
-let activeClient = null;
+// ==========================================
+// 1. HTTP Web Server (Brauzer Monitoru)
+// ==========================================
+const htmlPath = path.join(__dirname, 'public', 'index.html');
 
-const server = net.createServer((socket) => {
-    activeClient = socket;
-    const clientAddress = `${socket.remoteAddress}:${socket.remotePort}`;
+const httpServer = http.createServer((req, res) => {
+    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
+        fs.readFile(htmlPath, 'utf8', (err, content) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+                res.end('Veb monitor faylı tapılmadı.');
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(content);
+        });
+    } else if (req.method === 'POST' && req.url === '/api/event') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const event = JSON.parse(body);
+                if (event.type === 'TOUCH') {
+                    console.log(`[Veb Monitor] 👆 TOXUNMA: X=${event.x}, Y=${event.y}`);
+                } else if (event.type === 'STEERING_WHEEL') {
+                    console.log(`[Veb Monitor] 🚗 SÜKAN DÜYMƏSİ: [${event.command}]`);
+                }
+            } catch (ignored) {}
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'ok' }));
+        });
+    } else {
+        res.writeHead(404);
+        res.end('Tapılmadı');
+    }
+});
 
-    console.log(`\n======================================================`);
-    console.log(`[Virtual iPhone] 🚗 Avtomobil monitoru qoşuldu: ${clientAddress}`);
-    console.log(`[Virtual iPhone] 📡 CarPlay video/audio axını aktivləşdirildi...`);
-    console.log(`======================================================\n`);
+httpServer.listen(HTTP_PORT, () => {
+    console.log(`\n================================================================`);
+    console.log(`🎉 VIRTUAL AVTOMOBİL MONITORU HAZIRDIR!`);
+    console.log(`🌐 Brauzerinizdə bu linki açın:  http://localhost:${HTTP_PORT}`);
+    console.log(`================================================================`);
+});
 
-    // Sınaq üçün 30 kadr/saniyə (30 FPS) simulyasiya taymeri
+// ==========================================
+// 2. TCP Socket Server (Android Cihazlar Üçün)
+// ==========================================
+const tcpServer = net.createServer((socket) => {
+    console.log(`\n[TCP] 🚗 Android cihaz qoşuldu: ${socket.remoteAddress}:${socket.remotePort}`);
+
     let frameCount = 0;
-    const streamInterval = setInterval(() => {
+    const interval = setInterval(() => {
         frameCount++;
-        
-        // H.264 NAL Başlığı (0x00, 0x00, 0x00, 0x01) və test baytları
         const dummyVideo = Buffer.from([0x00, 0x00, 0x00, 0x01, 0x65, (frameCount % 256)]);
-        
-        // Paket Strukturu: [4 bayt Uzunluq] + [1 bayt Növ (0x01: Video)] + [Məlumat]
         const packet = Buffer.alloc(4 + 1 + dummyVideo.length);
         packet.writeInt32BE(dummyVideo.length + 1, 0);
-        packet.writeInt8(0x01, 4); // 0x01: Video
+        packet.writeInt8(0x01, 4);
         dummyVideo.copy(packet, 5);
 
-        try {
-            socket.write(packet);
-        } catch (err) {
-            clearInterval(streamInterval);
-        }
-    }, 33); // ~30 FPS
-
-    // Gələn toxunma və sükan düyməsi hadisələrini oxuyuruq
-    let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
-        buffer = Buffer.concat([buffer, chunk]);
-
-        while (buffer.length >= 5) {
-            const length = buffer.readInt32BE(0);
-            if (buffer.length < 4 + length) break;
-
-            const type = buffer.readInt8(4);
-            const payload = buffer.subarray(5, 4 + length);
-            buffer = buffer.subarray(4 + length);
-
-            if (type === 0x10) { // Hadisə paketi (JSON)
-                try {
-                    const event = JSON.parse(payload.toString('utf8'));
-
-                    if (event.type === 'TOUCH') {
-                        console.log(`[Virtual iPhone] 👆 TOXUNMA: ` +
-                            `Hərəkət=${event.action}, X=${event.x}, Y=${event.y} ` +
-                            `(Ekran faizi: ${(event.normX * 100).toFixed(0)}%, ${(event.normY * 100).toFixed(0)}%)`);
-                    } else if (event.type === 'STEERING_WHEEL') {
-                        console.log(`[Virtual iPhone] 🚗 SÜKAN DÜYMƏSİ BASILDI: ` +
-                            `Komanda = [${event.command}] (Android KeyCode=${event.keyCode})`);
-                    } else {
-                        console.log(`[Virtual iPhone] 📩 Qəbul edildi:`, event);
-                    }
-                } catch (e) {
-                    console.log(`[Virtual iPhone] Xam məlumat: ${payload.toString()}`);
-                }
-            }
-        }
-    });
+        try { socket.write(packet); } catch (e) { clearInterval(interval); }
+    }, 33);
 
     socket.on('end', () => {
-        clearInterval(streamInterval);
-        activeClient = null;
-        console.log(`\n[Virtual iPhone] 🔌 Avtomobil monitoru ayrıldı.\n`);
+        clearInterval(interval);
+        console.log(`[TCP] 🔌 Android cihaz ayrıldı.`);
     });
 
-    socket.on('error', (err) => {
-        clearInterval(streamInterval);
-        activeClient = null;
-        console.log(`\n[Virtual iPhone] ⚠️ Əlaqə xətası: ${err.message}\n`);
+    socket.on('error', () => {
+        clearInterval(interval);
     });
 });
 
-server.listen(PORT, HOST, () => {
-    console.log(`\n================================================================`);
-    console.log(`🚀 Virtual iPhone CarPlay Host (Laboratoriya Serveri) Aktivdir!`);
-    console.log(`📡 Dinlənilən Port: ${PORT}`);
-    console.log(`💡 Necə Test Edəcəksiniz:`);
-    console.log(`   1. Bu pəncərə açıq qalır.`);
-    console.log(`   2. Android cihazdan və ya emulyatordan tətbiqi açın.`);
-    console.log(`   3. Ekrana toxunduqda və ya sükana basdıqda burada canlı görünəcək!`);
-    console.log(`================================================================\n`);
+tcpServer.listen(TCP_PORT, () => {
+    console.log(`📡 TCP Axın Portu: ${TCP_PORT} (Android üçün hazırdır)\n`);
 });
