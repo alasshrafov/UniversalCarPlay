@@ -1,6 +1,7 @@
 package com.universal.carplay
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
@@ -14,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.universal.carplay.car.DayNightManager
+import com.universal.carplay.car.SteeringWheelManager
+import com.universal.carplay.car.VehicleStateManager
 import com.universal.carplay.connectivity.CarPlaySessionCoordinator
 import com.universal.carplay.engine.AudioEngine
 import com.universal.carplay.engine.TouchManager
@@ -38,6 +42,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private var mockClient: MockCarPlayClient? = null
     private var sessionCoordinator: CarPlaySessionCoordinator? = null
 
+    // Mərhələ 4: Avtomobil İnteqrasiya Menecerləri
+    private lateinit var steeringWheelManager: SteeringWheelManager
+    private lateinit var vehicleStateManager: VehicleStateManager
+    private lateinit var dayNightManager: DayNightManager
+
     private var currentProfile: VehicleProfile = VehicleProfile.Universal
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +60,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         initViews()
         setupProfile(VehicleProfile.Universal)
+        initCarIntegrations()
         initSessionCoordinator()
     }
 
@@ -74,6 +84,31 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
+    private fun initCarIntegrations() {
+        // 1. Sükan Düymələri
+        steeringWheelManager = SteeringWheelManager { commandJson ->
+            mockClient?.sendTouchEvent(commandJson)
+        }
+
+        // 2. Audio Fokus və Arxa Kamera Meneceri
+        vehicleStateManager = VehicleStateManager(
+            context = this,
+            onAudioDuckingChanged = { shouldDuck ->
+                audioEngine?.setVolumeDucking(shouldDuck)
+            },
+            onReverseCameraStateChanged = { inReverse ->
+                if (inReverse) {
+                    audioEngine?.setVolumeDucking(true)
+                } else {
+                    audioEngine?.setVolumeDucking(false)
+                }
+            }
+        )
+
+        // 3. Gecə/Gündüz Rejimi
+        dayNightManager = DayNightManager(this)
+    }
+
     private fun initSessionCoordinator() {
         sessionCoordinator = CarPlaySessionCoordinator(this) { state, message ->
             runOnUiThread {
@@ -94,13 +129,24 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     override fun onResume() {
         super.onResume()
-        // Tətbiq açılan kimi simsiz CarPlay Bluetooth və mDNS xidmətləri aktivləşir
+        vehicleStateManager.register()
         sessionCoordinator?.startDiscovery(carName = "CarPlay-${currentProfile.name}")
     }
 
     override fun onPause() {
         super.onPause()
+        vehicleStateManager.unregister()
         sessionCoordinator?.stopDiscovery()
+    }
+
+    /**
+     * Sükandakı Media / Zəng / Səs düymələrini tuturuq
+     */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (event != null && steeringWheelManager.handleKeyEvent(keyCode, event)) {
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun setupProfile(profile: VehicleProfile) {
