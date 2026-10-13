@@ -76,11 +76,11 @@ class VideoDecoder(private val surface: Surface) {
 
             // Dekod olunmuş kadrı dərhal ekrana (Surface) çıxarırıq
             val bufferInfo = MediaCodec.BufferInfo()
-            var outputIndex = codec!!.dequeueOutputBuffer(bufferInfo, 0)
+            var outputIndex = codec!!.dequeueOutputBuffer(bufferInfo, 0L)
             while (outputIndex >= 0) {
                 // render = true verildikdə kadr birbaşa SurfaceView-də göstərilir
                 codec!!.releaseOutputBuffer(outputIndex, true)
-                outputIndex = codec!!.dequeueOutputBuffer(bufferInfo, 0)
+                outputIndex = codec!!.dequeueOutputBuffer(bufferInfo, 0L)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Kadr emal edilərkən xəta: ${e.message}")

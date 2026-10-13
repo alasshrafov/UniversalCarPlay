@@ -19,7 +19,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle (No Cache to prevent GitHub Cache API outage)
+    - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
       with:
         gradle-version: '8.7'
@@ -28,13 +28,13 @@ jobs:
     - name: Build Debug APK
       run: |
         gradle assembleDebug -x lint --no-daemon --stacktrace 2>&1 | tee build.log
-        if [ ${PIPESTATUS[0]} -ne 0 ]; then
-          echo "### ❌ GRADLE BUILD ERROR LOG:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -n 60 build.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          exit 1
-        fi
+
+    - name: Upload Error Log on Failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: gradle-error-log
+        path: build.log
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
