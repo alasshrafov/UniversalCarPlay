@@ -19,18 +19,22 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v4
-      with:
-        packages: 'platforms;android-34 build-tools;34.0.0'
-
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+    - name: Setup Gradle (No Cache to prevent GitHub Cache API outage)
+      uses: gradle/actions/setup-gradle@v4
       with:
         gradle-version: '8.7'
+        cache-disabled: true
 
     - name: Build Debug APK
-      run: gradle assembleDebug -x lint --no-daemon --stacktrace
+      run: |
+        gradle assembleDebug -x lint --no-daemon --stacktrace 2>&1 | tee build.log
+        if [ ${PIPESTATUS[0]} -ne 0 ]; then
+          echo "### ❌ GRADLE BUILD ERROR LOG:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -n 60 build.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
