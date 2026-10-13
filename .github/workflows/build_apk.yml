@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,17 +30,41 @@ jobs:
 
     - name: Build Debug APK
       run: |
-        gradle assembleDebug -x lint --no-daemon --stacktrace 2>&1 | tee build.log
+        gradle assembleDebug -x lint --no-daemon --stacktrace
 
-    - name: Upload Error Log on Failure
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: gradle-error-log
-        path: build.log
+    - name: Copy and Rename APK for Release
+      run: |
+        mkdir -p release_output
+        cp app/build/outputs/apk/debug/*.apk release_output/UniversalCarPlay-v1.0.apk
+        ls -la release_output/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: UniversalCarPlay-debug-apk
-        path: app/build/outputs/apk/debug/*.apk
+        name: UniversalCarPlay-v1.0-apk
+        path: release_output/UniversalCarPlay-v1.0.apk
+
+    - name: Create or Update GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.0.0
+        name: "Universal CarPlay v1.0.0 (Hazır APK)"
+        body: |
+          ## 🚗 Universal Apple CarPlay Android Receiver
+          
+          Bu buraxılış **BYD, Changan, Li Auto və bütün Android monitorlar** üçün hazırlanmışdır.
+          
+          ### 📥 Necə Yükləmək və Quraşdırmaq olar:
+          1. Aşağıdakı **`UniversalCarPlay-v1.0.apk`** faylını yükləyin.
+          2. USB fleşkarta köçürüb avtomobilin USB portuna taxın.
+          3. Monitorun "File Manager" tətbiqi ilə açıb quraşdırın.
+          
+          ### ✨ Əsas Funksiyalar:
+          * Simsiz (Bluetooth/Wi-Fi) və Simli (USB) CarPlay dəstəyi
+          * Avtomobil modelini avtomatik tanıma (BYD, Changan, Li Auto)
+          * Azərbaycan, Türk, Rus və İngilis dillərində AI Səs Köməkçisi
+          * Split-Screen Lüks Dashboard və Kondisioner Zolağı
+          * YouTube Park Rejimi (Video Unlock)
+        files: release_output/UniversalCarPlay-v1.0.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
