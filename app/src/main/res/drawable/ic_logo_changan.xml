@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="120dp"
+    android:viewportWidth="240"
+    android:viewportHeight="120">
+    <!-- Changan Outer Shield / Circle -->
+    <path
+        android:strokeColor="#2F80ED"
+        android:strokeWidth="5"
+        android:fillColor="#00000000"
+        android:pathData="M 120,20 C 142,20 160,38 160,60 C 160,82 142,100 120,100 C 98,100 80,82 80,60 C 80,38 98,20 120,20 Z" />
+
+    <!-- Changan Iconic V-Wing -->
+    <path
+        android:fillColor="#2F80ED"
+        android:pathData="M 120,85 L 95,45 L 107,45 L 120,68 L 133,45 L 145,45 Z" />
+</vector>

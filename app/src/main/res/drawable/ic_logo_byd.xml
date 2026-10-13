@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="120dp"
+    android:viewportWidth="240"
+    android:viewportHeight="120">
+    <!-- BYD Chrome Oval Outer Badge -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:fillColor="#00000000"
+        android:pathData="M 60,30 L 180,30 A 30,30 0 0 1 210,60 A 30,30 0 0 1 180,90 L 60,90 A 30,30 0 0 1 30,60 A 30,30 0 0 1 60,30 Z" />
+
+    <!-- Letter B -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 68,45 L 88,45 C 96,45 101,48 101,54 C 101,58 98,61 93,62 C 99,63 103,67 103,73 C 103,80 97,83 88,83 L 68,83 Z M 76,51 L 76,60 L 87,60 C 91,60 93,58 93,55 C 93,52 91,51 87,51 Z M 76,66 L 76,77 L 88,77 C 92,77 95,75 95,71 C 95,68 92,66 88,66 Z" />
+
+    <!-- Letter Y -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 108,45 L 117,45 L 125,60 L 133,45 L 142,45 L 129,67 L 129,83 L 121,83 L 121,67 Z" />
+
+    <!-- Letter D -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 148,45 L 165,45 C 176,45 183,52 183,64 C 183,76 176,83 165,83 L 148,83 Z M 156,52 L 156,76 L 165,76 C 172,76 175,71 175,64 C 175,57 172,52 165,52 Z" />
+</vector>

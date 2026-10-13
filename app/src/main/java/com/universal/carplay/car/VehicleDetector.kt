@@ -66,6 +66,11 @@ class VehicleDetector(private val context: Context) {
             return VehicleProfile.LiAuto
         }
 
+        // D. Zeekr / Geely Analizi
+        if (fullInfo.contains("zeekr") || fullInfo.contains("geely") || fullInfo.contains("ecarx")) {
+            return VehicleProfile.Zeekr
+        }
+
         // D. Ekran Ölçüsü və Nisbəti ilə Təyin Etmə
         val metrics: DisplayMetrics = context.resources.displayMetrics
         val width = metrics.widthPixels

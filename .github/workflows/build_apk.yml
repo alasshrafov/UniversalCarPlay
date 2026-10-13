@@ -30,13 +30,14 @@ jobs:
 
     - name: Build Debug APK
       run: |
+        set -o pipefail
         gradle assembleDebug -x lint --no-daemon --stacktrace 2>&1 | tee build.log
 
-    - name: Upload Error Log on Failure
-      if: failure()
+    - name: Upload Build Log
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: gradle-error-log
+        name: gradle-build-log
         path: build.log
 
     - name: Copy and Rename APK for Release
@@ -57,21 +58,21 @@ jobs:
         tag_name: v1.0.0
         name: "Universal CarPlay v1.0.0 (Hazır APK)"
         body: |
-          ## 🚗 Universal Apple CarPlay Android Receiver
-          
-          Bu buraxılış **BYD, Changan, Li Auto və bütün Android monitorlar** üçün hazırlanmışdır.
-          
+          ## 🚗 Universal Apple CarPlay Android Receiver v1.0.0
+
+          Bu buraxılış **BYD (DiLink), Changan (Deepal/Avatr), Li Auto (L7/L8/L9), Zeekr və bütün Android monitorlar** üçün tam hazır APK faylıdır.
+
           ### 📥 Necə Yükləmək və Quraşdırmaq olar:
-          1. Aşağıdakı **`UniversalCarPlay-v1.0.apk`** faylını yükləyin.
-          2. USB fleşkarta köçürüb avtomobilin USB portuna taxın.
-          3. Monitorun "File Manager" tətbiqi ilə açıb quraşdırın.
-          
+          1. Aşağıdakı **`UniversalCarPlay-v1.0.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
+          2. Faylı USB fleşkarta (flash drive) köçürün və avtomobilin USB portuna taxın.
+          3. Monitorun daxili **"File Manager" (Fayl Meneceri)** tətbiqini açıb `UniversalCarPlay-v1.0.apk` üzərinə vurun və quraşdırın.
+
           ### ✨ Əsas Funksiyalar:
-          * Simsiz (Bluetooth/Wi-Fi) və Simli (USB) CarPlay dəstəyi
-          * Avtomobil modelini avtomatik tanıma (BYD, Changan, Li Auto)
-          * Azərbaycan, Türk, Rus və İngilis dillərində AI Səs Köməkçisi
-          * Split-Screen Lüks Dashboard və Kondisioner Zolağı
-          * YouTube Park Rejimi (Video Unlock)
+          * 🎬 **Reklam Çarxı Stilində Açılış Şousu:** BYD, Changan, Li Auto və Zeekr orijinal vektor loqoları ilə dinamik animasiya.
+          * 🚗 **Avtomobil Modelini 100% Avtomatik Tanıma:** Heç bir əl konfiqurasiyası tələb olunmur.
+          * 📶 **Simsiz və Simli CarPlay:** Bluetooth LE + Wi-Fi Hotspot və USB Plug-and-Play dəstəyi.
+          * 🗣️ **Çoxdilli AI Səs Köməkçisi:** Azərbaycan dili (`az-AZ`), Türk, Rus və İngilis dillərində kondisioner, naviqasiya və zəng idarəetməsi.
+          * 🎛️ **Lüks Split-Screen Dashboard:** Sürətölçən (km/h), batareya faizi, ikili iqlim nəzarəti və YouTube Park Rejimi.
         files: release_output/UniversalCarPlay-v1.0.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

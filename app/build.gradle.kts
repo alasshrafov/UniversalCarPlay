@@ -37,6 +37,15 @@ android {
         viewBinding = true
     }
 
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/io.netty.versions.properties"
+        }
+    }
+
     lint {
         abortOnError = false
         checkReleaseBuilds = false
@@ -49,7 +58,4 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-
-    // Aşağı gecikməli şəbəkə və soket əlaqələri üçün
-    implementation("io.netty:netty-all:4.1.109.Final")
 }

@@ -1,12 +1,19 @@
 package com.universal.carplay
 
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -37,8 +44,20 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var tvStatus: TextView
     private lateinit var tvDetail: TextView
     private lateinit var tvCurrentProfile: TextView
+    private lateinit var ivTopBarLogo: ImageView
     private lateinit var btnSettings: Button
+    private lateinit var btnReplayIntro: Button
     private lateinit var btnConnectMock: Button
+
+    // Lüks Reklam Açılış Şousu Overlay Elementləri
+    private lateinit var commercialSplashOverlay: FrameLayout
+    private lateinit var commercialCenterContainer: LinearLayout
+    private lateinit var ivCommercialLogo: ImageView
+    private lateinit var tvCommercialTitle: TextView
+    private lateinit var tvCommercialTagline: TextView
+    private lateinit var tvCommercialStatus: TextView
+    private val introHandler = Handler(Looper.getMainLooper())
+    private var dismissRunnable: Runnable? = null
 
     // Nüvə Mühərrikləri
     private var videoDecoder: VideoDecoder? = null
@@ -80,8 +99,26 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         tvStatus = findViewById(R.id.tvStatus)
         tvDetail = findViewById(R.id.tvDetail)
         tvCurrentProfile = findViewById(R.id.tvCurrentProfile)
+        ivTopBarLogo = findViewById(R.id.ivTopBarLogo)
         btnSettings = findViewById(R.id.btnSettings)
+        btnReplayIntro = findViewById(R.id.btnReplayIntro)
         btnConnectMock = findViewById(R.id.btnConnectMock)
+
+        // Reklam Şousu Görünüşləri
+        commercialSplashOverlay = findViewById(R.id.commercialSplashOverlay)
+        commercialCenterContainer = findViewById(R.id.commercialCenterContainer)
+        ivCommercialLogo = findViewById(R.id.ivCommercialLogo)
+        tvCommercialTitle = findViewById(R.id.tvCommercialTitle)
+        tvCommercialTagline = findViewById(R.id.tvCommercialTagline)
+        tvCommercialStatus = findViewById(R.id.tvCommercialStatus)
+
+        commercialSplashOverlay.setOnClickListener {
+            dismissCommercialIntro()
+        }
+
+        btnReplayIntro.setOnClickListener {
+            playCommercialIntro(currentProfile)
+        }
 
         surfaceView.setSurfaceListener(this)
 
@@ -95,7 +132,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     /**
-     * Avtomobil modelini 100% avtomatik təyin edir (BYD, Changan, Li Auto və ya Universal)
+     * Avtomobil modelini 100% avtomatik təyin edir (BYD, Changan, Li Auto, Zeekr və ya Universal)
      */
     private fun initVehicleDetection() {
         vehicleDetector = VehicleDetector(this)
@@ -192,7 +229,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun setupProfile(profile: VehicleProfile) {
         currentProfile = profile
-        tvCurrentProfile.text = "Profil: ${profile.name} (${profile.defaultWidth}x${profile.defaultHeight})"
+        tvCurrentProfile.text = "Profil: ${profile.name}"
+        ivTopBarLogo.setImageResource(profile.logoResId)
 
         touchManager = TouchManager(
             screenWidth = profile.defaultWidth,
@@ -200,6 +238,63 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             targetWidth = profile.defaultWidth,
             targetHeight = profile.defaultHeight
         )
+
+        playCommercialIntro(profile)
+    }
+
+    /**
+     * Reklam Çarxlarındakı kimi Zərif və Dinamik Avtomobil Açılış Şousu
+     */
+    private fun playCommercialIntro(profile: VehicleProfile) {
+        ivCommercialLogo.setImageResource(profile.logoResId)
+        tvCommercialTitle.text = profile.commercialTitle
+        tvCommercialTagline.text = profile.commercialTagline
+        try {
+            tvCommercialTagline.setTextColor(Color.parseColor(profile.accentColorHex))
+        } catch (_: Exception) {}
+
+        commercialSplashOverlay.visibility = View.VISIBLE
+        commercialSplashOverlay.alpha = 1f
+
+        // Animasiya: Miqyas və Şəffaflıq artımı
+        commercialCenterContainer.scaleX = 0.80f
+        commercialCenterContainer.scaleY = 0.80f
+        commercialCenterContainer.alpha = 0f
+
+        commercialCenterContainer.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .alpha(1.0f)
+            .setDuration(700)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                // Metalik nəfəs alma effekti
+                commercialCenterContainer.animate()
+                    .scaleX(1.04f)
+                    .scaleY(1.04f)
+                    .setDuration(600)
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .start()
+            }
+            .start()
+
+        // 2.2 saniyə sonra CarPlay ekranına axıcı keçid
+        dismissRunnable?.let { introHandler.removeCallbacks(it) }
+        dismissRunnable = Runnable {
+            dismissCommercialIntro()
+        }
+        introHandler.postDelayed(dismissRunnable!!, 2200)
+    }
+
+    private fun dismissCommercialIntro() {
+        dismissRunnable?.let { introHandler.removeCallbacks(it) }
+        commercialSplashOverlay.animate()
+            .alpha(0f)
+            .setDuration(400)
+            .withEndAction {
+                commercialSplashOverlay.visibility = View.GONE
+            }
+            .start()
     }
 
     private fun showProfileSelectionDialog() {
@@ -280,6 +375,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        dismissRunnable?.let { introHandler.removeCallbacks(it) }
         videoDecoder?.stop()
         audioEngine?.stop()
         mockClient?.disconnect()

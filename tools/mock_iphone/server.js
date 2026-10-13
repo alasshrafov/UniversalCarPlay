@@ -19,7 +19,12 @@ const TCP_PORT = 9998;
 const htmlPath = path.join(__dirname, 'public', 'index.html');
 
 const httpServer = http.createServer((req, res) => {
-    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
+    if ((req.method === 'GET' || req.method === 'HEAD') && (req.url === '/' || req.url === '/index.html')) {
+        if (req.method === 'HEAD') {
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end();
+            return;
+        }
         fs.readFile(htmlPath, 'utf8', (err, content) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });

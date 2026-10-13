@@ -21,7 +21,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="28dp"
         android:background="@drawable/bg_card">
 
         <ProgressBar
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Wi-Fi / Bluetooth və ya Virtual Host gözlənilir…"
+            android:text="Wi-Fi / Bluetooth və ya USB kabeli gözlənilir…"
             android:textColor="@color/car_text_gray"
             android:textSize="14sp" />
 
@@ -69,22 +69,112 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
+        <ImageView
+            android:id="@+id/ivTopBarLogo"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_logo_byd"
+            android:contentDescription="Car Brand" />
+
         <TextView
             android:id="@+id/tvCurrentProfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Profil: Universal Rejim"
+            android:text="Profil: BYD DiLink"
             android:textColor="@color/car_text_gray"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnReplayIntro"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎬 Loqo Şousu"
+            android:textColor="@color/car_accent" />
 
         <Button
             android:id="@+id/btnSettings"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tənzimləmələr ⚙️"
-            android:textColor="@color/car_accent" />
+            android:text="⚙️ Brend Dəyiş"
+            android:textColor="@color/white" />
     </LinearLayout>
+
+    <!-- 4. Lüks Reklam Çarxı Stilində Açılış Şousu Overlay (İstifadəçinin xüsusi istəyi ilə) -->
+    <FrameLayout
+        android:id="@+id/commercialSplashOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_commercial_gradient"
+        android:clickable="true"
+        android:focusable="true">
+
+        <LinearLayout
+            android:id="@+id/commercialCenterContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Arxada İşıqlı Neon Hələqə və Mərkəzi Orijinal Loqo -->
+            <FrameLayout
+                android:layout_width="280dp"
+                android:layout_height="160dp">
+
+                <View
+                    android:id="@+id/viewGlowAura"
+                    android:layout_width="260dp"
+                    android:layout_height="160dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_glow_aura" />
+
+                <ImageView
+                    android:id="@+id/ivCommercialLogo"
+                    android:layout_width="220dp"
+                    android:layout_height="110dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_logo_byd"
+                    android:contentDescription="Avtomobil Loqosu" />
+            </FrameLayout>
+
+            <!-- Böyük Metalik/Neon Brend Başlığı -->
+            <TextView
+                android:id="@+id/tvCommercialTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="BUILD YOUR DREAMS"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.15" />
+
+            <!-- Lüks Alt Başlıq / Sloqan -->
+            <TextView
+                android:id="@+id/tvCommercialTagline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="BYD DILINK 5.0 • ULTRA SMART COCKPIT"
+                android:textColor="#00F0FF"
+                android:textSize="12sp"
+                android:letterSpacing="0.1" />
+
+            <!-- Sistem Statusu -->
+            <TextView
+                android:id="@+id/tvCommercialStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="⚡ CARPLAY AVTOMATİK AKTİVLƏŞDİRİLİR…"
+                android:textColor="@color/car_text_gray"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </FrameLayout>
 
 </FrameLayout>

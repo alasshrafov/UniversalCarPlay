@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="120dp"
+    android:viewportWidth="240"
+    android:viewportHeight="120">
+    <!-- Li Auto Outer Rounded Badge -->
+    <path
+        android:strokeColor="#FFD60A"
+        android:strokeWidth="5"
+        android:fillColor="#00000000"
+        android:pathData="M 60,30 L 180,30 A 15,15 0 0 1 195,45 L 195,75 A 15,15 0 0 1 180,90 L 60,90 A 15,15 0 0 1 45,75 L 45,45 A 15,15 0 0 1 60,30 Z" />
+
+    <!-- Li Monogram -->
+    <path
+        android:fillColor="#FFD60A"
+        android:pathData="M 90,44 L 102,44 L 102,70 L 122,70 L 122,80 L 90,80 Z M 140,44 L 152,44 L 152,80 L 140,80 Z" />
+</vector>

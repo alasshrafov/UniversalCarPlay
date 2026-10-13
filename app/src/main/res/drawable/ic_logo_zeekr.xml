@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="120dp"
+    android:viewportWidth="240"
+    android:viewportHeight="120">
+    <!-- Zeekr Geometric Badge -->
+    <path
+        android:strokeColor="#30D158"
+        android:strokeWidth="5"
+        android:fillColor="#00000000"
+        android:pathData="M 120,22 L 175,42 L 175,82 L 120,102 L 65,82 L 65,42 Z" />
+
+    <!-- Center Line -->
+    <path
+        android:strokeColor="#30D158"
+        android:strokeWidth="4"
+        android:pathData="M 120,22 L 120,102" />
+</vector>
