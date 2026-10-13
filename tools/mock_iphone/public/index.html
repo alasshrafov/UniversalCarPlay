@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal CarPlay — Virtual Avtomobil Monitoru</title>
+    <title>Universal CarPlay — Lüks Avtomobil Monitoru & AI Səs Köməkçisi</title>
     <style>
         :root {
-            --bg-dark: #0b0f19;
-            --panel-bg: #151b28;
+            --bg-dark: #080b12;
+            --panel-bg: rgba(22, 28, 44, 0.85);
+            --accent-cyan: #00f2fe;
             --accent-blue: #0a84ff;
+            --accent-purple: #7f00ff;
             --accent-green: #30d158;
-            --accent-red: #ff453a;
+            --accent-red: #ff3b30;
+            --accent-gold: #ffd60a;
             --text-main: #f5f5f7;
             --text-muted: #8e8e93;
-            --border-color: rgba(255, 255, 255, 0.1);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --card-glass: rgba(255, 255, 255, 0.04);
+            --glass-blur: blur(24px);
         }
 
         * {
@@ -31,109 +36,122 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background-image: radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.15), transparent 70%);
         }
 
-        /* Yuxarı Başlıq */
+        /* Yuxarı Status Zolağı */
         header {
             background: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 24px;
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 100;
         }
 
         .header-title {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: rgba(48, 209, 88, 0.15);
-            color: var(--accent-green);
-            font-size: 13px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-green);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
-        }
-
-        .profile-selector {
+        .theme-pill-selector {
             display: flex;
-            gap: 8px;
+            gap: 6px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
-        .btn-profile {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
+        .btn-theme {
+            background: transparent;
+            border: none;
             color: var(--text-muted);
             padding: 6px 14px;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
             transition: all 0.2s;
+        }
+
+        .btn-theme.active {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+
+        /* Əsas Monitor Ərazisi */
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 16px;
+            gap: 16px;
+            height: calc(100vh - 60px);
+        }
+
+        /* Sol Tərəf: Lüks Avtomobil İnteqrasiyalı Ekran */
+        .dashboard-screen-shell {
+            flex: 3.5;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            border-radius: 28px;
+            border: 4px solid #1a2234;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 254, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Üst HUD & Telemetriya Zolağı */
+        .hud-telemetry-bar {
+            height: 48px;
+            background: rgba(12, 16, 26, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
             font-size: 13px;
         }
 
-        .btn-profile.active, .btn-profile:hover {
-            background: var(--accent-blue);
-            color: white;
-            border-color: var(--accent-blue);
-        }
-
-        /* Əsas İş Sahəsi */
-        .workspace {
+        .hud-nav-arrow {
             display: flex;
-            flex: 1;
-            padding: 20px;
-            gap: 20px;
-            height: calc(100vh - 65px);
-        }
-
-        /* Avtomobil Monitoru Çərçivəsi */
-        .car-display-wrapper {
-            flex: 3;
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 10px;
+            color: var(--accent-cyan);
+            font-weight: 600;
         }
 
-        .car-screen-frame {
-            position: relative;
-            width: 100%;
-            max-width: 960px;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: 24px;
-            border: 12px solid #242938;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.05);
-            overflow: hidden;
+        .hud-vehicle-stats {
             display: flex;
-            transition: aspect-ratio 0.3s;
+            gap: 20px;
+            font-weight: 600;
+            color: var(--text-muted);
         }
 
-        /* CarPlay Yan Zolaq (Dock) */
+        .hud-stat-item span {
+            color: var(--text-main);
+        }
+
+        /* Ekranın Orta Hissəsi (CarPlay + Yan Göstəricilər) */
+        .screen-middle-body {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* CarPlay Yan Dock */
         .carplay-dock {
-            width: 72px;
-            background: rgba(25, 25, 30, 0.85);
-            backdrop-filter: blur(20px);
+            width: 68px;
+            background: rgba(18, 22, 34, 0.92);
             border-right: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
@@ -143,16 +161,9 @@
             z-index: 10;
         }
 
-        .dock-top {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
         .dock-time {
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             color: white;
         }
 
@@ -160,47 +171,38 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            margin: auto 0;
         }
 
-        .dock-app-icon {
+        .dock-icon {
             width: 44px;
             height: 44px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            transition: transform 0.15s;
         }
 
-        .dock-app-icon:hover {
-            transform: scale(1.08);
-        }
+        .dock-icon:hover { transform: scale(1.1); }
 
         .dock-home {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(255,255,255,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .dock-home:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: white;
-        }
-
-        /* CarPlay Əsas Səhifəsi (Masaüstü) */
-        .carplay-main {
+        /* CarPlay Əsas Masaüstü */
+        .carplay-content-area {
             flex: 1;
-            background: linear-gradient(135deg, #1e2640, #0a0e1a);
+            background: linear-gradient(135deg, #101626, #060912);
             padding: 24px 32px;
             display: flex;
             flex-direction: column;
@@ -215,7 +217,7 @@
             margin: auto 0;
         }
 
-        .app-item {
+        .app-card {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -224,11 +226,9 @@
             transition: transform 0.15s;
         }
 
-        .app-item:hover {
-            transform: scale(1.06);
-        }
+        .app-card:hover { transform: scale(1.08); }
 
-        .app-icon {
+        .app-icon-box {
             width: 68px;
             height: 68px;
             border-radius: 18px;
@@ -236,69 +236,151 @@
             align-items: center;
             justify-content: center;
             font-size: 32px;
-            color: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        .app-name {
+        .app-label {
             font-size: 13px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255,255,255,0.9);
         }
 
-        /* Xüsusi Tətbiq Rəngləri */
-        .app-maps { background: linear-gradient(135deg, #007aff, #00c6ff); }
-        .app-music { background: linear-gradient(135deg, #fc3c44, #f94c97); }
-        .app-phone { background: linear-gradient(135deg, #34c759, #30d158); }
-        .app-messages { background: linear-gradient(135deg, #30d158, #34c759); }
-        .app-nowplaying { background: linear-gradient(135deg, #ff9500, #ff5e3a); }
-        .app-podcasts { background: linear-gradient(135deg, #bf5af2, #af52de); }
-        .app-calendar { background: linear-gradient(135deg, #ff3b30, #ff453a); }
-        .app-settings { background: linear-gradient(135deg, #8e8e93, #636366); }
+        .bg-maps { background: linear-gradient(135deg, #007aff, #00c6ff); }
+        .bg-music { background: linear-gradient(135deg, #fc3c44, #f94c97); }
+        .bg-phone { background: linear-gradient(135deg, #34c759, #30d158); }
+        .bg-msg { background: linear-gradient(135deg, #30d158, #34c759); }
+        .bg-yt { background: linear-gradient(135deg, #ff0000, #cc0000); }
+        .bg-podcasts { background: linear-gradient(135deg, #bf5af2, #af52de); }
+        .bg-settings { background: linear-gradient(135deg, #8e8e93, #636366); }
+        .bg-ai { background: linear-gradient(135deg, #00f2fe, #4facfe); }
 
-        /* Toxunma İzi İllüstrasiyası (Ripple) */
-        .touch-ripple {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(10, 132, 255, 0.6);
-            border: 2px solid white;
-            pointer-events: none;
-            transform: translate(-50%, -50%) scale(0);
-            animation: rippleAnim 0.4s ease-out forwards;
-        }
-
-        @keyframes rippleAnim {
-            to {
-                transform: translate(-50%, -50%) scale(2);
-                opacity: 0;
-            }
-        }
-
-        /* Arxa Kamera və Siri Overlay */
-        .screen-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-            backdrop-filter: blur(10px);
-        }
-
-        .screen-overlay.active {
+        /* Sağ Tərəf: Canlı Avtomobil Widget Paneli (Split-Screen Rejimi) */
+        .car-widget-sidebar {
+            width: 220px;
+            background: rgba(14, 19, 31, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px;
             display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        /* Sağ Tərəf: Sükan və Telemetriya İdarəetmə Paneli */
-        .control-panel {
+        .speed-gauge-box {
+            text-align: center;
+            background: var(--card-glass);
+            border-radius: 16px;
+            padding: 16px 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .speed-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(180deg, #fff, #8e8e93);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .speed-unit {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .battery-widget {
+            background: var(--card-glass);
+            border-radius: 16px;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .battery-bar-track {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .battery-bar-fill {
+            height: 100%;
+            width: 84%;
+            background: linear-gradient(90deg, var(--accent-green), #81ecec);
+            border-radius: 4px;
+        }
+
+        /* Aşağı: İnteqrasiya Olunmuş Lüks Kondisioner Zolağı (Climate Control) */
+        .bottom-climate-bar {
+            height: 60px;
+            background: rgba(12, 16, 26, 0.98);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 28px;
+        }
+
+        .temp-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .temp-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .temp-btn:hover { background: var(--accent-blue); }
+
+        .temp-display {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            min-width: 55px;
+            text-align: center;
+        }
+
+        .climate-actions {
+            display: flex;
+            gap: 14px;
+        }
+
+        .climate-pill {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .climate-pill.active {
+            background: rgba(0, 242, 254, 0.2);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Sağ İdarəetmə Paneli */
+        .side-control-panel {
             flex: 1.2;
             background: var(--panel-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
+            backdrop-filter: var(--glass-blur);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
             padding: 18px;
             display: flex;
             flex-direction: column;
@@ -306,23 +388,59 @@
             overflow-y: auto;
         }
 
-        .panel-section-title {
-            font-size: 13px;
+        .section-label {
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
             color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
-        /* Sükan Düymələri Vidceti */
-        .steering-wheel-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
+        /* AI Səs Köməkçisi Kartı */
+        .ai-assistant-card {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(127, 0, 255, 0.15));
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ai-voice-trigger-btn {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: #000;
+            border: none;
+            padding: 12px;
             border-radius: 12px;
-            padding: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.35);
+            transition: all 0.2s;
         }
 
+        .ai-voice-trigger-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.5);
+        }
+
+        .ai-lang-select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        /* Sükan Düymələri */
         .wheel-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -330,11 +448,11 @@
         }
 
         .btn-wheel {
-            background: #202738;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: white;
             padding: 10px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -349,254 +467,283 @@
             transform: translateY(-2px);
         }
 
-        .btn-wheel:active {
-            transform: translateY(1px);
-        }
-
-        .btn-wheel span {
-            font-size: 16px;
-        }
-
-        /* Avtomobil Təhlükəsizlik Keçidləri */
-        .toggle-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toggle-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-        }
-
-        .toggle-item label {
-            font-size: 13px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: #333;
-            transition: .3s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider { background-color: var(--accent-blue); }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        /* Canlı Log Konsolu */
-        .log-box {
+        /* Telemetriya Qutusu */
+        .telemetry-log {
             flex: 1;
-            background: #000;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
+            background: #04060a;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
             padding: 10px;
             font-family: monospace;
             font-size: 11px;
-            color: #30d158;
+            color: var(--accent-cyan);
             overflow-y: auto;
-            max-height: 200px;
+            max-height: 150px;
             display: flex;
             flex-direction: column-reverse;
         }
 
-        .log-entry {
-            margin-bottom: 4px;
-            line-height: 1.4;
+        /* Tam Ekran AI Səs Modal Overlay */
+        .voice-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 7, 15, 0.92);
+            backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
         }
+
+        .voice-modal-overlay.active { display: flex; }
+
+        .voice-sphere-anim {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-cyan), var(--accent-purple));
+            box-shadow: 0 0 60px rgba(0, 242, 254, 0.8), 0 0 100px rgba(127, 0, 255, 0.5);
+            animation: breathe 2s infinite alternate ease-in-out;
+        }
+
+        @keyframes breathe {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.15); opacity: 1; }
+        }
+
+        .voice-command-text {
+            margin-top: 24px;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .voice-status-sub {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--accent-cyan);
+        }
+
+        /* YouTube Park Rejimi Pleyeri */
+        .youtube-modal {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+
+        .youtube-modal.active { display: flex; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-title">
-            <span>🚗 Universal CarPlay — Avtomobil Monitoru Simulyatoru</span>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                <span>Canlı Qoşulub (60 FPS)</span>
-            </div>
+            <span>🚗 Universal CarPlay — Next-Gen Lüks Dashboard</span>
         </div>
-        <div class="profile-selector">
-            <button class="btn-profile active" onclick="setProfile('universal')">Universal (16:9)</button>
-            <button class="btn-profile" onclick="setProfile('byd')">BYD DiLink (15.6")</button>
-            <button class="btn-profile" onclick="setProfile('changan')">Changan (Geniş)</button>
-            <button class="btn-profile" onclick="setProfile('liauto')">Li Auto (3K)</button>
+        <div class="theme-pill-selector">
+            <button class="btn-theme active" onclick="setTheme('cyberpunk')">Cyberpunk Neon</button>
+            <button class="btn-theme" onclick="setTheme('mbux')">MBUX Blue</button>
+            <button class="btn-theme" onclick="setTheme('sport')">Sport Red</button>
+            <button class="btn-theme" onclick="setTheme('oled')">Pure OLED</button>
         </div>
     </header>
 
-    <div class="workspace">
+    <div class="main-container">
         
-        <!-- Sol Sahə: Avtomobil Ekranı -->
-        <div class="car-display-wrapper">
-            <div class="car-screen-frame" id="carScreen">
+        <!-- Sol Tərəf: Lüks Avtomobil Ekranı -->
+        <div class="dashboard-screen-shell" id="carScreen">
+            
+            <!-- Üst HUD Naviqasiya və Telemetriya Zolağı -->
+            <div class="hud-telemetry-bar">
+                <div class="hud-nav-arrow" id="hudNav">
+                    <span style="font-size: 18px;">↗️</span>
+                    <span>350m sonra sağa: Heydər Əliyev prospekti</span>
+                </div>
+                <div class="hud-vehicle-stats">
+                    <div class="hud-stat-item">Təkər: <span>2.4 Bar</span></div>
+                    <div class="hud-stat-item">Qalan Yol: <span>485 km</span></div>
+                    <div class="hud-stat-item">Rejim: <span style="color: var(--accent-green);">ECO DRIVE</span></div>
+                </div>
+            </div>
+
+            <!-- Orta Ekran: CarPlay + Yan Göstəricilər -->
+            <div class="screen-middle-body">
                 
-                <!-- CarPlay Yan Zolaq (Dock) -->
+                <!-- CarPlay Dock -->
                 <div class="carplay-dock">
-                    <div class="dock-top">
-                        <div class="dock-time" id="clock">12:45</div>
-                        <span style="font-size: 11px; color: #8e8e93;">📶 5G</span>
-                    </div>
-
+                    <div class="dock-time" id="clock">12:45</div>
                     <div class="dock-icons">
-                        <div class="dock-app-icon app-maps" onclick="launchApp('Xəritələr')">🗺️</div>
-                        <div class="dock-app-icon app-music" onclick="launchApp('Spotify / Music')">🎵</div>
-                        <div class="dock-app-icon app-phone" onclick="launchApp('Telefon')">📞</div>
+                        <div class="dock-icon bg-maps" onclick="launchApp('Apple Maps')">🗺️</div>
+                        <div class="dock-icon bg-music" onclick="launchApp('Spotify')">🎵</div>
+                        <div class="dock-icon bg-phone" onclick="launchApp('Telefon')">📞</div>
+                        <div class="dock-icon bg-ai" onclick="startUniversalVoice()" title="AI Səs">🎙️</div>
                     </div>
-
-                    <div class="dock-home" onclick="goHome()" title="Home">
-                        <div style="width: 14px; height: 14px; border-radius: 4px; border: 2px solid white;"></div>
+                    <div class="dock-home" onclick="goHome()">
+                        <div style="width: 12px; height: 12px; border-radius: 3px; border: 2px solid white;"></div>
                     </div>
                 </div>
 
-                <!-- CarPlay Əsas Ekranı -->
-                <div class="carplay-main" id="mainSurface" onclick="handleSurfaceClick(event)">
-                    
+                <!-- CarPlay Əsas Masaüstü -->
+                <div class="carplay-content-area" id="mainSurface" onclick="handleSurfaceClick(event)">
                     <div class="app-grid">
-                        <div class="app-item" onclick="launchApp('Apple Maps')">
-                            <div class="app-icon app-maps">🗺️</div>
-                            <span class="app-name">Xəritələr</span>
+                        <div class="app-card" onclick="launchApp('Xəritələr')">
+                            <div class="app-icon-box bg-maps">🗺️</div>
+                            <span class="app-label">Xəritələr</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('Spotify')">
-                            <div class="app-icon app-music">🎵</div>
-                            <span class="app-name">Spotify</span>
+                        <div class="app-card" onclick="launchApp('Spotify')">
+                            <div class="app-icon-box bg-music">🎵</div>
+                            <span class="app-label">Spotify</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('Zənglər')">
-                            <div class="app-icon app-phone">📞</div>
-                            <span class="app-name">Telefon</span>
+                        <div class="app-card" onclick="launchApp('Telefon')">
+                            <div class="app-icon-box bg-phone">📞</div>
+                            <span class="app-label">Telefon</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('Mesajlar')">
-                            <div class="app-icon app-messages">💬</div>
-                            <span class="app-name">Mesajlar</span>
+                        <div class="app-card" onclick="launchApp('Mesajlar')">
+                            <div class="app-icon-box bg-msg">💬</div>
+                            <span class="app-label">Mesajlar</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('Podkastlar')">
-                            <div class="app-icon app-podcasts">🎙️</div>
-                            <span class="app-name">Podkastlar</span>
+                        <div class="app-card" onclick="openYouTubeParkMode()">
+                            <div class="app-icon-box bg-yt">🎬</div>
+                            <span class="app-label">YouTube (Park)</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('Təqvim')">
-                            <div class="app-icon app-calendar">📅</div>
-                            <span class="app-name">Təqvim</span>
+                        <div class="app-card" onclick="startUniversalVoice()">
+                            <div class="app-icon-box bg-ai">🔮</div>
+                            <span class="app-label">AI Səs Köməkçisi</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('İndi Oxunur')">
-                            <div class="app-icon app-nowplaying">📻</div>
-                            <span class="app-name">Audio</span>
+                        <div class="app-card" onclick="launchApp('Podkastlar')">
+                            <div class="app-icon-box bg-podcasts">🎙️</div>
+                            <span class="app-label">Podkast</span>
                         </div>
-                        <div class="app-item" onclick="launchApp('Tənzimləmələr')">
-                            <div class="app-icon app-settings">⚙️</div>
-                            <span class="app-name">Sazlamalar</span>
+                        <div class="app-card" onclick="launchApp('Sazlamalar')">
+                            <div class="app-icon-box bg-settings">⚙️</div>
+                            <span class="app-label">Sazlamalar</span>
                         </div>
                     </div>
 
-                    <!-- Arxa Kamera Overlay -->
-                    <div class="screen-overlay" id="reverseOverlay">
-                        <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
-                        <h2 style="color: white; margin-bottom: 6px;">Arxa Kamera Aktivdir (R Rejimi)</h2>
-                        <p style="color: #8e8e93; font-size: 13px;">CarPlay arxa planda kəsilmədən davam edir (Audio Ducking: 30%)</p>
+                    <!-- AI Universal Səs Köməkçisi Modalı -->
+                    <div class="voice-modal-overlay" id="voiceModal" onclick="closeVoiceModal()">
+                        <div class="voice-sphere-anim"></div>
+                        <div class="voice-command-text" id="voiceOutputText">Azərbaycan dilində danışın…</div>
+                        <div class="voice-status-sub" id="voiceLangIndicator">Dil: Azərbaycan dili (az-AZ) 🇦🇿</div>
                     </div>
 
-                    <!-- Siri Overlay -->
-                    <div class="screen-overlay" id="siriOverlay">
-                        <div style="font-size: 64px; animation: pulse 1.5s infinite;">🔮</div>
-                        <h2 style="color: white; margin-top: 16px;">Siri Dinləyir…</h2>
-                        <p style="color: #8e8e93; font-size: 13px; margin-top: 6px;">"Filankəsə zəng et" və ya "Naviqasiya başlat"</p>
+                    <!-- YouTube Park Rejimi Pleyeri -->
+                    <div class="youtube-modal" id="ytModal">
+                        <div style="position: absolute; top: 16px; right: 20px; cursor: pointer; font-size: 20px; color: white;" onclick="closeYouTubeParkMode()">✖ Bağla</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 64px; margin-bottom: 12px;">🎬</div>
+                            <h2 style="color: white; margin-bottom: 8px;">Park Rejimi: 4K Video Yayımı Aktivdir</h2>
+                            <p style="color: #8e8e93; font-size: 13px;">Avtomobil hərəkətə başlayan kimi təhlükəsizlik üçün avtomatik standart CarPlay-ə qayıdır.</p>
+                        </div>
                     </div>
 
+                </div>
+
+                <!-- Sağ Yan Göstəricilər (Split-Screen Rejimi) -->
+                <div class="car-widget-sidebar">
+                    <div class="speed-gauge-box">
+                        <div class="speed-value" id="speedDisplay">68</div>
+                        <div class="speed-unit">KM / SAAT</div>
+                    </div>
+
+                    <div class="battery-widget">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                            <span>🔋 Batareya</span>
+                            <span style="color: var(--accent-green);">84%</span>
+                        </div>
+                        <div class="battery-bar-track">
+                            <div class="battery-bar-fill"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #8e8e93;">340V • 42 kW Şarj</div>
+                    </div>
+
+                    <div style="background: var(--card-glass); padding: 12px; border-radius: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size: 11px; color: #8e8e93;">Çöl Havası</div>
+                        <div style="font-size: 18px; font-weight: 700; margin-top: 2px;">☀️ +24°C</div>
+                    </div>
                 </div>
 
             </div>
+
+            <!-- Aşağı: Kondisioner Zolağı (Climate Control) -->
+            <div class="bottom-climate-bar">
+                <div class="temp-control">
+                    <button class="temp-btn" onclick="adjustTemp(-0.5)">-</button>
+                    <div class="temp-display" id="tempDisplay">22.0°C</div>
+                    <button class="temp-btn" onclick="adjustTemp(0.5)">+</button>
+                </div>
+
+                <div class="climate-actions">
+                    <button class="climate-pill active" id="btnAc" onclick="togglePill(this)">A/C ON</button>
+                    <button class="climate-pill active" onclick="togglePill(this)">AUTO</button>
+                    <button class="climate-pill" onclick="togglePill(this)">♨️ Oturacaq</button>
+                    <button class="climate-pill" onclick="togglePill(this)">🌀 Ön Şüşə</button>
+                </div>
+
+                <div class="temp-control">
+                    <span style="font-size: 12px; color: #8e8e93; margin-right: 8px;">Sağ Zona</span>
+                    <div class="temp-display">22.0°C</div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Sağ Sahə: Sükan Düymələri və İdarəetmə -->
-        <div class="control-panel">
+        <!-- Sağ Tərəf: İdarəetmə və Səs Konfiqurasiyası -->
+        <div class="side-control-panel">
             
+            <!-- Universal AI Səs Bölməsi -->
+            <div>
+                <div class="section-label">🔮 Bütün Dillərdə AI Səs Köməkçisi</div>
+                <div class="ai-assistant-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 13px; font-weight: 600;">Səs Dili:</span>
+                        <select class="ai-lang-select" id="aiLangSelect" onchange="changeVoiceLanguage(this.value)">
+                            <option value="az-AZ" selected>🇦🇿 Azərbaycan dili</option>
+                            <option value="tr-TR">🇹🇷 Türk dili</option>
+                            <option value="ru-RU">🇷🇺 Rus dili</option>
+                            <option value="en-US">🇺🇸 İngilis dili</option>
+                        </select>
+                    </div>
+
+                    <button class="ai-voice-trigger-btn" onclick="startUniversalVoice()">
+                        <span>🎙️</span> Səslə Danış (Mikrofon)
+                    </button>
+
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.4;">
+                        💡 <b>Test edin:</b> Düyməyə basıb <i>"Kondisioneri 20 dərəcəyə qoy"</i> və ya <i>"Əliyə zəng et"</i> deyin!
+                    </div>
+                </div>
+            </div>
+
             <!-- Sükan Düymələri -->
             <div>
-                <div class="panel-section-title">🚗 Avtomobil Sükan Düymələri</div>
-                <div class="steering-wheel-box">
-                    <div class="wheel-grid">
-                        <button class="btn-wheel" onclick="sendWheelKey('PREV_TRACK', 88)">
-                            <span>⏮️</span> Əvvəlki
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('TOGGLE_PLAY', 85)">
-                            <span>⏯️</span> Play/Pauza
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('NEXT_TRACK', 87)">
-                            <span>⏭️</span> Növbəti
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('VOLUME_DOWN', 25)">
-                            <span>🔉</span> Səs -
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('TRIGGER_SIRI', 231)">
-                            <span>🎙️</span> Siri
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('VOLUME_UP', 24)">
-                            <span>🔊</span> Səs +
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('ANSWER_CALL', 5)">
-                            <span>📞</span> Cavab ver
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('MUTE', 164)">
-                            <span>🔇</span> Səssiz
-                        </button>
-                        <button class="btn-wheel" onclick="sendWheelKey('HANGUP_CALL', 6)">
-                            <span>📵</span> Dəstəyi as
-                        </button>
-                    </div>
+                <div class="section-label">🚗 Sükan Düymələri</div>
+                <div class="wheel-grid">
+                    <button class="btn-wheel" onclick="sendWheelKey('PREV_TRACK', 88)"><span>⏮️</span> Əvvəlki</button>
+                    <button class="btn-wheel" onclick="sendWheelKey('TOGGLE_PLAY', 85)"><span>⏯️</span> Play</button>
+                    <button class="btn-wheel" onclick="sendWheelKey('NEXT_TRACK', 87)"><span>⏭️</span> Növbəti</button>
+                    <button class="btn-wheel" onclick="sendWheelKey('VOLUME_DOWN', 25)"><span>🔉</span> Səs -</button>
+                    <button class="btn-wheel" onclick="startUniversalVoice()"><span>🎙️</span> AI Səs</button>
+                    <button class="btn-wheel" onclick="sendWheelKey('VOLUME_UP', 24)"><span>🔊</span> Səs +</button>
+                    <button class="btn-wheel" onclick="sendWheelKey('ANSWER_CALL', 5)"><span>📞</span> Zəng</button>
+                    <button class="btn-wheel" onclick="openYouTubeParkMode()"><span>🎬</span> Park Vid</button>
+                    <button class="btn-wheel" onclick="sendWheelKey('HANGUP_CALL', 6)"><span>📵</span> Bitir</button>
                 </div>
             </div>
 
-            <!-- Avtomobil Rejimləri -->
-            <div>
-                <div class="panel-section-title">⚙️ Avtomobil Vəziyyəti Testi</div>
-                <div class="toggle-group">
-                    <div class="toggle-item">
-                        <label>Arxa Ötürücü (R Kamera)</label>
-                        <label class="switch">
-                            <input type="checkbox" id="chkReverse" onchange="toggleReverseCamera(this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="toggle-item">
-                        <label>Gecə Rejimi (Dark Mode)</label>
-                        <label class="switch">
-                            <input type="checkbox" id="chkNight" checked onchange="toggleNightMode(this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Real-Vaxt Telemetriya və Loglar -->
+            <!-- Canlı Telemetriya Logu -->
             <div style="flex: 1; display: flex; flex-direction: column;">
-                <div class="panel-section-title">📡 Canlı Hadisə Logu (Telemetry)</div>
-                <div class="log-box" id="logBox">
-                    <div class="log-entry">[Sistem] Virtual Avtomobil Monitoru hazırdır. Dinlənilir...</div>
+                <div class="section-label">📡 Telemetriya və Əmrlər</div>
+                <div class="telemetry-log" id="logBox">
+                    <div>[Sistem] Premium CarPlay və AI Səs Sistemi aktivdir.</div>
                 </div>
             </div>
 
@@ -605,116 +752,179 @@
     </div>
 
     <script>
-        // Saat yeniləyici
+        let currentTemp = 22.0;
+        let selectedLang = 'az-AZ';
+
+        // Saat yeniləmə
         setInterval(() => {
-            const now = new Date();
+            const d = new Date();
             document.getElementById('clock').innerText = 
-                now.getHours().toString().padStart(2, '0') + ':' + 
-                now.getMinutes().toString().padStart(2, '0');
+                d.getHours().toString().padStart(2, '0') + ':' + 
+                d.getMinutes().toString().padStart(2, '0');
         }, 1000);
 
         function logEvent(msg) {
             const box = document.getElementById('logBox');
             const entry = document.createElement('div');
-            entry.className = 'log-entry';
             const time = new Date().toLocaleTimeString();
             entry.innerText = `[${time}] ${msg}`;
             box.prepend(entry);
         }
 
-        // Toxunma (Touch) Hadisəsi
-        function handleSurfaceClick(e) {
-            const surface = document.getElementById('mainSurface');
-            const rect = surface.getBoundingClientRect();
-            const x = Math.round(e.clientX - rect.left);
-            const y = Math.round(e.clientY - rect.top);
-            const normX = (x / rect.width).toFixed(2);
-            const normY = (y / rect.height).toFixed(2);
-
-            // Toxunma animasiyası (Ripple)
-            const ripple = document.createElement('div');
-            ripple.className = 'touch-ripple';
-            ripple.style.left = `${e.clientX - rect.left}px`;
-            ripple.style.top = `${e.clientY - rect.top}px`;
-            surface.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 400);
-
-            logEvent(`👆 Ekrana toxunuldu: X=${x}, Y=${y} (Normal: ${normX}, ${normY})`);
-
-            // Serverə bildiriş göndəririk
-            fetch('/api/event', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ type: 'TOUCH', action: 'TAP', x, y, normX, normY })
-            }).catch(() => {});
+        // Temperatur tənzimləmə
+        function adjustTemp(delta) {
+            currentTemp = Math.round((currentTemp + delta) * 10) / 10;
+            document.getElementById('tempDisplay').innerText = `${currentTemp.toFixed(1)}°C`;
+            logEvent(`🌡️ Kondisioner temperaturu dəyişdirildi: ${currentTemp.toFixed(1)}°C`);
         }
 
-        // Tətbiq açılışı
+        function togglePill(btn) {
+            btn.classList.toggle('active');
+            logEvent(`🔘 Düymə dəyişdirildi: ${btn.innerText}`);
+        }
+
+        // Mövzu dəyişdirilməsi
+        function setTheme(theme) {
+            document.querySelectorAll('.btn-theme').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const screen = document.getElementById('mainSurface');
+            if (theme === 'sport') {
+                screen.style.background = 'linear-gradient(135deg, #2a0808, #0a0404)';
+                document.documentElement.style.setProperty('--accent-cyan', '#ff3b30');
+                logEvent(`🏎️ Sport Red mövzusu aktivləşdirildi`);
+            } else if (theme === 'mbux') {
+                screen.style.background = 'linear-gradient(135deg, #051937, #000c1e)';
+                document.documentElement.style.setProperty('--accent-cyan', '#007aff');
+                logEvent(`💎 MBUX Luxury Blue mövzusu aktivləşdirildi`);
+            } else if (theme === 'oled') {
+                screen.style.background = '#000000';
+                document.documentElement.style.setProperty('--accent-cyan', '#ffffff');
+                logEvent(`🖤 Pure OLED dərin qara rejim aktivləşdirildi`);
+            } else {
+                screen.style.background = 'linear-gradient(135deg, #101626, #060912)';
+                document.documentElement.style.setProperty('--accent-cyan', '#00f2fe');
+                logEvent(`⚡ Cyberpunk Neon mövzusu aktivləşdirildi`);
+            }
+        }
+
+        function handleSurfaceClick(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = Math.round(e.clientX - rect.left);
+            const y = Math.round(e.clientY - rect.top);
+            logEvent(`👆 Ekrana toxunma: X=${x}, Y=${y}`);
+        }
+
         function launchApp(name) {
             logEvent(`📱 Tətbiq açıldı: ${name}`);
         }
 
         function goHome() {
-            logEvent(`🏠 Əsas ekrana (Home) qayıdıldı`);
-            document.getElementById('siriOverlay').classList.remove('active');
+            logEvent(`🏠 Əsas ekrana qayıdıldı`);
+            closeVoiceModal();
+            closeYouTubeParkMode();
         }
 
-        // Sükan Düyməsi Komandası
-        function sendWheelKey(cmd, keyCode) {
-            logEvent(`🚗 SÜKAN DÜYMƏSİ: [${cmd}] (Android KeyCode: ${keyCode})`);
+        function openYouTubeParkMode() {
+            document.getElementById('ytModal').classList.add('active');
+            logEvent(`🎬 YouTube Park Rejimi aktivləşdirildi (Full Video Unlock)`);
+        }
 
-            if (cmd === 'TRIGGER_SIRI') {
-                const siri = document.getElementById('siriOverlay');
-                siri.classList.toggle('active');
-            }
+        function closeYouTubeParkMode() {
+            document.getElementById('ytModal').classList.remove('active');
+        }
 
+        function sendWheelKey(cmd, code) {
+            logEvent(`🚗 SÜKAN DÜYMƏSİ: [${cmd}] (KeyCode: ${code})`);
             fetch('/api/event', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ type: 'STEERING_WHEEL', command: cmd, keyCode })
+                body: JSON.stringify({ type: 'STEERING_WHEEL', command: cmd, keyCode: code })
             }).catch(() => {});
         }
 
-        // Arxa Kamera Simulyasiyası
-        function toggleReverseCamera(active) {
-            const overlay = document.getElementById('reverseOverlay');
-            if (active) {
-                overlay.classList.add('active');
-                logEvent(`🚨 Arxa kamera aktivləşdi (R Ötürücüsü) — Audio Ducking (30%)`);
+        // ===============================================
+        // 🎙️ Universal AI Səs Köməkçisi (Bütün Dillər)
+        // ===============================================
+        function changeVoiceLanguage(lang) {
+            selectedLang = lang;
+            const names = {
+                'az-AZ': 'Azərbaycan dili 🇦🇿',
+                'tr-TR': 'Türk dili 🇹🇷',
+                'ru-RU': 'Rus dili 🇷🇺',
+                'en-US': 'İngilis dili 🇺🇸'
+            };
+            document.getElementById('voiceLangIndicator').innerText = `Dil: ${names[lang] || lang}`;
+            logEvent(`🗣️ AI Səs Dili Dəyişdirildi: ${names[lang]}`);
+        }
+
+        function startUniversalVoice() {
+            const modal = document.getElementById('voiceModal');
+            const output = document.getElementById('voiceOutputText');
+            modal.classList.add('active');
+
+            output.innerText = "Sizi dinləyirəm, sərbəst danışın…";
+            logEvent(`🎙️ AI Səs Köməkçisi aktivləşdirildi (${selectedLang})`);
+
+            // Brauzerin canlı səs tanıma sistemi (Web Speech Recognition API)
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.lang = selectedLang;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = () => {
+                    output.innerText = "Sizi dinləyirəm, danışın… 🎙️";
+                };
+
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    output.innerText = `"${speechResult}"`;
+                    logEvent(`🗣️ Eşidilən Söz: "${speechResult}"`);
+                    processVoiceCommand(speechResult);
+                };
+
+                recognition.onerror = (event) => {
+                    output.innerText = `Səs qəbul edilmədi və ya mikrofon icazəsi yoxdur.`;
+                    setTimeout(() => closeVoiceModal(), 2000);
+                };
+
+                recognition.start();
             } else {
-                overlay.classList.remove('active');
-                logEvent(`✅ Normal ötürücüyə qayıdıldı — Tam səs bərpa olundu`);
+                // Əgər brauzerdə mikrofon API yoxdursa, simulyasiya edirik
+                setTimeout(() => {
+                    const sample = selectedLang === 'az-AZ' ? "Kondisioneri 20 dərəcəyə qoy" : "Play my favorite playlist";
+                    output.innerText = `"${sample}" (Nümunə səs əmri)`;
+                    processVoiceCommand(sample);
+                }, 1800);
             }
         }
 
-        // Gecə / Gündüz Rejimi
-        function toggleNightMode(isNight) {
-            const surface = document.getElementById('mainSurface');
-            if (isNight) {
-                surface.style.background = 'linear-gradient(135deg, #1e2640, #0a0e1a)';
-                logEvent(`🌙 Tünd rejim (Night Appearance) aktivdir`);
-            } else {
-                surface.style.background = 'linear-gradient(135deg, #e0e5ec, #f4f6fa)';
-                logEvent(`☀️ Açıq rejim (Day Appearance) aktivdir`);
-            }
+        function processVoiceCommand(text) {
+            const lower = text.toLowerCase();
+            logEvent(`🤖 AI Əmri emal edir: "${text}"`);
+
+            setTimeout(() => {
+                if (lower.includes("kondisioner") || lower.includes("dərəcə") || lower.includes("klima")) {
+                    currentTemp = 20.0;
+                    document.getElementById('tempDisplay').innerText = `20.0°C`;
+                    document.getElementById('voiceOutputText').innerText = `✅ Kondisioner 20°C təyin edildi!`;
+                } else if (lower.includes("zəng") || lower.includes("ara") || lower.includes("call")) {
+                    document.getElementById('voiceOutputText').innerText = `📞 Əlaqə saxlanılır: Zəng başladıldı...`;
+                } else if (lower.includes("xəritə") || lower.includes("get") || lower.includes("naviqasiya")) {
+                    document.getElementById('voiceOutputText').innerText = `🗺️ Marşrut quruldu: Ən yaxın yol seçildi.`;
+                } else {
+                    document.getElementById('voiceOutputText').innerText = `✅ Əmr qəbul olundu: "${text}" icra edilir.`;
+                }
+
+                setTimeout(() => closeVoiceModal(), 2500);
+            }, 1000);
         }
 
-        // Avtomobil Profili Dəyişdirilməsi
-        function setProfile(profile) {
-            document.querySelectorAll('.btn-profile').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const screen = document.getElementById('carScreen');
-            if (profile === 'changan') {
-                screen.style.aspectRatio = '21 / 9';
-                logEvent(`🚗 Changan Deepal geniş günəbaxan rejimi (21:9) seçildi`);
-            } else if (profile === 'liauto') {
-                screen.style.aspectRatio = '16 / 10';
-                logEvent(`🚗 Li Auto 3K ultra dəqiqlikli rejim seçildi`);
-            } else {
-                screen.style.aspectRatio = '16 / 9';
-                logEvent(`🚗 ${profile.toUpperCase()} rejimi (16:9) seçildi`);
-            }
+        function closeVoiceModal() {
+            document.getElementById('voiceModal').classList.remove('active');
         }
     </script>
 </body>
