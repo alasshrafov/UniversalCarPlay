@@ -1,0 +1,39 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Repozitoriyanı Yüklə
+      uses: actions/checkout@v4
+
+    - name: Java JDK 17 Quraşdır
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Gradle İcazəsi Ver
+      run: |
+        if [ -f gradlew ]; then
+          chmod +x gradlew
+        else
+          gradle wrapper
+          chmod +x gradlew
+        fi
+
+    - name: APK Yığ (Build Debug APK)
+      run: ./gradlew assembleDebug --stacktrace
+
+    - name: APK Faylını Yüklə (Artifact kimi paylaş)
+      uses: actions/upload-artifact@v4
+      with:
+        name: UniversalCarPlay-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
