@@ -112,6 +112,14 @@ class UniversalVoiceAssistant(
                 speak("Musiqi başladılır")
                 "MEDIA_PLAY"
             }
+            lower.contains("brauzer") || lower.contains("browser") || lower.contains("internet") || lower.contains("google") || lower.contains("sayt") || lower.contains("veb") -> {
+                speak("İnternet brauzeri açılır")
+                "OPEN_BROWSER"
+            }
+            lower.contains("youtube") || lower.contains("video") || lower.contains("film") || lower.contains("klip") -> {
+                speak("YouTube Park Rejimi açılır")
+                "OPEN_YOUTUBE"
+            }
             else -> {
                 "GENERAL_AI_QUERY"
             }

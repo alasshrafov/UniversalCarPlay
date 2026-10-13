@@ -1,5 +1,6 @@
 package com.universal.carplay
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -11,10 +12,17 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.view.inputmethod.EditorInfo
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -36,6 +44,7 @@ import com.universal.carplay.protocol.CarPlayCryptoHandshake
 import com.universal.carplay.protocol.MockCarPlayClient
 import com.universal.carplay.ui.CarPlaySurfaceView
 import com.universal.carplay.voice.UniversalVoiceAssistant
+import java.net.URLEncoder
 
 class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
@@ -58,6 +67,21 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var tvCommercialStatus: TextView
     private val introHandler = Handler(Looper.getMainLooper())
     private var dismissRunnable: Runnable? = null
+
+    // İnternet Brauzeri Elementləri
+    private lateinit var browserOverlay: LinearLayout
+    private lateinit var webViewBrowser: WebView
+    private lateinit var etBrowserUrl: EditText
+    private lateinit var btnBrowserBack: Button
+    private lateinit var btnBrowserForward: Button
+    private lateinit var btnBrowserRefresh: Button
+    private lateinit var btnBrowserGo: Button
+    private lateinit var btnBrowserClose: Button
+    private lateinit var btnOpenBrowser: Button
+    private lateinit var btnQuickGoogle: Button
+    private lateinit var btnQuickYouTube: Button
+    private lateinit var btnQuickWiki: Button
+    private lateinit var browserProgressBar: ProgressBar
 
     // Nüvə Mühərrikləri
     private var videoDecoder: VideoDecoder? = null
@@ -87,6 +111,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         setContentView(R.layout.activity_main)
 
         initViews()
+        initBrowser()
         initVehicleDetection()
         initCarIntegrations()
         initSessionCoordinator()
@@ -102,6 +127,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         ivTopBarLogo = findViewById(R.id.ivTopBarLogo)
         btnSettings = findViewById(R.id.btnSettings)
         btnReplayIntro = findViewById(R.id.btnReplayIntro)
+        btnOpenBrowser = findViewById(R.id.btnOpenBrowser)
         btnConnectMock = findViewById(R.id.btnConnectMock)
 
         // Reklam Şousu Görünüşləri
@@ -111,6 +137,20 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         tvCommercialTitle = findViewById(R.id.tvCommercialTitle)
         tvCommercialTagline = findViewById(R.id.tvCommercialTagline)
         tvCommercialStatus = findViewById(R.id.tvCommercialStatus)
+
+        // Brauzer Elementləri
+        browserOverlay = findViewById(R.id.browserOverlay)
+        webViewBrowser = findViewById(R.id.webViewBrowser)
+        etBrowserUrl = findViewById(R.id.etBrowserUrl)
+        btnBrowserBack = findViewById(R.id.btnBrowserBack)
+        btnBrowserForward = findViewById(R.id.btnBrowserForward)
+        btnBrowserRefresh = findViewById(R.id.btnBrowserRefresh)
+        btnBrowserGo = findViewById(R.id.btnBrowserGo)
+        btnBrowserClose = findViewById(R.id.btnBrowserClose)
+        btnQuickGoogle = findViewById(R.id.btnQuickGoogle)
+        btnQuickYouTube = findViewById(R.id.btnQuickYouTube)
+        btnQuickWiki = findViewById(R.id.btnQuickWiki)
+        browserProgressBar = findViewById(R.id.browserProgressBar)
 
         commercialSplashOverlay.setOnClickListener {
             dismissCommercialIntro()
@@ -128,6 +168,97 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         btnConnectMock.setOnClickListener {
             startMockConnection()
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun initBrowser() {
+        webViewBrowser.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            databaseEnabled = true
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            mediaPlaybackRequiresUserGesture = false
+            allowFileAccess = true
+        }
+
+        webViewBrowser.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                return false
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                url?.let { etBrowserUrl.setText(it) }
+                browserProgressBar.visibility = View.GONE
+            }
+        }
+
+        webViewBrowser.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                if (newProgress < 100) {
+                    browserProgressBar.visibility = View.VISIBLE
+                    browserProgressBar.progress = newProgress
+                } else {
+                    browserProgressBar.visibility = View.GONE
+                }
+            }
+        }
+
+        btnBrowserBack.setOnClickListener {
+            if (webViewBrowser.canGoBack()) webViewBrowser.goBack()
+        }
+
+        btnBrowserForward.setOnClickListener {
+            if (webViewBrowser.canGoForward()) webViewBrowser.goForward()
+        }
+
+        btnBrowserRefresh.setOnClickListener {
+            webViewBrowser.reload()
+        }
+
+        btnBrowserClose.setOnClickListener {
+            closeBrowser()
+        }
+
+        btnBrowserGo.setOnClickListener {
+            loadEnteredUrl()
+        }
+
+        etBrowserUrl.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                loadEnteredUrl()
+                true
+            } else {
+                false
+            }
+        }
+
+        btnQuickGoogle.setOnClickListener { openBrowser("https://www.google.com") }
+        btnQuickYouTube.setOnClickListener { openBrowser("https://m.youtube.com") }
+        btnQuickWiki.setOnClickListener { openBrowser("https://az.wikipedia.org") }
+        btnOpenBrowser.setOnClickListener { openBrowser("https://www.google.com") }
+    }
+
+    fun openBrowser(url: String = "https://www.google.com") {
+        browserOverlay.visibility = View.VISIBLE
+        var target = url.trim()
+        if (!target.startsWith("http://") && !target.startsWith("https://")) {
+            target = "https://www.google.com/search?q=" + URLEncoder.encode(target, "UTF-8")
+        }
+        etBrowserUrl.setText(target)
+        webViewBrowser.loadUrl(target)
+    }
+
+    private fun closeBrowser() {
+        browserOverlay.visibility = View.GONE
+    }
+
+    private fun loadEnteredUrl() {
+        val input = etBrowserUrl.text.toString().trim()
+        if (input.isNotEmpty()) {
+            openBrowser(input)
         }
     }
 
@@ -163,7 +294,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         // 4. Bütün Dilləri Dəstəkləyən Universal AI Səs Köməkçisi
         voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText ->
             runOnUiThread {
-                Toast.makeText(this, "AI Əmr: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+                when (commandType) {
+                    "OPEN_BROWSER" -> openBrowser("https://www.google.com")
+                    "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
+                    else -> Toast.makeText(this, "AI Əmr: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -225,6 +360,20 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (browserOverlay.visibility == View.VISIBLE) {
+            if (webViewBrowser.canGoBack()) {
+                webViewBrowser.goBack()
+            } else {
+                closeBrowser()
+            }
+            return
+        }
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
     }
 
     private fun setupProfile(profile: VehicleProfile) {
@@ -382,5 +531,6 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         sessionCoordinator?.stopDiscovery()
         voiceAssistant.destroy()
         usbManager.stop()
+        webViewBrowser.destroy()
     }
 }

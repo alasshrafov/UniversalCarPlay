@@ -406,6 +406,198 @@
         .bg-podcasts { background: linear-gradient(135deg, #bf5af2, #af52de); }
         .bg-settings { background: linear-gradient(135deg, #8e8e93, #636366); }
         .bg-ai { background: linear-gradient(135deg, var(--brand-color), #4facfe); }
+        .bg-browser { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+
+        /* Avtomobil Daxili İnternet Brauzeri Modalı */
+        .browser-modal {
+            position: absolute;
+            inset: 0;
+            background: #0d131f;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .browser-modal.active { display: flex; }
+
+        .browser-topbar {
+            height: 52px;
+            background: rgba(20, 28, 44, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 10px;
+        }
+
+        .browser-nav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+
+        .browser-nav-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .browser-url-bar {
+            flex: 1;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+
+        .browser-url-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 13px;
+        }
+
+        .browser-go-btn {
+            background: var(--brand-color);
+            border: none;
+            border-radius: 12px;
+            padding: 4px 12px;
+            color: #000;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .browser-bookmarks {
+            display: flex;
+            gap: 6px;
+        }
+
+        .browser-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .browser-pill:hover {
+            color: white;
+            background: var(--brand-glow);
+            border-color: var(--brand-color);
+        }
+
+        .browser-close-btn {
+            background: rgba(255, 69, 58, 0.15);
+            color: #ff453a;
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .browser-close-btn:hover { background: #ff453a; color: white; }
+
+        .browser-web-viewport {
+            flex: 1;
+            position: relative;
+            background: #060910;
+            overflow: hidden;
+        }
+
+        .browser-landing {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: radial-gradient(circle at center, #141d30, #060910);
+        }
+
+        .browser-google-logo {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .browser-search-box {
+            display: flex;
+            width: 70%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 6px 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .browser-search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 14px;
+        }
+
+        .browser-search-box button {
+            background: var(--brand-color);
+            border: none;
+            color: #000;
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .browser-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .quick-tile {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .quick-tile:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--brand-color);
+        }
 
         /* Sağ Tərəf: Avtomobil Paneli */
         .car-widget-sidebar {
@@ -804,6 +996,7 @@
                     <div class="dock-icons">
                         <div class="dock-icon bg-maps" onclick="launchApp('Apple Maps')">🗺️</div>
                         <div class="dock-icon bg-music" onclick="launchApp('Spotify')">🎵</div>
+                        <div class="dock-icon bg-browser" onclick="openInCarBrowser()" title="İnternet Brauzeri">🌐</div>
                         <div class="dock-icon bg-phone" onclick="launchApp('Telefon')">📞</div>
                         <div class="dock-icon bg-ai" onclick="startUniversalVoice()" title="AI Səs">🎙️</div>
                     </div>
@@ -822,6 +1015,10 @@
                         <div class="app-card" onclick="launchApp('Spotify')">
                             <div class="app-icon-box bg-music">🎵</div>
                             <span class="app-label">Spotify</span>
+                        </div>
+                        <div class="app-card" onclick="openInCarBrowser()">
+                            <div class="app-icon-box bg-browser">🌐</div>
+                            <span class="app-label">Brauzer (Veb)</span>
                         </div>
                         <div class="app-card" onclick="launchApp('Telefon')">
                             <div class="app-icon-box bg-phone">📞</div>
@@ -863,6 +1060,61 @@
                             <div style="font-size: 64px; margin-bottom: 12px;">🎬</div>
                             <h2 style="color: white; margin-bottom: 8px;">YouTube Park Rejimi Aktivdir</h2>
                             <p style="color: #8e8e93; font-size: 13px;">Avtomobil hərəkətə başlayan kimi təhlükəsizlik üçün avtomatik CarPlay-ə qayıdır.</p>
+                        </div>
+                    </div>
+
+                    <!-- İnternet Brauzeri Modalı (Avtomobil İnternet & Veb Pəncərəsi) -->
+                    <div class="browser-modal" id="browserModal">
+                        <!-- Brauzer Üst Zolağı -->
+                        <div class="browser-topbar">
+                            <div class="browser-nav-btn" onclick="browserGoBack()">◀</div>
+                            <div class="browser-nav-btn" onclick="browserGoForward()">▶</div>
+                            <div class="browser-nav-btn" onclick="browserReload()">🔄</div>
+                            
+                            <div class="browser-url-bar">
+                                <span style="color: #30d158; margin-right: 6px;">🔒</span>
+                                <input type="text" id="browserInputUrl" value="https://www.google.com" onkeydown="if(event.key==='Enter') executeBrowserSearch()">
+                                <button class="browser-go-btn" onclick="executeBrowserSearch()">Keç</button>
+                            </div>
+
+                            <div class="browser-bookmarks">
+                                <span class="browser-pill" onclick="loadBrowserUrl('https://www.google.com')">Google</span>
+                                <span class="browser-pill" onclick="loadBrowserUrl('https://m.youtube.com')">YouTube</span>
+                                <span class="browser-pill" onclick="loadBrowserUrl('https://az.wikipedia.org')">Wiki</span>
+                                <span class="browser-pill" onclick="loadBrowserUrl('https://report.az')">Xəbərlər</span>
+                            </div>
+
+                            <div class="browser-close-btn" onclick="closeInCarBrowser()">✕ Bağla</div>
+                        </div>
+
+                        <!-- Brauzer Veb Sahəsi -->
+                        <div class="browser-web-viewport">
+                            <iframe id="browserIframe" src="about:blank" style="width: 100%; height: 100%; border: none; background: #fff; display: none;"></iframe>
+                            <div id="browserLandingView" class="browser-landing">
+                                <div class="browser-google-logo">Google</div>
+                                <div class="browser-search-box">
+                                    <input type="text" id="landingSearchInput" placeholder="Google-da axtarın və ya URL daxil edin..." onkeydown="if(event.key==='Enter') searchLanding()">
+                                    <button onclick="searchLanding()">Axtar 🔍</button>
+                                </div>
+                                <div class="browser-quick-grid">
+                                    <div class="quick-tile" onclick="loadBrowserUrl('https://m.youtube.com')">
+                                        <span style="font-size: 28px;">🎬</span>
+                                        <span>YouTube</span>
+                                    </div>
+                                    <div class="quick-tile" onclick="loadBrowserUrl('https://az.wikipedia.org')">
+                                        <span style="font-size: 28px;">📚</span>
+                                        <span>Vikipediya</span>
+                                    </div>
+                                    <div class="quick-tile" onclick="loadBrowserUrl('https://weather.com')">
+                                        <span style="font-size: 28px;">☀️</span>
+                                        <span>Hava Proqnozu</span>
+                                    </div>
+                                    <div class="quick-tile" onclick="loadBrowserUrl('https://report.az')">
+                                        <span style="font-size: 28px;">📰</span>
+                                        <span>Son Xəbərlər</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -958,6 +1210,15 @@
                     <button class="btn-wheel" onclick="sendWheelKey('VOLUME_DOWN', 25)"><span>🔉</span> Səs -</button>
                     <button class="btn-wheel" onclick="startUniversalVoice()"><span>🎙️</span> AI Səs</button>
                     <button class="btn-wheel" onclick="sendWheelKey('VOLUME_UP', 24)"><span>🔊</span> Səs +</button>
+                </div>
+            </div>
+
+            <!-- Multimedia & Veb Brauzer Bölməsi -->
+            <div>
+                <div class="section-label">🌐 Multimedia &amp; İnternet</div>
+                <div style="display: flex; gap: 8px;">
+                    <button style="flex: 1; background: rgba(0, 198, 255, 0.15); border: 1px solid #00c6ff; color: #00c6ff; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onclick="openInCarBrowser()">🌐 Veb Brauzer</button>
+                    <button style="flex: 1; background: rgba(255, 69, 58, 0.15); border: 1px solid #ff453a; color: #ff453a; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onclick="openInCarBrowser('https://m.youtube.com')">🎬 YouTube</button>
                 </div>
             </div>
 
@@ -1189,6 +1450,7 @@
             logEvent(`🏠 Əsas ekrana qayıdıldı`);
             closeVoiceModal();
             closeYouTubeParkMode();
+            closeInCarBrowser();
         }
 
         function openYouTubeParkMode() {
@@ -1198,6 +1460,83 @@
 
         function closeYouTubeParkMode() {
             document.getElementById('ytModal').classList.remove('active');
+        }
+
+        /* 🌐 Avtomobil İnternet Brauzeri İdarəetməsi */
+        function openInCarBrowser(url) {
+            const modal = document.getElementById('browserModal');
+            const landing = document.getElementById('browserLandingView');
+            const iframe = document.getElementById('browserIframe');
+            const input = document.getElementById('browserInputUrl');
+
+            modal.classList.add('active');
+            if (url) {
+                input.value = url;
+                iframe.src = url;
+                iframe.style.display = 'block';
+                landing.style.display = 'none';
+            } else {
+                input.value = 'https://www.google.com';
+                iframe.style.display = 'none';
+                landing.style.display = 'flex';
+            }
+            logEvent(`🌐 İnternet Brauzeri açıldı: [${input.value}]`);
+        }
+
+        function closeInCarBrowser() {
+            document.getElementById('browserModal').classList.remove('active');
+            document.getElementById('browserIframe').src = 'about:blank';
+            logEvent(`🌐 Brauzer bağlandı, CarPlay-ə qayıdıldı`);
+        }
+
+        function loadBrowserUrl(url) {
+            const input = document.getElementById('browserInputUrl');
+            const iframe = document.getElementById('browserIframe');
+            const landing = document.getElementById('browserLandingView');
+
+            input.value = url;
+            iframe.src = url;
+            iframe.style.display = 'block';
+            landing.style.display = 'none';
+            logEvent(`🌐 Keçid edildi: ${url}`);
+        }
+
+        function executeBrowserSearch() {
+            const input = document.getElementById('browserInputUrl').value.trim();
+            if (!input) return;
+
+            let targetUrl = input;
+            if (input.includes('.') && !input.includes(' ')) {
+                if (!input.startsWith('http://') && !input.startsWith('https://')) {
+                    targetUrl = 'https://' + input;
+                }
+            } else {
+                targetUrl = 'https://www.google.com/search?q=' + encodeURIComponent(input);
+            }
+            loadBrowserUrl(targetUrl);
+        }
+
+        function searchLanding() {
+            const q = document.getElementById('landingSearchInput').value.trim();
+            if (q) {
+                loadBrowserUrl('https://www.google.com/search?q=' + encodeURIComponent(q));
+            }
+        }
+
+        function browserGoBack() {
+            try { document.getElementById('browserIframe').contentWindow.history.back(); } catch(e){}
+            logEvent(`◀ Brauzer: Geri`);
+        }
+
+        function browserGoForward() {
+            try { document.getElementById('browserIframe').contentWindow.history.forward(); } catch(e){}
+            logEvent(`▶ Brauzer: İrəli`);
+        }
+
+        function browserReload() {
+            const iframe = document.getElementById('browserIframe');
+            iframe.src = iframe.src;
+            logEvent(`🔄 Brauzer səhifəsi yeniləndi`);
         }
 
         function sendWheelKey(cmd, code) {
@@ -1224,16 +1563,25 @@
                     const text = e.results[0][0].transcript;
                     output.innerText = `"${text}"`;
                     logEvent(`🗣️ Eşidildi: "${text}"`);
-                    setTimeout(() => closeVoiceModal(), 2000);
+                    const lower = text.toLowerCase();
+                    if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
+                        setTimeout(() => { closeVoiceModal(); openInCarBrowser(); }, 800);
+                    } else if (lower.includes('youtube') || lower.includes('video')) {
+                        setTimeout(() => { closeVoiceModal(); openInCarBrowser('https://m.youtube.com'); }, 800);
+                    } else {
+                        setTimeout(() => closeVoiceModal(), 2000);
+                    }
                 };
                 rec.onerror = () => { setTimeout(() => closeVoiceModal(), 1500); };
                 rec.start();
             } else {
                 setTimeout(() => {
-                    output.innerText = `"Kondisioneri 20 dərəcəyə qoy" (Sınaq)`;
-                    currentTemp = 20.0;
-                    document.getElementById('tempDisplay').innerText = `20.0°C`;
-                    setTimeout(() => closeVoiceModal(), 2000);
+                    output.innerText = `"Brauzeri aç" (Sınaq əmri)`;
+                    logEvent(`🗣️ Eşidildi: "Brauzeri aç"`);
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        openInCarBrowser();
+                    }, 1200);
                 }, 1500);
             }
         }

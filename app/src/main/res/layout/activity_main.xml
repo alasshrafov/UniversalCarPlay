@@ -88,6 +88,15 @@
             android:textStyle="bold" />
 
         <Button
+            android:id="@+id/btnOpenBrowser"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🌐 Brauzer &amp; Video"
+            android:textColor="#FF30D158"
+            android:textStyle="bold" />
+
+        <Button
             android:id="@+id/btnReplayIntro"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
@@ -176,5 +185,131 @@
                 android:textSize="11sp" />
         </LinearLayout>
     </FrameLayout>
+
+    <!-- 5. İnteqrasiya Olunmuş Avtomobil İnternet Brauzeri və Multimedia Veb Pəncərəsi -->
+    <LinearLayout
+        android:id="@+id/browserOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#FF0B0F19"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- Brauzer Alətlər Zolağı -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="#FF161D2E"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnBrowserBack"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:text="◀"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnBrowserForward"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:text="▶"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnBrowserRefresh"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:text="🔄"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <!-- Sürətli Qısayollar -->
+            <Button
+                android:id="@+id/btnQuickGoogle"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Google"
+                android:textColor="#FF0A84FF"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnQuickYouTube"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YouTube"
+                android:textColor="#FFFF453A"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnQuickWiki"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wiki"
+                android:textColor="#FF30D158"
+                android:textSize="12sp" />
+
+            <!-- URL Giriş Sahəsi -->
+            <EditText
+                android:id="@+id/etBrowserUrl"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/bg_card"
+                android:hint="Axtarın və ya URL daxil edin…"
+                android:textColorHint="@color/car_text_gray"
+                android:textColor="@color/white"
+                android:paddingHorizontal="14dp"
+                android:textSize="13sp"
+                android:imeOptions="actionGo"
+                android:inputType="textUri"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/btnBrowserGo"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="Keç"
+                android:textSize="12sp"
+                android:backgroundTint="@color/car_accent"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/btnBrowserClose"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="✕ Bağla"
+                android:textColor="#FFFF453A"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/browserProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:progressTint="@color/car_accent"
+            android:visibility="gone" />
+
+        <WebView
+            android:id="@+id/webViewBrowser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
 </FrameLayout>
