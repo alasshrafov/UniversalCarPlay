@@ -17,14 +17,18 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.universal.carplay.car.DayNightManager
 import com.universal.carplay.car.SteeringWheelManager
+import com.universal.carplay.car.VehicleDetector
 import com.universal.carplay.car.VehicleStateManager
 import com.universal.carplay.connectivity.CarPlaySessionCoordinator
+import com.universal.carplay.connectivity.CarPlayUsbManager
 import com.universal.carplay.engine.AudioEngine
 import com.universal.carplay.engine.TouchManager
 import com.universal.carplay.engine.VideoDecoder
 import com.universal.carplay.profiles.VehicleProfile
+import com.universal.carplay.protocol.CarPlayCryptoHandshake
 import com.universal.carplay.protocol.MockCarPlayClient
 import com.universal.carplay.ui.CarPlaySurfaceView
+import com.universal.carplay.voice.UniversalVoiceAssistant
 
 class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
@@ -36,16 +40,21 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var btnSettings: Button
     private lateinit var btnConnectMock: Button
 
+    // Nüvə Mühərrikləri
     private var videoDecoder: VideoDecoder? = null
     private var audioEngine: AudioEngine? = null
     private var touchManager: TouchManager? = null
     private var mockClient: MockCarPlayClient? = null
     private var sessionCoordinator: CarPlaySessionCoordinator? = null
 
-    // Mərhələ 4: Avtomobil İnteqrasiya Menecerləri
-    private lateinit var steeringWheelManager: SteeringWheelManager
+    // Avtomobil İnteqrasiyaları
+    private lateinit var vehicleDetector: VehicleDetector
     private lateinit var vehicleStateManager: VehicleStateManager
+    private lateinit var steeringWheelManager: SteeringWheelManager
     private lateinit var dayNightManager: DayNightManager
+    private lateinit var voiceAssistant: UniversalVoiceAssistant
+    private lateinit var usbManager: CarPlayUsbManager
+    private val cryptoHandshake = CarPlayCryptoHandshake()
 
     private var currentProfile: VehicleProfile = VehicleProfile.Universal
 
@@ -59,9 +68,10 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         setContentView(R.layout.activity_main)
 
         initViews()
-        setupProfile(VehicleProfile.Universal)
+        initVehicleDetection()
         initCarIntegrations()
         initSessionCoordinator()
+        initUsbManager()
     }
 
     private fun initViews() {
@@ -84,6 +94,15 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
+    /**
+     * Avtomobil modelini 100% avtomatik təyin edir (BYD, Changan, Li Auto və ya Universal)
+     */
+    private fun initVehicleDetection() {
+        vehicleDetector = VehicleDetector(this)
+        val detectedProfile = vehicleDetector.detectProfile()
+        setupProfile(detectedProfile)
+    }
+
     private fun initCarIntegrations() {
         // 1. Sükan Düymələri
         steeringWheelManager = SteeringWheelManager { commandJson ->
@@ -97,16 +116,19 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 audioEngine?.setVolumeDucking(shouldDuck)
             },
             onReverseCameraStateChanged = { inReverse ->
-                if (inReverse) {
-                    audioEngine?.setVolumeDucking(true)
-                } else {
-                    audioEngine?.setVolumeDucking(false)
-                }
+                audioEngine?.setVolumeDucking(inReverse)
             }
         )
 
         // 3. Gecə/Gündüz Rejimi
         dayNightManager = DayNightManager(this)
+
+        // 4. Bütün Dilləri Dəstəkləyən Universal AI Səs Köməkçisi
+        voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText ->
+            runOnUiThread {
+                Toast.makeText(this, "AI Əmr: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun initSessionCoordinator() {
@@ -127,21 +149,40 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
+    private fun initUsbManager() {
+        usbManager = CarPlayUsbManager(
+            context = this,
+            onAppleDeviceConnected = { device ->
+                runOnUiThread {
+                    Toast.makeText(this, "Simli Apple CarPlay Qoşuldu: ${device.deviceName}", Toast.LENGTH_LONG).show()
+                    statusOverlay.visibility = View.GONE
+                    cryptoHandshake.startHandshake()
+                }
+            },
+            onDeviceDisconnected = {
+                runOnUiThread {
+                    statusOverlay.visibility = View.VISIBLE
+                    tvStatus.text = getString(R.string.waiting_for_connection)
+                    cryptoHandshake.reset()
+                }
+            }
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         vehicleStateManager.register()
+        usbManager.start()
         sessionCoordinator?.startDiscovery(carName = "CarPlay-${currentProfile.name}")
     }
 
     override fun onPause() {
         super.onPause()
         vehicleStateManager.unregister()
+        usbManager.stop()
         sessionCoordinator?.stopDiscovery()
     }
 
-    /**
-     * Sükandakı Media / Zəng / Səs düymələrini tuturuq
-     */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null && steeringWheelManager.handleKeyEvent(keyCode, event)) {
             return true
@@ -167,15 +208,15 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             .setTitle("Avtomobil Profilini Seçin")
             .setItems(profileNames) { _, which ->
                 val selected = VehicleProfile.ALL[which]
+                vehicleDetector.saveProfile(selected)
                 setupProfile(selected)
-                Toast.makeText(this, "${selected.name} aktivləşdirildi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Bağla", null)
             .show()
     }
 
     override fun onSurfaceCreated(holder: SurfaceHolder) {
-        // Video və səs mühərriklərini başladırıq
         videoDecoder = VideoDecoder(holder.surface).apply {
             start(currentProfile.defaultWidth, currentProfile.defaultHeight)
         }
@@ -204,7 +245,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun startMockConnection() {
         tvStatus.text = "Qoşulur…"
         mockClient = MockCarPlayClient(
-            host = "10.0.2.2", // Emulyator üçün kompüter ünvanı
+            host = "10.0.2.2",
             port = 9999,
             videoDecoder = videoDecoder,
             audioEngine = audioEngine
@@ -224,9 +265,6 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
-    /**
-     * Bütün Android naviqasiya və status zolaqlarını gizlədir (Tam ekran / Immersive mode)
-     */
     private fun hideSystemUI() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).let { controller ->
@@ -246,5 +284,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         audioEngine?.stop()
         mockClient?.disconnect()
         sessionCoordinator?.stopDiscovery()
+        voiceAssistant.destroy()
+        usbManager.stop()
     }
 }
