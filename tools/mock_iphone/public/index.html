@@ -1675,8 +1675,8 @@
         <!-- Sol Tərəf: Lüks Avtomobil Ekranı -->
         <div class="dashboard-screen-shell" id="carScreen">
             
-            <!-- 🎬 REKLAM ÇARXI KİMİ KİNEMATİK AÇILIŞ ŞOUSU -->
-            <div class="commercial-splash-overlay active" id="commercialSplash">
+            <!-- 🎬 REKLAM ÇARXI KİMİ KİNEMATİK AÇILIŞ ŞOUSU (Toxunanda dərhal bağlanır) -->
+            <div class="commercial-splash-overlay active" id="commercialSplash" onclick="dismissCommercialSplash()" title="CarPlay-ə keçmək üçün toxunun">
                 <div class="laser-scan-beam"></div>
                 <div class="energy-halo-ring"></div>
 
@@ -2800,11 +2800,21 @@
             }
         };
 
+        function dismissCommercialSplash() {
+            const splash = document.getElementById('commercialSplash');
+            if (splash) splash.classList.remove('active');
+        }
+
         function triggerCommercialIntro(brandKey) {
             if (brandKey) {
                 currentBrandKey = brandKey;
-                document.querySelectorAll('.btn-car-brand').forEach(b => b.classList.remove('active'));
-                if (event && event.currentTarget) event.currentTarget.classList.add('active');
+                document.querySelectorAll('.btn-car-brand').forEach(b => {
+                    b.classList.remove('active');
+                    const clickAttr = b.getAttribute('onclick') || '';
+                    if (clickAttr.includes(`'${brandKey}'`)) {
+                        b.classList.add('active');
+                    }
+                });
             }
 
             const cfg = brandConfigs[currentBrandKey];
@@ -2832,25 +2842,26 @@
             document.getElementById('brandDescSub').innerText = cfg.sub;
 
             const screen = document.getElementById('carScreen');
-            screen.style.aspectRatio = cfg.aspect;
+            if (screen) screen.style.aspectRatio = cfg.aspect;
 
             // Şounu aktivləşdiririk
             const splash = document.getElementById('commercialSplash');
-            splash.classList.add('active');
+            if (splash) splash.classList.add('active');
 
             logEvent(`🎬 REKLAM ŞOUSU: [${cfg.name}] ${cfg.model} loqosu parıldayır...`);
 
-            // 2.2 saniyə sonra lüks şou CarPlay-ə keçir
-            setTimeout(() => {
-                splash.classList.remove('active');
+            // 1.8 saniyə sonra lüks şou CarPlay-ə keçir
+            if (window.commercialSplashTimeout) clearTimeout(window.commercialSplashTimeout);
+            window.commercialSplashTimeout = setTimeout(() => {
+                if (splash) splash.classList.remove('active');
                 logEvent(`✅ [${cfg.name}] CarPlay sisteminə daxil olundu!`);
-            }, 2200);
+            }, 1800);
         }
 
-        // İlkin açılışda şou 1.8 saniyə sonra bitsin
+        // İlkin açılışda şou 1.2 saniyə sonra avtomatik CarPlay-ə keçsin
         setTimeout(() => {
-            document.getElementById('commercialSplash').classList.remove('active');
-        }, 1800);
+            dismissCommercialSplash();
+        }, 1200);
 
         // Digər funksiyalar
         function adjustTemp(delta) {
@@ -3297,6 +3308,8 @@
                     rec.start();
                 } catch(e) {}
             }
+        }
+
         function startAuraAi() {
             const modal = document.getElementById('voiceModal');
             const output = document.getElementById('voiceOutputText');
