@@ -202,17 +202,18 @@
             100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
-        /* Orijinal Xrom / Neon Loqo Dizaynı */
+        /* Orijinal Xrom / 3D Metalik Loqo Dizaynı */
         .original-byd-badge-svg {
-            width: 220px;
-            height: 90px;
-            filter: drop-shadow(0 0 35px var(--brand-color));
-            animation: neonBreathe 1.8s infinite alternate ease-in-out;
+            width: 280px;
+            height: 120px;
+            filter: drop-shadow(0 10px 24px rgba(0,0,0,0.75)) drop-shadow(0 0 16px var(--brand-glow));
+            animation: neonBreathe 2.4s infinite alternate ease-in-out;
+            transition: all 0.3s;
         }
 
         @keyframes neonBreathe {
-            0% { filter: drop-shadow(0 0 20px var(--brand-color)) drop-shadow(0 0 50px var(--brand-glow)); }
-            100% { filter: drop-shadow(0 0 45px var(--brand-color)) drop-shadow(0 0 90px rgba(255,255,255,0.8)); }
+            0% { transform: scale(0.98); filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)) drop-shadow(0 0 10px var(--brand-glow)); }
+            100% { transform: scale(1.03); filter: drop-shadow(0 14px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 24px var(--brand-color)); }
         }
 
         .cinematic-model-text {
@@ -323,51 +324,94 @@
         .dock-icons {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .dock-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
+            width: 48px;
+            height: 48px;
+            border-radius: 22.5%;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
             cursor: pointer;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-            transition: transform 0.15s;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .dock-icon:hover { transform: scale(1.1); }
+        .dock-icon:hover { transform: scale(1.12); }
 
         .dock-home {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.7);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* CarPlay Əsas Masaüstü */
+        .dock-home:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: scale(1.08);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .carplay-switcher-icon {
+            display: grid;
+            grid-template-columns: repeat(3, 5px);
+            grid-gap: 3px;
+        }
+        .carplay-switcher-icon span {
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 1.5px;
+            display: block;
+        }
+
+        /* CarPlay Əsas Masaüstü & Dinamik iOS Wallpaper */
         .carplay-content-area {
             flex: 1;
-            background: linear-gradient(135deg, #0e1424, #040710);
-            padding: 24px 32px;
+            background: 
+                radial-gradient(ellipse at 15% 20%, rgba(29, 78, 216, 0.38) 0%, transparent 48%),
+                radial-gradient(ellipse at 85% 80%, rgba(192, 38, 211, 0.32) 0%, transparent 48%),
+                radial-gradient(ellipse at 50% 50%, rgba(229, 184, 105, 0.12) 0%, transparent 40%),
+                linear-gradient(145deg, #070b16 0%, #03060c 100%);
+            padding: 20px 28px;
             display: flex;
             flex-direction: column;
             position: relative;
             overflow: hidden;
         }
 
+        /* Ambient Parıltı Mesh Şəbəkəsi */
+        .carplay-content-area::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
         .app-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 18px 24px;
             margin: auto 0;
+            z-index: 2;
+            transition: opacity 0.25s, transform 0.25s;
+        }
+
+        .app-grid.hidden-view {
+            display: none !important;
         }
 
         .app-card {
@@ -376,37 +420,311 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            transition: transform 0.15s;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
         }
 
         .app-card:hover { transform: scale(1.08); }
+        .app-card:active { transform: scale(0.96); }
 
         .app-icon-box {
-            width: 68px;
-            height: 68px;
-            border-radius: 18px;
+            width: 72px;
+            height: 72px;
+            border-radius: 22.5%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .app-card:hover .app-icon-box {
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.7), 0 0 22px var(--brand-glow);
+        }
+
+        .ios-carplay-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         .app-label {
             font-size: 13px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.9);
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.85);
+            letter-spacing: 0.2px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
         }
 
-        .bg-maps { background: linear-gradient(135deg, #007aff, #00c6ff); }
-        .bg-music { background: linear-gradient(135deg, #fc3c44, #f94c97); }
-        .bg-phone { background: linear-gradient(135deg, #34c759, #30d158); }
-        .bg-msg { background: linear-gradient(135deg, #30d158, #34c759); }
-        .bg-yt { background: linear-gradient(135deg, #ff0000, #cc0000); }
-        .bg-podcasts { background: linear-gradient(135deg, #bf5af2, #af52de); }
-        .bg-settings { background: linear-gradient(135deg, #8e8e93, #636366); }
-        .bg-ai { background: linear-gradient(135deg, var(--brand-color), #4facfe); }
-        .bg-browser { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+        /* CarPlay Split Dashboard View */
+        .carplay-split-dashboard {
+            display: none;
+            width: 100%;
+            height: 100%;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 16px;
+            z-index: 2;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .carplay-split-dashboard.active {
+            display: grid;
+        }
+
+        .dashboard-tile {
+            background: rgba(18, 26, 44, 0.72);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Naviqasiya Paneli */
+        .map-tile {
+            background: linear-gradient(160deg, #132236 0%, #0c1524 100%);
+            position: relative;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .sim-map-canvas {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 70% 30%, rgba(52, 199, 89, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 20% 80%, rgba(10, 132, 255, 0.15) 0%, transparent 50%),
+                #0d1726;
+            z-index: 1;
+        }
+
+        .sim-route-line {
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 50%;
+            height: 60%;
+            border-left: 8px solid #007aff;
+            border-top: 8px solid #007aff;
+            border-top-left-radius: 40px;
+            filter: drop-shadow(0 0 12px #007aff);
+            pointer-events: none;
+        }
+
+        .sim-car-dot {
+            position: absolute;
+            bottom: 25%;
+            left: 23%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007aff;
+            border: 3px solid white;
+            box-shadow: 0 0 16px #007aff;
+            animation: carPulse 2s infinite;
+        }
+
+        @keyframes carPulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px #007aff; }
+            50% { transform: scale(1.2); box-shadow: 0 0 24px #007aff; }
+            100% { transform: scale(1); box-shadow: 0 0 10px #007aff; }
+        }
+
+        .map-turn-badge {
+            background: rgba(10, 16, 28, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 12px 16px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 2;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .turn-arrow-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #34c759, #28cd41);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 900;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+        }
+
+        .turn-instruction {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .turn-dist {
+            font-size: 19px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .turn-street {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            font-weight: 500;
+        }
+
+        .map-bottom-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 2;
+        }
+
+        .speed-limit-badge {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #ff3b30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 17px;
+            color: #111;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+
+        .route-eta-badge {
+            background: rgba(10, 16, 28, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 8px 14px;
+            border-radius: 12px;
+            color: #30d158;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* Now Playing Musiqi Paneli */
+        .dashboard-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .music-tile {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(145deg, rgba(28, 38, 62, 0.75) 0%, rgba(13, 19, 32, 0.75) 100%);
+            flex: 1;
+        }
+
+        .now-playing-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .album-art-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #1db954, #121212);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .music-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .song-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-artist {
+            font-size: 13px;
+            color: #1db954;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .music-progress-bar {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            margin: 12px 0 8px 0;
+            overflow: hidden;
+        }
+
+        .music-progress-fill {
+            width: 48%;
+            height: 100%;
+            background: #1db954;
+            border-radius: 3px;
+            box-shadow: 0 0 8px #1db954;
+        }
+
+        .music-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+        }
+
+        .music-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .music-btn:hover { transform: scale(1.15); color: #1db954; }
+
+        /* Ağıllı Kartlar Paneli (Smart Cards) */
+        .smart-actions-tile {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: linear-gradient(145deg, rgba(22, 32, 54, 0.75) 0%, rgba(12, 18, 30, 0.75) 100%);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .smart-actions-tile:hover {
+            background: rgba(32, 46, 76, 0.85);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
 
         /* Avtomobil Daxili İnternet Brauzeri Modalı */
         .browser-modal {
@@ -924,19 +1242,28 @@
         <!-- Avtomobil Loqoları Seçimi -->
         <div class="car-selector-group">
             <button class="btn-car-brand active" onclick="triggerCommercialIntro('cartwin')">
-                <span>♾️</span> CarTwin (Original)
+                <span>♾️</span> CarTwin
             </button>
             <button class="btn-car-brand" onclick="triggerCommercialIntro('byd')">
                 <span>⚡</span> BYD
             </button>
             <button class="btn-car-brand" onclick="triggerCommercialIntro('changan')">
-                <span>🛡️</span> Changan / Deepal
+                <span>🛡️</span> Changan
             </button>
             <button class="btn-car-brand" onclick="triggerCommercialIntro('liauto')">
-                <span>💎</span> Li Auto (Li Xiang)
+                <span>👑</span> Li Auto
+            </button>
+            <button class="btn-car-brand" onclick="triggerCommercialIntro('zeekr')">
+                <span>⚡</span> Zeekr
             </button>
             <button class="btn-car-brand" onclick="triggerCommercialIntro('geely')">
-                <span>🚀</span> Zeekr / Geely
+                <span>💎</span> Geely
+            </button>
+            <button class="btn-car-brand" onclick="triggerCommercialIntro('chery')">
+                <span>🔥</span> Chery
+            </button>
+            <button class="btn-car-brand" onclick="triggerCommercialIntro('haval')">
+                <span>🚙</span> Haval
             </button>
         </div>
     </header>
@@ -994,59 +1321,372 @@
             <!-- Orta Ekran: CarPlay + Yan Siluet -->
             <div class="screen-middle-body">
                 
-                <!-- CarPlay Dock -->
+                <!-- CarPlay Dock (iOS 17/18 Glassmorphism) -->
                 <div class="carplay-dock">
                     <div class="dock-time" id="clock">12:45</div>
                     <div class="dock-icons">
-                        <div class="dock-icon bg-maps" onclick="launchApp('Apple Maps')">🗺️</div>
-                        <div class="dock-icon bg-music" onclick="launchApp('Spotify')">🎵</div>
-                        <div class="dock-icon bg-browser" onclick="openInCarBrowser()" title="İnternet Brauzeri">🌐</div>
-                        <div class="dock-icon bg-phone" onclick="launchApp('Telefon')">📞</div>
-                        <div class="dock-icon bg-ai" onclick="startUniversalVoice()" title="AI Səs">🎙️</div>
+                        <!-- Maps Dock Icon -->
+                        <div class="dock-icon" onclick="launchApp('Apple Maps')" title="Xəritələr">
+                            <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                <defs>
+                                    <linearGradient id="dockMapWater" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a84ff"/><stop offset="100%" stop-color="#0066cc"/></linearGradient>
+                                    <linearGradient id="dockMapPin" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff453a"/><stop offset="100%" stop-color="#d70015"/></linearGradient>
+                                </defs>
+                                <rect width="100" height="100" fill="#f0f2f5"/>
+                                <path d="M0,0 L60,0 C65,30 40,55 0,70 Z" fill="#9de694"/>
+                                <path d="M40,100 L100,100 L100,45 C80,60 60,75 40,100 Z" fill="#88db7e"/>
+                                <path d="M0,70 C40,55 65,30 60,0 L100,0 L100,45 C75,60 55,75 40,100 L0,100 Z" fill="url(#dockMapWater)"/>
+                                <path d="M15,100 Q45,50 85,0" stroke="#ff9f0a" stroke-width="14" fill="none" stroke-linecap="round"/>
+                                <path d="M15,100 Q45,50 85,0" stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round"/>
+                                <ellipse cx="62" cy="48" rx="8" ry="4" fill="rgba(0,0,0,0.3)"/>
+                                <path d="M62,22 C53.7,22 47,28.7 47,37 C47,47.5 62,56 62,56 C62,56 77,47.5 77,37 C77,28.7 70.3,22 62,22 Z" fill="url(#dockMapPin)"/>
+                                <circle cx="62" cy="35" r="5" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                        <!-- Spotify Dock Icon -->
+                        <div class="dock-icon" onclick="launchApp('Spotify')" title="Spotify">
+                            <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                <rect width="100" height="100" fill="#121212"/>
+                                <circle cx="50" cy="50" r="38" fill="#1ed760"/>
+                                <path d="M30 42 C44 38 60 40 70 46" stroke="#121212" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+                                <path d="M33 52 C45 48 58 50 67 55" stroke="#121212" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+                                <path d="M36 61 C45 58 55 59 63 63" stroke="#121212" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                            </svg>
+                        </div>
+                        <!-- Browser Compass Dock Icon -->
+                        <div class="dock-icon" onclick="openInCarBrowser()" title="İnternet Brauzeri">
+                            <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                <defs>
+                                    <radialGradient id="dockCompass" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#147efb"/><stop offset="100%" stop-color="#004fc4"/>
+                                    </radialGradient>
+                                </defs>
+                                <rect width="100" height="100" fill="#ffffff"/>
+                                <circle cx="50" cy="50" r="39" fill="url(#dockCompass)" stroke="#ffffff" stroke-width="2.5"/>
+                                <circle cx="50" cy="50" r="32" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-dasharray="2,5"/>
+                                <polygon points="50,18 55,50 50,46" fill="#ff3b30"/>
+                                <polygon points="50,18 45,50 50,46" fill="#ff453a"/>
+                                <polygon points="50,82 55,50 50,54" fill="#e5e5ea"/>
+                                <polygon points="50,82 45,50 50,54" fill="#ffffff"/>
+                                <circle cx="50" cy="50" r="4.5" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                        <!-- Phone Dock Icon -->
+                        <div class="dock-icon" onclick="launchApp('Telefon')" title="Telefon">
+                            <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                <defs>
+                                    <linearGradient id="dockPhoneGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34c759"/><stop offset="100%" stop-color="#248a3d"/></linearGradient>
+                                </defs>
+                                <rect width="100" height="100" fill="url(#dockPhoneGrad)"/>
+                                <path d="M37 28 C34 28 30 30 28 34 C25 40 27 54 41 68 C55 82 69 84 75 81 C79 79 81 75 81 72 C81 69 76 64 71 62 C68 60 64 61 62 63 L58 67 C53 64 45 56 42 51 L46 47 C48 45 49 41 47 38 C45 33 40 28 37 28 Z" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                        <!-- Siri AI Dock Icon -->
+                        <div class="dock-icon" onclick="startUniversalVoice()" title="AI Səs (Siri)">
+                            <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                <defs>
+                                    <radialGradient id="dockSiri" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#ffffff"/>
+                                        <stop offset="25%" stop-color="#4facfe"/>
+                                        <stop offset="65%" stop-color="#f355da"/>
+                                        <stop offset="100%" stop-color="#05081c"/>
+                                    </radialGradient>
+                                </defs>
+                                <rect width="100" height="100" fill="#080c18"/>
+                                <circle cx="50" cy="50" r="38" fill="url(#dockSiri)"/>
+                                <path d="M22 50 Q36 30 50 50 T78 50" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                <path d="M22 50 Q36 68 50 50 T78 50" stroke="#00f2fe" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="dock-home" onclick="goHome()">
-                        <div style="width: 12px; height: 12px; border-radius: 3px; border: 2px solid white;"></div>
+                    <!-- Apple CarPlay 8-Dot Switcher Button -->
+                    <div class="dock-home" onclick="toggleDashboardMode()" title="Masaüstü / Split Dashboard Keçidi">
+                        <div class="carplay-switcher-icon">
+                            <span></span><span></span><span></span>
+                            <span></span><span></span><span></span>
+                            <span></span><span></span><span></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- CarPlay Əsas Masaüstü -->
                 <div class="carplay-content-area" id="mainSurface" onclick="handleSurfaceClick(event)">
+                    
+                    <!-- 1. CarPlay App Grid (Orijinal iOS 17/18 Retina Vektor İkonları) -->
                     <div class="app-grid">
+                        
+                        <!-- 1. Apple Maps -->
                         <div class="app-card" onclick="launchApp('Xəritələr')">
-                            <div class="app-icon-box bg-maps">🗺️</div>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="mapWater" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a84ff"/><stop offset="100%" stop-color="#0066cc"/></linearGradient>
+                                        <linearGradient id="mapPin" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff453a"/><stop offset="100%" stop-color="#d70015"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="#f0f2f5"/>
+                                    <path d="M0,0 L60,0 C65,30 40,55 0,70 Z" fill="#9de694"/>
+                                    <path d="M40,100 L100,100 L100,45 C80,60 60,75 40,100 Z" fill="#88db7e"/>
+                                    <path d="M0,70 C40,55 65,30 60,0 L100,0 L100,45 C75,60 55,75 40,100 L0,100 Z" fill="url(#mapWater)"/>
+                                    <path d="M15,100 Q45,50 85,0" stroke="#ff9f0a" stroke-width="14" fill="none" stroke-linecap="round"/>
+                                    <path d="M15,100 Q45,50 85,0" stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round"/>
+                                    <path d="M15,100 Q45,50 85,0" stroke="#ff9f0a" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+                                    <ellipse cx="62" cy="48" rx="8" ry="4" fill="rgba(0,0,0,0.3)"/>
+                                    <path d="M62,22 C53.7,22 47,28.7 47,37 C47,47.5 62,56 62,56 C62,56 77,47.5 77,37 C77,28.7 70.3,22 62,22 Z" fill="url(#mapPin)"/>
+                                    <circle cx="62" cy="35" r="5" fill="#ffffff"/>
+                                </svg>
+                            </div>
                             <span class="app-label">Xəritələr</span>
                         </div>
+
+                        <!-- 2. Spotify -->
                         <div class="app-card" onclick="launchApp('Spotify')">
-                            <div class="app-icon-box bg-music">🎵</div>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <rect width="100" height="100" fill="#121212"/>
+                                    <circle cx="50" cy="50" r="38" fill="#1ed760"/>
+                                    <path d="M30 42 C44 38 60 40 70 46" stroke="#121212" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+                                    <path d="M33 52 C45 48 58 50 67 55" stroke="#121212" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+                                    <path d="M36 61 C45 58 55 59 63 63" stroke="#121212" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                                </svg>
+                            </div>
                             <span class="app-label">Spotify</span>
                         </div>
-                        <div class="app-card" onclick="openInCarBrowser()">
-                            <div class="app-icon-box bg-browser">🌐</div>
-                            <span class="app-label">Brauzer (Veb)</span>
+
+                        <!-- 3. Apple Music -->
+                        <div class="app-card" onclick="launchApp('Musiqi')">
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appleMusicBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#fa2d55"/><stop offset="50%" stop-color="#fb3568"/><stop offset="100%" stop-color="#d91b5c"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appleMusicBg)"/>
+                                    <path d="M68 25 L42 30 C39 30.5 37 33 37 36 L37 63 C35 61.5 32 61 29 61 C23 61 18 64.5 18 69 C18 73.5 23 77 29 77 C35 77 39.5 73.5 39.5 69 L39.5 44 L65 39 L65 58 C63 56.5 60 56 57 56 C51 56 46 59.5 46 64 C46 68.5 51 72 57 72 C63 72 67.5 68.5 67.5 64 L67.5 28 C67.5 26.2 69 25 68 25 Z" fill="#ffffff"/>
+                                </svg>
+                            </div>
+                            <span class="app-label">Musiqi</span>
                         </div>
+
+                        <!-- 4. CarTwin Safari / Web Browser -->
+                        <div class="app-card" onclick="openInCarBrowser()">
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <radialGradient id="safariCompass" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#147efb"/><stop offset="70%" stop-color="#0066eb"/><stop offset="100%" stop-color="#004fc4"/>
+                                        </radialGradient>
+                                        <linearGradient id="needleGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff3b30"/><stop offset="100%" stop-color="#d70015"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="#ffffff"/>
+                                    <circle cx="50" cy="50" r="39" fill="url(#safariCompass)" stroke="#ffffff" stroke-width="2.5"/>
+                                    <circle cx="50" cy="50" r="32" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-dasharray="2,5"/>
+                                    <polygon points="50,18 55,50 50,46" fill="url(#needleGrad)"/>
+                                    <polygon points="50,18 45,50 50,46" fill="#ff453a"/>
+                                    <polygon points="50,82 55,50 50,54" fill="#d1d1d6"/>
+                                    <polygon points="50,82 45,50 50,54" fill="#ffffff"/>
+                                    <circle cx="50" cy="50" r="4.5" fill="#ffffff" stroke="#c7c7cc" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <span class="app-label">Brauzer</span>
+                        </div>
+
+                        <!-- 5. Phone -->
                         <div class="app-card" onclick="launchApp('Telefon')">
-                            <div class="app-icon-box bg-phone">📞</div>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appPhoneGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34c759"/><stop offset="50%" stop-color="#30d158"/><stop offset="100%" stop-color="#248a3d"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appPhoneGrad)"/>
+                                    <path d="M37 28 C34 28 30 30 28 34 C25 40 27 54 41 68 C55 82 69 84 75 81 C79 79 81 75 81 72 C81 69 76 64 71 62 C68 60 64 61 62 63 L58 67 C53 64 45 56 42 51 L46 47 C48 45 49 41 47 38 C45 33 40 28 37 28 Z" fill="#ffffff"/>
+                                </svg>
+                            </div>
                             <span class="app-label">Telefon</span>
                         </div>
+
+                        <!-- 6. Messages -->
                         <div class="app-card" onclick="launchApp('Mesajlar')">
-                            <div class="app-icon-box bg-msg">💬</div>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appMsgGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#30d158"/><stop offset="100%" stop-color="#28cd41"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appMsgGrad)"/>
+                                    <path d="M50 24 C33.5 24 20 35.2 20 49 C20 57.5 25 65 33 69.5 C32 74 29 78 24 81 C30 81 37 78 42 73.2 C44.6 73.7 47.3 74 50 74 C66.5 74 80 62.8 80 49 C80 35.2 66.5 24 50 24 Z" fill="#ffffff"/>
+                                </svg>
+                            </div>
                             <span class="app-label">Mesajlar</span>
                         </div>
+
+                        <!-- 7. YouTube (Park Rejimi) -->
                         <div class="app-card" onclick="openYouTubeParkMode()">
-                            <div class="app-icon-box bg-yt">🎬</div>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appYtGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff2a2a"/><stop offset="100%" stop-color="#cc0000"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appYtGrad)"/>
+                                    <rect x="18" y="27" width="64" height="46" rx="14" fill="#ffffff"/>
+                                    <polygon points="44,38 64,50 44,62" fill="#ff0000"/>
+                                </svg>
+                            </div>
                             <span class="app-label">YouTube (Park)</span>
                         </div>
+
+                        <!-- 8. AI Səs (Azərbaycan / Siri) -->
                         <div class="app-card" onclick="startUniversalVoice()">
-                            <div class="app-icon-box bg-ai">🔮</div>
-                            <span class="app-label">AI Səs (Azərbaycan)</span>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <radialGradient id="appSiriGrad" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#ffffff"/>
+                                            <stop offset="25%" stop-color="#4facfe"/>
+                                            <stop offset="60%" stop-color="#f355da"/>
+                                            <stop offset="85%" stop-color="#602bf8"/>
+                                            <stop offset="100%" stop-color="#05081c"/>
+                                        </radialGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="#080c18"/>
+                                    <circle cx="50" cy="50" r="38" fill="url(#appSiriGrad)"/>
+                                    <path d="M22 50 Q36 30 50 50 T78 50" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                    <path d="M22 50 Q36 68 50 50 T78 50" stroke="#00f2fe" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                                    <path d="M26 50 Q38 40 50 50 T74 50" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <span class="app-label">AI Səs (Siri)</span>
                         </div>
+
+                        <!-- 9. CarTwin Hub (Orijinal Brend) -->
                         <div class="app-card" onclick="triggerCommercialIntro()">
-                            <div class="app-icon-box bg-podcasts">🌟</div>
-                            <span class="app-label">Reklam Şousu</span>
+                            <div class="app-icon-box" style="background: radial-gradient(circle, #1a2236 0%, #080d1a 100%); border: 1.5px solid rgba(229,184,105,0.4); padding: 8px;">
+                                <img src="cartwin_logo.png" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 10px rgba(229,184,105,0.7));" alt="CarTwin">
+                            </div>
+                            <span class="app-label">CarTwin Hub</span>
                         </div>
+
+                        <!-- 10. Podcasts -->
+                        <div class="app-card" onclick="launchApp('Podkastlar')">
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appPodcastsGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#b455ff"/><stop offset="100%" stop-color="#7000d6"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appPodcastsGrad)"/>
+                                    <circle cx="50" cy="38" r="6" fill="#ffffff"/>
+                                    <path d="M50 46 L50 80" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+                                    <path d="M36 30 C30 35 30 45 36 50" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+                                    <path d="M64 30 C70 35 70 45 64 50" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+                                    <path d="M26 22 C16 31 16 50 26 59" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                                    <path d="M74 22 C84 31 84 50 74 59" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                                </svg>
+                            </div>
+                            <span class="app-label">Podkastlar</span>
+                        </div>
+
+                        <!-- 11. Waze -->
+                        <div class="app-card" onclick="launchApp('Waze')">
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appWazeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#33ccff"/><stop offset="100%" stop-color="#0099ff"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appWazeGrad)"/>
+                                    <path d="M68 34 C64 34 60 37 59 41 C54 39 44 40 38 46 C32 52 32 62 38 68 C44 74 54 75 62 70 L72 73 C75 74 78 71 77 68 L76 61 C80 54 79 43 73 38 C72 35 70 34 68 34 Z" fill="#ffffff"/>
+                                    <circle cx="48" cy="53" r="3.5" fill="#222"/>
+                                    <circle cx="62" cy="53" r="3.5" fill="#222"/>
+                                    <path d="M50 62 Q55 66 60 62" stroke="#222" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                                </svg>
+                            </div>
+                            <span class="app-label">Waze</span>
+                        </div>
+
+                        <!-- 12. Settings -->
                         <div class="app-card" onclick="launchApp('Sazlamalar')">
-                            <div class="app-icon-box bg-settings">⚙️</div>
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="appSettingsGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8e8e93"/><stop offset="100%" stop-color="#48484a"/></linearGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#appSettingsGrad)"/>
+                                    <g fill="#d1d1d6" stroke="#2c2c2e" stroke-width="1.5">
+                                        <path d="M44,18 L56,18 L58,26 C61,27 64,29 67,31 L75,27 L83,35 L79,43 C81,46 83,49 84,52 L92,54 L92,66 L84,68 C83,71 81,74 79,77 L83,85 L75,93 L67,89 C64,91 61,93 58,94 L56,102 L44,102 L42,94 C39,93 36,91 33,89 L25,93 L17,85 L21,77 C19,74 17,71 16,68 L8,66 L8,54 L16,52 C17,49 19,46 21,43 L17,35 L25,27 L33,31 C36,29 39,27 42,26 Z" transform="scale(0.8) translate(12, 12)"/>
+                                        <circle cx="50" cy="50" r="14" fill="#636366"/>
+                                        <circle cx="50" cy="50" r="7" fill="#d1d1d6"/>
+                                    </g>
+                                </svg>
+                            </div>
                             <span class="app-label">Sazlamalar</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. CarPlay Split Dashboard (Avtomobil Sürüş Rejimi) -->
+                    <div class="carplay-split-dashboard" id="carplaySplitDash">
+                        
+                        <!-- Sol Tərəf: Canlı Naviqasiya Paneli -->
+                        <div class="dashboard-tile map-tile" onclick="launchApp('Apple Maps')">
+                            <div class="sim-map-canvas">
+                                <div class="sim-route-line"></div>
+                                <div class="sim-car-dot"></div>
+                            </div>
+
+                            <div class="map-turn-badge">
+                                <div class="turn-arrow-icon">↱</div>
+                                <div class="turn-instruction">
+                                    <div class="turn-dist">250 m</div>
+                                    <div class="turn-street">Heydər Əliyev Prospektinə sağa dönün</div>
+                                </div>
+                            </div>
+
+                            <div class="map-bottom-controls">
+                                <div class="speed-limit-badge">60</div>
+                                <div class="route-eta-badge">14:45 • 12 dəq (8.4 km)</div>
+                            </div>
+                        </div>
+
+                        <!-- Sağ Tərəf: Musiqi & Ağıllı Kartlar -->
+                        <div class="dashboard-right-col">
+                            
+                            <!-- İndi Oynadılır (Spotify / Apple Music) -->
+                            <div class="dashboard-tile music-tile">
+                                <div class="now-playing-header">
+                                    <div class="album-art-box">
+                                        <svg viewBox="0 0 100 100" style="width: 38px; height: 38px;">
+                                            <circle cx="50" cy="50" r="38" fill="#1ed760"/>
+                                            <path d="M30 42 C44 38 60 40 70 46" stroke="#121212" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+                                            <path d="M33 52 C45 48 58 50 67 55" stroke="#121212" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+                                            <path d="M36 61 C45 58 55 59 63 63" stroke="#121212" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                                        </svg>
+                                    </div>
+                                    <div class="music-info">
+                                        <div class="song-title" id="dashSongTitle">Blinding Lights</div>
+                                        <div class="song-artist">The Weeknd • Spotify</div>
+                                    </div>
+                                </div>
+
+                                <div class="music-progress-bar">
+                                    <div class="music-progress-fill" id="dashMusicBar"></div>
+                                </div>
+
+                                <div class="music-controls">
+                                    <button class="music-btn" onclick="prevSong()">⏮</button>
+                                    <button class="music-btn" id="dashPlayBtn" onclick="togglePlayPause()" style="font-size: 26px;">⏸</button>
+                                    <button class="music-btn" onclick="nextSong()">⏭</button>
+                                </div>
+                            </div>
+
+                            <!-- Ağıllı Sürətli Əmr Kartı (CarTwin AI & İqlim) -->
+                            <div class="smart-actions-tile" onclick="startUniversalVoice()">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #00f2fe, #4facfe); display: flex; align-items: center; justify-content: center; font-size: 20px;">🎙️</div>
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 700; color: white;">CarTwin AI Köməkçi</div>
+                                        <div style="font-size: 11px; color: var(--brand-color);">Səslə danışmaq üçün toxunun</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 11px; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; color: white;">az-AZ 🇦🇿</div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -1278,65 +1918,101 @@
                 aspect: '16 / 9',
                 svg: `
                     <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <img src="cartwin_logo.png" style="max-width: 280px; max-height: 140px; object-fit: contain; border-radius: 16px; filter: drop-shadow(0 0 25px rgba(229,184,105,0.6));">
+                        <img src="cartwin_logo.png" style="max-width: 290px; max-height: 140px; object-fit: contain; border-radius: 16px; filter: drop-shadow(0 12px 30px rgba(229,184,105,0.7));">
                     </div>
                 `
             },
             byd: {
                 name: 'BYD',
                 title: 'BYD DiLink OS',
-                model: 'Seal / Han EV',
+                model: 'Seal / Han / Song / Atto 3',
                 commercialTitle: 'BUILD YOUR DREAMS',
-                commercialSub: 'BYD DILINK INTELLIGENT COCKPIT • CARPLAY',
+                commercialSub: 'BYD DILINK 5.0 • ULTRA SMART COCKPIT',
                 desc: 'BYD Ocean & Dynasty Şousu',
-                sub: 'Orijinal oval xrom BYD loqosu lazer skaneri və neon nəfəs ilə parıldayır.',
+                sub: 'Orijinal oval 3D xrom BYD loqosu lazer parıltısı ilə parıldayır.',
                 color: '#00f2fe',
-                glow: 'rgba(0, 242, 254, 0.5)',
+                glow: 'rgba(0, 242, 254, 0.55)',
                 icon: '⚡',
                 carEmoji: '🏎️',
                 range: '520 KM',
                 aspect: '16 / 9',
                 svg: `
-                    <svg class="original-byd-badge-svg" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="10" y="10" width="300" height="100" rx="50" stroke="url(#paint0_byd)" stroke-width="6" stroke-linecap="round"/>
-                        <path d="M75 35H105C118 35 125 42 125 50C125 56 121 61 114 63C123 65 128 72 128 80C128 90 119 97 105 97H75V35ZM92 49V60H103C108 60 111 57 111 54C111 51 108 49 103 49H92ZM92 72V83H105C110 83 114 80 114 77C114 74 110 72 105 72H92Z" fill="url(#paint0_byd)"/>
-                        <path d="M140 35H156L170 65L184 35H200L178 74V97H162V74L140 35Z" fill="url(#paint0_byd)"/>
-                        <path d="M215 35H242C262 35 274 48 274 66C274 84 262 97 242 97H215V35ZM232 49V83H241C253 83 259 76 259 66C259 56 253 49 241 49H232Z" fill="url(#paint0_byd)"/>
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="paint0_byd" x1="0" y1="0" x2="320" y2="120" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#ffffff"/>
-                                <stop offset="0.5" stop-color="#00f2fe"/>
-                                <stop offset="1" stop-color="#4facfe"/>
+                            <linearGradient id="bydChromeEdge" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="25%" stop-color="#94a3b8"/>
+                                <stop offset="50%" stop-color="#ffffff"/>
+                                <stop offset="75%" stop-color="#475569"/>
+                                <stop offset="100%" stop-color="#ffffff"/>
                             </linearGradient>
+                            <linearGradient id="bydLetterGrad" x1="0" y1="40" x2="0" y2="90" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="40%" stop-color="#e2e8f0"/>
+                                <stop offset="100%" stop-color="#94a3b8"/>
+                            </linearGradient>
+                            <filter id="bydInnerGlow">
+                                <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#00f2fe" flood-opacity="0.6"/>
+                            </filter>
                         </defs>
+                        <!-- Oval Xrom Haşiyə -->
+                        <rect x="15" y="15" width="290" height="100" rx="50" stroke="url(#bydChromeEdge)" stroke-width="7" fill="#080e18" filter="url(#bydInnerGlow)"/>
+                        <rect x="22" y="22" width="276" height="86" rx="43" stroke="rgba(0,242,254,0.3)" stroke-width="1.5" fill="none"/>
+                        <!-- B Hərfi (3D Xrom) -->
+                        <path d="M78 42 H110 C122 42 129 48 129 55 C129 60 125 64 118 66 C126 68 131 73 131 82 C131 92 122 98 108 98 H78 V42 Z M92 53 V62 H107 C112 62 116 60 116 57 C116 54 112 53 107 53 H92 Z M92 73 V86 H108 C113 86 118 84 118 80 C118 76 113 73 108 73 H92 Z" fill="url(#bydLetterGrad)"/>
+                        <!-- Y Hərfi (3D Xrom) -->
+                        <path d="M142 42 H158 L170 68 L182 42 H198 L178 77 V98 H162 V77 L142 42 Z" fill="url(#bydLetterGrad)"/>
+                        <!-- D Hərfi (3D Xrom) -->
+                        <path d="M210 42 H235 C254 42 265 53 265 70 C265 87 254 98 235 98 H210 V42 Z M224 54 V86 H234 C245 86 250 80 250 70 C250 60 245 54 234 54 H224 Z" fill="url(#bydLetterGrad)"/>
                     </svg>
                 `
             },
             changan: {
                 name: 'CHANGAN',
-                title: 'Deepal OS (Changan)',
-                model: 'Deepal SL03 / S7',
-                commercialTitle: 'CHANGAN DEEPAL',
-                commercialSub: 'ELECTRIC INTELLIGENCE • CARPLAY CONNECTED',
+                title: 'Changan / Deepal OS',
+                model: 'Deepal SL03 / S7 / Avatr',
+                commercialTitle: 'CHANGAN AUTOMOBILE',
+                commercialSub: 'DEEPAL INTELLIGENCE • SUNFLOWER SCREEN',
                 desc: 'Changan Deepal Şousu',
-                sub: 'Futuristik V-qalxan loqosu narıncı kəhrəba enerjisi ilə parıldayır.',
-                color: '#ff9f43',
-                glow: 'rgba(255, 159, 67, 0.5)',
+                sub: 'Orijinal sapfir qalxan və 3D cilalanmış xrom V-qanadları.',
+                color: '#2f80ed',
+                glow: 'rgba(47, 128, 237, 0.55)',
                 icon: '🛡️',
                 carEmoji: '🚘',
                 range: '610 KM',
                 aspect: '21 / 9',
                 svg: `
-                    <svg class="original-byd-badge-svg" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M160 15L240 50L160 105L80 50L160 15Z" stroke="url(#paint0_changan)" stroke-width="6" stroke-linejoin="round"/>
-                        <path d="M160 38L205 58L160 88L115 58L160 38Z" fill="url(#paint0_changan)"/>
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="paint0_changan" x1="80" y1="15" x2="240" y2="105" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#ffffff"/>
-                                <stop offset="0.5" stop-color="#ff9f43"/>
-                                <stop offset="1" stop-color="#ee5253"/>
+                            <radialGradient id="changanBlueCore" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#1a50a2"/>
+                                <stop offset="60%" stop-color="#0d2e68"/>
+                                <stop offset="100%" stop-color="#04122c"/>
+                            </radialGradient>
+                            <linearGradient id="changanChromeRing" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="35%" stop-color="#8eb4e3"/>
+                                <stop offset="70%" stop-color="#ffffff"/>
+                                <stop offset="100%" stop-color="#416594"/>
+                            </linearGradient>
+                            <linearGradient id="changanWingLeft" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="60%" stop-color="#cbd5e1"/>
+                                <stop offset="100%" stop-color="#94a3b8"/>
+                            </linearGradient>
+                            <linearGradient id="changanWingRight" x1="1" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#cbd5e1"/>
+                                <stop offset="60%" stop-color="#94a3b8"/>
+                                <stop offset="100%" stop-color="#475569"/>
                             </linearGradient>
                         </defs>
+                        <!-- Orijinal Xrom Dairəvi Çərçivə -->
+                        <circle cx="160" cy="65" r="54" fill="url(#changanBlueCore)" stroke="url(#changanChromeRing)" stroke-width="6"/>
+                        <circle cx="160" cy="65" r="47" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+                        <!-- 3D Xrom V-Qanadları (Sol İşıqlı, Sağ Kölgəli) -->
+                        <path d="M160 102 L120 38 L136 38 L160 78 Z" fill="url(#changanWingLeft)"/>
+                        <path d="M160 102 L200 38 L184 38 L160 78 Z" fill="url(#changanWingRight)"/>
+                        <line x1="160" y1="78" x2="160" y2="102" stroke="#ffffff" stroke-width="2"/>
                     </svg>
                 `
             },
@@ -1347,52 +2023,167 @@
                 commercialTitle: 'LEADING IDEAL',
                 commercialSub: 'SMART LUXURY FLAGSHIP • 3K SCREEN CARPLAY',
                 desc: 'Li Auto Lüks Şousu',
-                sub: 'Zərif qızılı qanadlı emblem yüksək kontrastla parıldayır.',
+                sub: 'Orijinal qızılı və titan örtüklü interlocked LI monogramı.',
                 color: '#ffd60a',
-                glow: 'rgba(255, 214, 10, 0.45)',
-                icon: '💎',
+                glow: 'rgba(255, 214, 10, 0.5)',
+                icon: '👑',
                 carEmoji: '🚙',
                 range: '1315 KM',
                 aspect: '16 / 10',
                 svg: `
-                    <svg class="original-byd-badge-svg" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="40" y="25" width="240" height="70" rx="35" stroke="url(#paint0_li)" stroke-width="5"/>
-                        <path d="M110 40H128V72H150V85H110V40ZM175 40H193V85H175V40Z" fill="url(#paint0_li)"/>
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="paint0_li" x1="40" y1="25" x2="280" y2="95" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#ffffff"/>
-                                <stop offset="0.5" stop-color="#ffd60a"/>
-                                <stop offset="1" stop-color="#f39c12"/>
+                            <linearGradient id="liGoldEdge" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#fff4d2"/>
+                                <stop offset="30%" stop-color="#d4af37"/>
+                                <stop offset="70%" stop-color="#ffd60a"/>
+                                <stop offset="100%" stop-color="#996515"/>
+                            </linearGradient>
+                            <linearGradient id="liMonogramGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="40%" stop-color="#ffeaa7"/>
+                                <stop offset="100%" stop-color="#d4af37"/>
                             </linearGradient>
                         </defs>
+                        <!-- Li Auto Qızılı Çərçivə -->
+                        <rect x="40" y="22" width="240" height="86" rx="43" stroke="url(#liGoldEdge)" stroke-width="5" fill="#0b0e14"/>
+                        <rect x="47" y="29" width="226" height="72" rx="36" stroke="rgba(255,214,10,0.25)" stroke-width="1.5" fill="none"/>
+                        <!-- "L" Hərfi -->
+                        <path d="M105 44 H126 V72 H154 V86 H105 V44 Z" fill="url(#liMonogramGrad)"/>
+                        <!-- "I" Hərfi -->
+                        <path d="M166 44 H187 V86 H166 V44 Z" fill="url(#liMonogramGrad)"/>
                     </svg>
                 `
             },
-            geely: {
+            zeekr: {
                 name: 'ZEEKR',
                 title: 'ZEEKR OS (Geely)',
-                model: 'Zeekr 001 / 007',
+                model: 'Zeekr 001 / 007 / X',
                 commercialTitle: 'ZEEKR PERFORMANCE',
                 commercialSub: 'HIGH-PERFORMANCE ARCHITECTURE • 60 FPS CARPLAY',
                 desc: 'Zeekr İdman Şousu',
-                sub: 'Geometrik neon yaşıl qalxan loqosu ultra sürətli axınla canlanır.',
+                sub: 'Orijinal titan qoşa sütunlar və kiber neon-yaşıl enerji axını.',
                 color: '#30d158',
-                glow: 'rgba(48, 209, 88, 0.5)',
-                icon: '🚀',
+                glow: 'rgba(48, 209, 88, 0.55)',
+                icon: '⚡',
                 carEmoji: '🏎️',
                 range: '680 KM',
                 aspect: '16 / 9',
                 svg: `
-                    <svg class="original-byd-badge-svg" viewBox="0 0 320 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <polygon points="160,10 260,35 260,85 160,110 60,85 60,35" stroke="url(#paint0_zeekr)" stroke-width="6"/>
-                        <line x1="160" y1="10" x2="160" y2="110" stroke="url(#paint0_zeekr)" stroke-width="4"/>
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="paint0_zeekr" x1="60" y1="10" x2="260" y2="110" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#ffffff"/>
-                                <stop offset="0.5" stop-color="#30d158"/>
-                                <stop offset="1" stop-color="#00b894"/>
+                            <linearGradient id="zeekrTitanium" x1="0" y1="0" x2="0" y2="100">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="50%" stop-color="#cbd5e1"/>
+                                <stop offset="100%" stop-color="#64748b"/>
+                            </linearGradient>
+                            <linearGradient id="zeekrCyberEdge" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="50%" stop-color="#30d158"/>
+                                <stop offset="100%" stop-color="#00b894"/>
                             </linearGradient>
                         </defs>
+                        <!-- Zeekr Həndəsi Çərçivə -->
+                        <rect x="85" y="20" width="150" height="90" rx="14" stroke="url(#zeekrCyberEdge)" stroke-width="4.5" fill="#070d14"/>
+                        <!-- Sol Sütun -->
+                        <rect x="118" y="36" width="20" height="58" rx="4" fill="url(#zeekrTitanium)"/>
+                        <!-- Sağ Sütun -->
+                        <rect x="146" y="36" width="20" height="58" rx="4" fill="url(#zeekrTitanium)"/>
+                    </svg>
+                `
+            },
+            geely: {
+                name: 'GEELY',
+                title: 'Geely Auto OS',
+                model: 'Monjaro / Tugella / Preface',
+                commercialTitle: 'GEELY AUTO',
+                commercialSub: 'INNOVATIVE MOBILITY • FLYME AUTO CARPLAY',
+                desc: 'Geely Flagship Şousu',
+                sub: 'Orijinal fasetli mavi və qara brilyant xrom qalxanı.',
+                color: '#155dfc',
+                glow: 'rgba(21, 93, 252, 0.55)',
+                icon: '💎',
+                carEmoji: '🚘',
+                range: '750 KM',
+                aspect: '16 / 9',
+                svg: `
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="geelyChrome" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="50%" stop-color="#93c5fd"/>
+                                <stop offset="100%" stop-color="#1e3a8a"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Xrom Qalxan Konturu -->
+                        <path d="M110 24 H210 V74 C210 98 160 112 160 112 C160 112 110 98 110 74 Z" stroke="url(#geelyChrome)" stroke-width="6" fill="#0a101d"/>
+                        <!-- 6 Faset Brilyant Şəbəkəsi -->
+                        <rect x="117" y="30" width="26" height="20" fill="#155dfc"/>
+                        <rect x="147" y="30" width="26" height="20" fill="#1e293b"/>
+                        <rect x="177" y="30" width="26" height="20" fill="#155dfc"/>
+                        <path d="M117 54 H143 V78 L117 72 Z" fill="#1e293b"/>
+                        <path d="M147 54 H173 V88 L160 98 L147 88 Z" fill="#155dfc"/>
+                        <path d="M177 54 H203 L203 72 L177 78 Z" fill="#1e293b"/>
+                    </svg>
+                `
+            },
+            chery: {
+                name: 'CHERY',
+                title: 'Chery Lion OS',
+                model: 'Tiggo 8 Pro / Omoda 5 / Exeed',
+                commercialTitle: 'CHERY AUTOMOBILE',
+                commercialSub: 'LION OS INTELLIGENCE • CARPLAY CONNECT',
+                desc: 'Chery Qlobal Şousu',
+                sub: 'Orijinal xrom qanadlı A-emblemi və daxili dairəvi fokus.',
+                color: '#e53e3e',
+                glow: 'rgba(229, 62, 62, 0.55)',
+                icon: '🔥',
+                carEmoji: '🚙',
+                range: '710 KM',
+                aspect: '16 / 9',
+                svg: `
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="cheryChrome" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="50%" stop-color="#cbd5e1"/>
+                                <stop offset="100%" stop-color="#64748b"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Qanadlı A Şəkli -->
+                        <path d="M160 25 L100 105 H124 L142 78 H178 L196 105 H220 Z M160 50 L150 66 H170 Z" fill="url(#cheryChrome)" stroke="#ffffff" stroke-width="2"/>
+                        <!-- Daxili Xrom Halqa -->
+                        <ellipse cx="160" cy="68" rx="34" ry="22" stroke="url(#cheryChrome)" stroke-width="5" fill="none"/>
+                    </svg>
+                `
+            },
+            haval: {
+                name: 'HAVAL',
+                title: 'Haval Smart OS',
+                model: 'H6 / Jolion / Tank 300 / 500',
+                commercialTitle: 'HAVAL PROFESSIONAL',
+                commercialSub: 'COFFEE INTELLIGENCE • SMART SUV CARPLAY',
+                desc: 'Haval & Tank SUV Şousu',
+                sub: 'Orijinal polad xrom lövhə və qırmızı idman fonu.',
+                color: '#c53030',
+                glow: 'rgba(197, 48, 48, 0.55)',
+                icon: '🚙',
+                carEmoji: '🚙',
+                range: '820 KM',
+                aspect: '16 / 9',
+                svg: `
+                    <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="havalBezel" x1="0" y1="0" x2="320" y2="130" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="50%" stop-color="#cbd5e1"/>
+                                <stop offset="100%" stop-color="#475569"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Haval Qırmızı Qalxan -->
+                        <polygon points="50,30 270,30 256,100 64,100" fill="#8b0000" stroke="url(#havalBezel)" stroke-width="6"/>
+                        <!-- HAVAL Mətni -->
+                        <text x="160" y="74" fill="#ffffff" font-size="34" font-weight="900" letter-spacing="6" text-anchor="middle" font-family="Arial, sans-serif" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">HAVAL</text>
                     </svg>
                 `
             }
@@ -1470,11 +2261,75 @@
 
         function launchApp(name) { logEvent(`📱 Tətbiq açıldı: ${name}`); }
 
+        let isDashboardSplit = false;
+        function toggleDashboardMode() {
+            closeVoiceModal();
+            closeYouTubeParkMode();
+            closeInCarBrowser();
+            isDashboardSplit = !isDashboardSplit;
+            const appGrid = document.querySelector('.app-grid');
+            const splitDash = document.getElementById('carplaySplitDash');
+            if (isDashboardSplit) {
+                appGrid.classList.add('hidden-view');
+                splitDash.classList.add('active');
+                logEvent(`🧭 CarPlay Split Dashboard aktivləşdirildi (Naviqasiya + Musiqi)`);
+            } else {
+                appGrid.classList.remove('hidden-view');
+                splitDash.classList.remove('active');
+                logEvent(`📱 CarPlay Tətbiqlər lövhəsi aktivləşdirildi`);
+            }
+        }
+
         function goHome() {
             logEvent(`🏠 Əsas ekrana qayıdıldı`);
             closeVoiceModal();
             closeYouTubeParkMode();
             closeInCarBrowser();
+            if (isDashboardSplit) {
+                toggleDashboardMode();
+            }
+        }
+
+        /* 🎵 Dashboard Musiqi İdarəetməsi */
+        const playlist = [
+            { title: "Blinding Lights", artist: "The Weeknd • Spotify" },
+            { title: "Get Lucky", artist: "Daft Punk • Spotify" },
+            { title: "Starboy", artist: "The Weeknd ft. Daft Punk" },
+            { title: "Ayrılıq", artist: "Rəşid Behbudov • CarTwin Audio" }
+        ];
+        let currentTrackIdx = 0;
+        let isPlaying = true;
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('dashPlayBtn');
+            const bar = document.getElementById('dashMusicBar');
+            if (isPlaying) {
+                btn.innerText = '⏸';
+                bar.style.animationPlayState = 'running';
+                logEvent(`▶ Musiqi davam etdirilir: ${playlist[currentTrackIdx].title}`);
+            } else {
+                btn.innerText = '▶';
+                bar.style.animationPlayState = 'paused';
+                logEvent(`⏸ Musiqi dayandırıldı`);
+            }
+        }
+
+        function nextSong() {
+            currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
+            updateDashboardTrack();
+        }
+
+        function prevSong() {
+            currentTrackIdx = (currentTrackIdx - 1 + playlist.length) % playlist.length;
+            updateDashboardTrack();
+        }
+
+        function updateDashboardTrack() {
+            const track = playlist[currentTrackIdx];
+            document.getElementById('dashSongTitle').innerText = track.title;
+            document.querySelector('.song-artist').innerText = track.artist;
+            logEvent(`⏭ Yeni mahnı: ${track.title} (${track.artist})`);
         }
 
         function openYouTubeParkMode() {

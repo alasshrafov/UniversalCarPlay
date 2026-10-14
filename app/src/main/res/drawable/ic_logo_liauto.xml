@@ -1,17 +1,74 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="240dp"
-    android:height="120dp"
-    android:viewportWidth="240"
-    android:viewportHeight="120">
-    <!-- Li Auto Outer Rounded Badge -->
-    <path
-        android:strokeColor="#FFD60A"
-        android:strokeWidth="5"
-        android:fillColor="#00000000"
-        android:pathData="M 60,30 L 180,30 A 15,15 0 0 1 195,45 L 195,75 A 15,15 0 0 1 180,90 L 60,90 A 15,15 0 0 1 45,75 L 45,45 A 15,15 0 0 1 60,30 Z" />
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="260dp"
+    android:height="130dp"
+    android:viewportWidth="260"
+    android:viewportHeight="130">
 
-    <!-- Li Monogram -->
+    <!-- 1. Zərif Qızılı Parıltı Hələqəsi -->
     <path
-        android:fillColor="#FFD60A"
-        android:pathData="M 90,44 L 102,44 L 102,70 L 122,70 L 122,80 L 90,80 Z M 140,44 L 152,44 L 152,80 L 140,80 Z" />
+        android:pathData="M 75,30 L 185,30 A 35,35 0 0 1 220,65 A 35,35 0 0 1 185,100 L 75,100 A 35,35 0 0 1 40,65 A 35,35 0 0 1 75,30 Z"
+        android:strokeWidth="8"
+        android:strokeColor="#18FFD60A"
+        android:fillColor="#00000000" />
+
+    <!-- 2. Orijinal Li Auto Çərçivə (Luxury Gold/Chrome Bezel) -->
+    <path
+        android:pathData="M 75,30 L 185,30 A 35,35 0 0 1 220,65 A 35,35 0 0 1 185,100 L 75,100 A 35,35 0 0 1 40,65 A 35,35 0 0 1 75,30 Z"
+        android:strokeWidth="4"
+        android:fillColor="#0C0E14">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="40"
+                android:startY="30"
+                android:endX="220"
+                android:endY="100"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFE89C" />
+                <item android:offset="0.3" android:color="#FFD4AF37" />
+                <item android:offset="0.7" android:color="#FFFFF3D1" />
+                <item android:offset="1.0" android:color="#FFA07C18" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 3. Li Auto - "L" Elementi -->
+    <path
+        android:pathData="M 96,48 L 114,48 L 114,72 L 140,72 L 140,82 L 96,82 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="96"
+                android:startY="48"
+                android:endX="140"
+                android:endY="82"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFF5DC" />
+                <item android:offset="0.5" android:color="#FFE5C158" />
+                <item android:offset="1.0" android:color="#FFB38B22" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 4. Li Auto - "i" Elementi -->
+    <path
+        android:pathData="M 150,48 L 168,48 L 168,82 L 150,82 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="150"
+                android:startY="48"
+                android:endX="168"
+                android:endY="82"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFF5DC" />
+                <item android:offset="0.5" android:color="#FFE5C158" />
+                <item android:offset="1.0" android:color="#FFB38B22" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 5. Orijinal "LI AUTO" Lüks Mətn Nişanı -->
+    <path
+        android:pathData="M 100,24 L 160,24"
+        android:strokeWidth="1.5"
+        android:strokeColor="#66FFD60A" />
 </vector>

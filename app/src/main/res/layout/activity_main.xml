@@ -132,21 +132,22 @@
 
             <!-- Arxada İşıqlı Neon Hələqə və Mərkəzi Orijinal Loqo -->
             <FrameLayout
-                android:layout_width="280dp"
-                android:layout_height="160dp">
+                android:layout_width="320dp"
+                android:layout_height="170dp">
 
                 <View
                     android:id="@+id/viewGlowAura"
-                    android:layout_width="260dp"
-                    android:layout_height="160dp"
+                    android:layout_width="300dp"
+                    android:layout_height="170dp"
                     android:layout_gravity="center"
                     android:background="@drawable/bg_glow_aura" />
 
                 <ImageView
                     android:id="@+id/ivCommercialLogo"
-                    android:layout_width="220dp"
-                    android:layout_height="110dp"
+                    android:layout_width="260dp"
+                    android:layout_height="130dp"
                     android:layout_gravity="center"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/ic_logo_byd"
                     android:contentDescription="Avtomobil Loqosu" />
             </FrameLayout>
@@ -156,12 +157,12 @@
                 android:id="@+id/tvCommercialTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:text="BUILD YOUR DREAMS"
                 android:textColor="@color/white"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.15" />
+                android:letterSpacing="0.12" />
 
             <!-- Lüks Alt Başlıq / Sloqan -->
             <TextView

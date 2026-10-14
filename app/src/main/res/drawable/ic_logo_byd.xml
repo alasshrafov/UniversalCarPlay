@@ -1,27 +1,93 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="240dp"
-    android:height="120dp"
-    android:viewportWidth="240"
-    android:viewportHeight="120">
-    <!-- BYD Chrome Oval Outer Badge -->
-    <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="5"
-        android:fillColor="#00000000"
-        android:pathData="M 60,30 L 180,30 A 30,30 0 0 1 210,60 A 30,30 0 0 1 180,90 L 60,90 A 30,30 0 0 1 30,60 A 30,30 0 0 1 60,30 Z" />
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="260dp"
+    android:height="130dp"
+    android:viewportWidth="260"
+    android:viewportHeight="130">
 
-    <!-- Letter B -->
+    <!-- 1. BYD Dış Parıltı və Xrom Kölgəsi -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 68,45 L 88,45 C 96,45 101,48 101,54 C 101,58 98,61 93,62 C 99,63 103,67 103,73 C 103,80 97,83 88,83 L 68,83 Z M 76,51 L 76,60 L 87,60 C 91,60 93,58 93,55 C 93,52 91,51 87,51 Z M 76,66 L 76,77 L 88,77 C 92,77 95,75 95,71 C 95,68 92,66 88,66 Z" />
+        android:pathData="M 70,25 L 190,25 A 40,40 0 0 1 230,65 A 40,40 0 0 1 190,105 L 70,105 A 40,40 0 0 1 30,65 A 40,40 0 0 1 70,25 Z"
+        android:strokeWidth="10"
+        android:strokeColor="#1A00F0FF"
+        android:fillColor="#00000000" />
 
-    <!-- Letter Y -->
+    <!-- 2. Orijinal BYD Xrom Oval Çərçivəsi (Metallic Gradient) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 108,45 L 117,45 L 125,60 L 133,45 L 142,45 L 129,67 L 129,83 L 121,83 L 121,67 Z" />
+        android:pathData="M 70,25 L 190,25 A 40,40 0 0 1 230,65 A 40,40 0 0 1 190,105 L 70,105 A 40,40 0 0 1 30,65 A 40,40 0 0 1 70,25 Z"
+        android:strokeWidth="6"
+        android:fillColor="#0A101D">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="30"
+                android:startY="25"
+                android:endX="230"
+                android:endY="105"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.2" android:color="#FFA0B2C6" />
+                <item android:offset="0.5" android:color="#FFFFFFFF" />
+                <item android:offset="0.8" android:color="#FF718295" />
+                <item android:offset="1.0" android:color="#FFFFFFFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
 
-    <!-- Letter D -->
+    <!-- 3. Daxili Zərif Haşiyə -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 148,45 L 165,45 C 176,45 183,52 183,64 C 183,76 176,83 165,83 L 148,83 Z M 156,52 L 156,76 L 165,76 C 172,76 175,71 175,64 C 175,57 172,52 165,52 Z" />
+        android:pathData="M 72,29 L 188,29 A 36,36 0 0 1 224,65 A 36,36 0 0 1 188,101 L 72,101 A 36,36 0 0 1 36,65 A 36,36 0 0 1 72,29 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#3300F0FF"
+        android:fillColor="#00000000" />
+
+    <!-- 4. Orijinal BYD - "B" Hərfi -->
+    <path
+        android:pathData="M 66,45 L 90,45 C 99,45 106,48 106,55 C 106,59 103,62 98,64 C 104,65 108,69 108,76 C 108,83 100,87 90,87 L 66,87 Z M 75,52 L 75,62 L 89,62 C 94,62 97,60 97,57 C 97,54 94,52 89,52 Z M 75,69 L 75,80 L 90,80 C 95,80 99,78 99,74 C 99,71 95,69 90,69 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="66"
+                android:startY="45"
+                android:endX="108"
+                android:endY="87"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.5" android:color="#FFE2E8F0" />
+                <item android:offset="1.0" android:color="#FFA0AEC0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 5. Orijinal BYD - "Y" Hərfi -->
+    <path
+        android:pathData="M 116,45 L 126,45 L 136,63 L 146,45 L 156,45 L 141,70 L 141,87 L 131,87 L 131,70 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="116"
+                android:startY="45"
+                android:endX="156"
+                android:endY="87"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.5" android:color="#FFE2E8F0" />
+                <item android:offset="1.0" android:color="#FFA0AEC0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 6. Orijinal BYD - "D" Hərfi -->
+    <path
+        android:pathData="M 164,45 L 183,45 C 196,45 204,53 204,66 C 204,79 196,87 183,87 L 164,87 Z M 173,53 L 173,79 L 183,79 C 191,79 194,74 194,66 C 194,58 191,53 183,53 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="164"
+                android:startY="45"
+                android:endX="204"
+                android:endY="87"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.5" android:color="#FFE2E8F0" />
+                <item android:offset="1.0" android:color="#FFA0AEC0" />
+            </gradient>
+        </aapt:attr>
+    </path>
 </vector>

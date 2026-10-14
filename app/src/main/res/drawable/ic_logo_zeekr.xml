@@ -1,18 +1,67 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="240dp"
-    android:height="120dp"
-    android:viewportWidth="240"
-    android:viewportHeight="120">
-    <!-- Zeekr Geometric Badge -->
-    <path
-        android:strokeColor="#30D158"
-        android:strokeWidth="5"
-        android:fillColor="#00000000"
-        android:pathData="M 120,22 L 175,42 L 175,82 L 120,102 L 65,82 L 65,42 Z" />
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="260dp"
+    android:height="130dp"
+    android:viewportWidth="260"
+    android:viewportHeight="130">
 
-    <!-- Center Line -->
+    <!-- 1. Neon İdman Aurası -->
     <path
-        android:strokeColor="#30D158"
-        android:strokeWidth="4"
-        android:pathData="M 120,22 L 120,102" />
+        android:pathData="M 85,25 L 175,25 L 175,105 L 85,105 Z"
+        android:strokeWidth="12"
+        android:strokeColor="#1500FF88"
+        android:fillColor="#00000000" />
+
+    <!-- 2. Zeekr Futuristic Həndəsi Çərçivə -->
+    <path
+        android:pathData="M 90,28 L 170,28 L 170,102 L 90,102 Z"
+        android:strokeWidth="3.5"
+        android:fillColor="#0B121A">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="90"
+                android:startY="28"
+                android:endX="170"
+                android:endY="102"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.4" android:color="#FF00FF88" />
+                <item android:offset="1.0" android:color="#FF416594" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 3. Zeekr Orijinal Sol Sütun (Titanium Chrome) -->
+    <path
+        android:pathData="M 112,42 L 126,42 L 126,88 L 112,88 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="112"
+                android:startY="42"
+                android:endX="126"
+                android:endY="88"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.5" android:color="#FFE2E8F0" />
+                <item android:offset="1.0" android:color="#FF718096" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 4. Zeekr Orijinal Sağ Sütun (Titanium Chrome) -->
+    <path
+        android:pathData="M 134,42 L 148,42 L 148,88 L 134,88 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="134"
+                android:startY="42"
+                android:endX="148"
+                android:endY="88"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.5" android:color="#FFE2E8F0" />
+                <item android:offset="1.0" android:color="#FF718096" />
+            </gradient>
+        </aapt:attr>
+    </path>
 </vector>

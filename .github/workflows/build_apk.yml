@@ -43,39 +43,36 @@ jobs:
     - name: Copy and Rename APK for Release
       run: |
         mkdir -p release_output
-        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.2.apk
+        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.3.apk
         ls -la release_output/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CarTwin-v1.2-apk
-        path: release_output/CarTwin-v1.2.apk
+        name: CarTwin-v1.3-apk
+        path: release_output/CarTwin-v1.3.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.2.0
-        name: "CarTwin v1.2.0 (Premium Connect — Rəsmi Buraxılış & Orijinal Loqo)"
+        tag_name: v1.3.0
+        name: "CarTwin v1.3.0 (Orijinal Avtomobil Loqoları & 3D Xrom Reklam Şousu)"
         body: |
-          ## 🌟 CarTwin — Premium Connect (Android CarPlay Receiver v1.2.0)
+          ## 🌟 CarTwin — Premium Connect (Release v1.3.0)
 
-          **CarTwin (Premium Connect)** — **BYD (DiLink), Changan (Deepal/Avatr), Li Auto (L7/L8/L9), Zeekr və bütün Android monitorlar** üçün hazırlanmış rəsmi brendləşdirilmiş, daxili **İnternet Brauzeri, Orijinal Sonsuzluq Loqosu və Çoxdilli Səsli Köməkçisi** ilə təchiz olunmuş ən son buraxılışdır.
+          Bu buraxılış **BYD, Changan, Deepal, Li Auto, Zeekr, Geely, Chery və Haval** avtomobilləri üçün **rəsmi 3D metalik xrom loqo açılış şouları, iOS 17/18 Retina tətbiq ikonları və CarPlay Split Dashboard** ilə təchiz edilmiş ən son stabil versiyadır.
 
           ### 📥 Necə Yükləmək və Quraşdırmaq olar:
-          1. Aşağıdakı **`CarTwin-v1.2.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
-          2. Faylı USB fleşkarta (flash drive) köçürün və avtomobilin USB portuna taxın.
-          3. Monitorun daxili **"File Manager" (Fayl Meneceri)** tətbiqini açıb `CarTwin-v1.2.apk` üzərinə vurun və quraşdırın.
+          1. Aşağıdakı **`CarTwin-v1.3.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
+          2. Faylı USB fleşkarta köçürün və avtomobilin USB portuna taxın.
+          3. Monitorun **"File Manager"** tətbiqindən `CarTwin-v1.3.apk` üzərinə vurun və quraşdırın.
 
-          ### ✨ Yeni və Əsas Funksiyalar (v1.2.0):
-          * 💎 **Yeni Brend və Rəsmi Loqo:** Metalik sonsuzluq ilmələri (gümüşü "C" və qızılı "T"), "CARTWIN PREMIUM CONNECT" xüsusi açılış loqosu və tətbiq simvolu (launcher icon).
-          * 🌐 **İnteqrasiya Olunmuş İnternet Brauzeri:** Google, YouTube, Vikipediya və istənilən veb-sayta birbaşa multimedia ekranından daxil olun.
-          * 🎙️ **Səsli Əmrlə Brauzer və YouTube:** Azərbaycan dilində *"Brauzeri aç"* və ya *"YouTube-u başlat"* deyərək pəncərəni aktivləşdirin.
-          * 🎬 **Reklam Çarxı Stilində Açılış Şousu:** CarTwin, BYD, Changan, Li Auto və Zeekr orijinal vektor loqoları ilə dinamik animasiya.
-          * 🚗 **Avtomobil Modelini 100% Avtomatik Tanıma:** Heç bir əl konfiqurasiyası tələb olunmur.
-          * 📶 **Simsiz və Simli CarPlay:** Bluetooth LE + Wi-Fi Hotspot və USB Plug-and-Play dəstəyi.
-          * 🗣️ **Çoxdilli AI Səs Köməkçisi:** Azərbaycan dili (`az-AZ`), Türk, Rus və İngilis dillərində kondisioner, naviqasiya və zəng idarəetməsi.
-          * 🎛️ **Lüks Split-Screen Dashboard:** Sürətölçən (km/h), batareya faizi, ikili iqlim nəzarəti və YouTube Park Rejimi.
-        files: release_output/CarTwin-v1.2.apk
+          ### ✨ Yeni Funksiyalar (v1.3.0):
+          * 🚘 **Orijinal Avtomobil Loqoları (3D Xrom & Fotorealistik):** BYD, Changan, Li Auto, Zeekr, Geely, Chery və Haval rəsmi vektor emblemləri ilə lazer parıltılı açılış şousu.
+          * 🧭 **iOS 17/18 Retina CarPlay İkonları:** Apple Maps, Spotify, Musiqi, Brauzer, Telefon, Mesajlar və Siri üçün kristal təmiz vektor qrafikaları.
+          * 🎛️ **CarPlay Split Dashboard (Avtomobil Rejimi):** Sol tərəfdə canlı naviqasiya xəritəsi və dönmə göstəricisi, sağ tərəfdə isə canlı Spotify pleyeri və ağıllı əmr kartı.
+          * 🌐 **İnteqrasiya Olunmuş Veb Brauzer:** Google, YouTube, Vikipediya bir toxunuşla multimedia ekranında.
+          * 🗣️ **Azərbaycan Dilli AI Səs Köməkçisi:** *"Brauzeri aç"*, *"YouTube-u başlat"*, kondisioner və naviqasiya.
+        files: release_output/CarTwin-v1.3.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

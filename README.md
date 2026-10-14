@@ -6,14 +6,16 @@ Heç bir xarici fiziki adapterə (dongle) ehtiyac olmadan həm simli (USB), həm
 
 ---
 
-## 📥 Hazır APK Yükləmə (Release v1.2.0)
-* 🚀 **Birbaşa APK Yüklə:** [CarTwin-v1.2.apk](https://github.com/alasshrafov/UniversalCarPlay/releases/download/v1.2.0/CarTwin-v1.2.apk)
+## 📥 Hazır APK Yükləmə (Release v1.3.0)
+* 🚀 **Birbaşa APK Yüklə:** [CarTwin-v1.3.apk](https://github.com/alasshrafov/UniversalCarPlay/releases/download/v1.3.0/CarTwin-v1.3.apk)
 * 📦 **Bütün Buraxılışlar:** [GitHub Releases Səhifəsi](https://github.com/alasshrafov/UniversalCarPlay/releases)
 
 ---
 
 ## 🌟 Əsas Funksiyalar
 
+* 🚘 **Orijinal Avtomobil Loqoları (3D Xrom & Fotorealistik):** BYD, Changan, Li Auto, Zeekr, Geely, Chery və Haval rəsmi vektor emblemləri ilə lazer parıltılı açılış şousu.
+* 🧭 **iOS 17/18 Retina CarPlay İkonları & Split Dashboard:** Kristal təmiz vektor qrafikaları və canlı naviqasiya + musiqi idarəetməsi.
 * 💎 **CarTwin Orijinal Loqosu və İnterfeysi:** Metalik sonsuzluq ilmələri (gümüşü "C" və qızılı "T"), "CARTWIN PREMIUM CONNECT" açılış şousu.
 * 🌐 **İnteqrasiya Olunmuş İnternet Brauzeri:** Google, YouTube, Vikipediya və istənilən veb-sayta birbaşa multimedia ekranından daxil olun.
 * 🎙️ **Azərbaycan Dilli Səsli Köməkçi:** *"Brauzeri aç"*, *"YouTube-u başlat"*, kondisioner, naviqasiya və zənglər.

@@ -101,8 +101,56 @@ sealed class VehicleProfile(
         targetDpi = 220
     )
 
+    /**
+     * Geely Profili (Flyme Auto & CMA/SEA Platforması)
+     */
+    object Geely : VehicleProfile(
+        id = "geely",
+        name = "Geely (Flyme Auto)",
+        commercialTitle = "GEELY AUTO",
+        commercialTagline = "INNOVATIVE MOBILITY • FLYME AUTO CARPLAY",
+        logoResId = R.drawable.ic_logo_geely,
+        accentColorHex = "#155DFC",
+        defaultWidth = 1920,
+        defaultHeight = 1080,
+        targetFps = 60,
+        targetDpi = 200
+    )
+
+    /**
+     * Chery / Exeed / Omoda Profili (Lion OS)
+     */
+    object Chery : VehicleProfile(
+        id = "chery",
+        name = "Chery / Exeed / Omoda",
+        commercialTitle = "CHERY AUTOMOBILE",
+        commercialTagline = "LION OS INTELLIGENCE • CARPLAY CONNECT",
+        logoResId = R.drawable.ic_logo_chery,
+        accentColorHex = "#E53E3E",
+        defaultWidth = 1920,
+        defaultHeight = 1080,
+        targetFps = 60,
+        targetDpi = 180
+    )
+
+    /**
+     * Haval / GWM / Tank Profili (Coffee Intelligence OS)
+     */
+    object Haval : VehicleProfile(
+        id = "haval",
+        name = "Haval / GWM / Tank",
+        commercialTitle = "HAVAL PROFESSIONAL",
+        commercialTagline = "COFFEE INTELLIGENCE • SMART SUV CARPLAY",
+        logoResId = R.drawable.ic_logo_haval,
+        accentColorHex = "#C53030",
+        defaultWidth = 1920,
+        defaultHeight = 1080,
+        targetFps = 60,
+        targetDpi = 180
+    )
+
     companion object {
-        val ALL = listOf(Universal, BYD, Changan, LiAuto, Zeekr)
+        val ALL = listOf(Universal, BYD, Changan, LiAuto, Zeekr, Geely, Chery, Haval)
 
         fun fromId(id: String): VehicleProfile {
             return ALL.find { it.id == id } ?: Universal

@@ -66,9 +66,24 @@ class VehicleDetector(private val context: Context) {
             return VehicleProfile.LiAuto
         }
 
-        // D. Zeekr / Geely Analizi
-        if (fullInfo.contains("zeekr") || fullInfo.contains("geely") || fullInfo.contains("ecarx")) {
+        // D. Zeekr Analizi
+        if (fullInfo.contains("zeekr")) {
             return VehicleProfile.Zeekr
+        }
+
+        // E. Geely Analizi
+        if (fullInfo.contains("geely") || fullInfo.contains("ecarx") || fullInfo.contains("flyme")) {
+            return VehicleProfile.Geely
+        }
+
+        // F. Chery / Exeed / Omoda / Jaecoo Analizi
+        if (fullInfo.contains("chery") || fullInfo.contains("exeed") || fullInfo.contains("omoda") || fullInfo.contains("jaecoo")) {
+            return VehicleProfile.Chery
+        }
+
+        // G. Haval / Great Wall / Tank / Wey Analizi
+        if (fullInfo.contains("haval") || fullInfo.contains("gwm") || fullInfo.contains("greatwall") || fullInfo.contains("tank") || fullInfo.contains("wey")) {
+            return VehicleProfile.Haval
         }
 
         // D. Ekran Ölçüsü və Nisbəti ilə Təyin Etmə
