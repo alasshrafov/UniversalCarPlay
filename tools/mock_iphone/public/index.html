@@ -81,6 +81,64 @@
             color: white;
         }
 
+        /* Daimi "Aura" Oyanış Sözü Göstəricisi */
+        .wake-word-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.25s;
+            user-select: none;
+        }
+
+        .wake-word-badge:hover {
+            background: rgba(0, 242, 254, 0.16);
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
+        }
+
+        .wake-word-badge.inactive {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+            opacity: 0.6;
+        }
+
+        .wake-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 10px #00f2fe;
+            animation: wakePulse 1.8s infinite ease-in-out;
+        }
+
+        .wake-word-badge.inactive .wake-dot {
+            background: #64748b;
+            box-shadow: none;
+            animation: none;
+        }
+
+        @keyframes wakePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
+
+        .wake-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #00f2fe;
+        }
+
+        .wake-word-badge.inactive .wake-text {
+            color: #94a3b8;
+        }
+
         .car-selector-group {
             display: flex;
             gap: 8px;
@@ -1641,6 +1699,12 @@
             <span style="font-size: 13px; color: var(--text-muted);">| Apple CarPlay</span>
         </div>
 
+        <!-- Daimi "Aura" Oyanış Sözü (Always-on Wake Word) Göstəricisi -->
+        <div class="wake-word-badge" id="wakeWordBadge" onclick="toggleWakeWordListener()" title="Daimi 'Aura' səs oyanışı aktivdir. İstənilən vaxt ekrana toxunmadan 'Aura' deyin.">
+            <span class="wake-dot"></span>
+            <span class="wake-text" id="wakeWordText">"Aura" Dinlənilir</span>
+        </div>
+
         <!-- Avtomobil Loqoları Seçimi -->
         <div class="car-selector-group">
             <button class="btn-car-brand active" onclick="triggerCommercialIntro('cartwin')">
@@ -2446,11 +2510,17 @@
             <div>
                 <div class="section-label">🔮 Bütün Dillərdə AI Səs Köməkçisi</div>
                 <div class="ai-assistant-card">
-                    <button class="ai-voice-trigger-btn" onclick="startUniversalVoice()">
-                        <span>🎙️</span> Səslə Danış (Mikrofon)
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 11px; font-weight: 700; color: #00f2fe; display: flex; align-items: center; gap: 6px;">
+                            <span class="wake-dot"></span> Daimi Oyanış: Aktiv
+                        </span>
+                        <span style="font-size: 10px; background: rgba(0, 242, 254, 0.15); color: #00f2fe; padding: 2px 8px; border-radius: 12px; font-weight: 700;">"Aura" Deyin</span>
+                    </div>
+                    <button class="ai-voice-trigger-btn" onclick="startAuraAi()">
+                        <span>🎙️</span> Səslə Danış ("Aura")
                     </button>
-                    <div style="font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.4;">
-                        🇦🇿 <b>Azərbaycan dili:</b> <i>"Kondisioneri 20 dərəcəyə qoy"</i> və ya <i>"Əliyə zəng et"</i>.
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.4; margin-top: 8px;">
+                        🇦🇿 Düyməyə basmadan da maşında birbaşa <b>"Aura, kondisioneri 20 dərəcəyə qoy"</b> və ya <b>"Aura, musiqini dəyiş"</b> deyə bilərsiniz.
                     </div>
                 </div>
             </div>
@@ -3288,38 +3358,147 @@
             }
         }
 
-        function startUniversalVoice() {
-            const modal = document.getElementById('voiceModal');
-            const output = document.getElementById('voiceOutputText');
-            modal.classList.add('active');
-            output.innerText = "Sizi dinləyirəm, sərbəst danışın… 🎙️";
-            logEvent(`🎙️ AI Səs Köməkçisi aktivdir (Azərbaycan dili)`);
+        // ==========================================================
+        // 🎙️ DAİMİ "AURA" OYANIŞ SÖZÜ VƏ SƏS KÖMƏKÇİSİ (PASSIVE WAKE WORD)
+        // ==========================================================
+        let isWakeWordEnabled = true;
+        let wakeWordRecognizer = null;
+        let activeCommandRecognizer = null;
+        let isVoiceSessionActive = false;
+        let wakeWordCooldown = false;
 
+        function initPassiveWakeWordListener() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRec) {
-                try {
-                    const rec = new SpeechRec();
-                    rec.lang = 'az-AZ';
-                    rec.onresult = (e) => {
-                        const text = e.results[0][0].transcript;
-                        executeVoiceCommandText(text);
-                    };
-                    rec.onerror = () => { setTimeout(() => closeVoiceModal(), 2500); };
-                    rec.start();
-                } catch(e) {}
+            if (!SpeechRec) {
+                logEvent("⚠️ Bu brauzerdə Web Speech API dəstəklənmir.");
+                updateWakeBadge(false);
+                return;
+            }
+
+            if (wakeWordRecognizer) {
+                try { wakeWordRecognizer.abort(); } catch(e) {}
+            }
+
+            try {
+                wakeWordRecognizer = new SpeechRec();
+                wakeWordRecognizer.continuous = true;
+                wakeWordRecognizer.interimResults = true;
+                wakeWordRecognizer.lang = 'az-AZ';
+
+                wakeWordRecognizer.onstart = () => {
+                    logEvent("🎙️ Daimi 'Aura' oyanış sözü aktivdir. Maşında istənilən vaxt 'Aura' deyin.");
+                    updateWakeBadge(true);
+                };
+
+                wakeWordRecognizer.onresult = (event) => {
+                    if (isVoiceSessionActive || wakeWordCooldown) return;
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcript = event.results[i][0].transcript.trim();
+                        const lower = transcript.toLowerCase();
+
+                        // "Aura", "Hey Aura", "Ey Aura", "Ay Aura", "Oura", "Avra", "Ayra"
+                        const match = lower.match(/\b(aura|ey aura|hey aura|ay aura|oura|avra|ayra)\b/i);
+                        if (match) {
+                            logEvent(`⚡ OYANIŞ SÖZÜ DEYİLDİ: "${transcript}"`);
+                            wakeWordTriggered(transcript);
+                            break;
+                        }
+                    }
+                };
+
+                wakeWordRecognizer.onerror = (e) => {
+                    if (e.error === 'not-allowed') {
+                        logEvent("⚠️ Mikrofon icazəsi gözlənilir. Brauzerdə mikrofona icazə verin.");
+                        updateWakeBadge(false);
+                        isWakeWordEnabled = false;
+                    }
+                };
+
+                wakeWordRecognizer.onend = () => {
+                    if (isWakeWordEnabled && !isVoiceSessionActive) {
+                        setTimeout(() => {
+                            if (isWakeWordEnabled && !isVoiceSessionActive) {
+                                try { wakeWordRecognizer.start(); } catch(err) {}
+                            }
+                        }, 300);
+                    }
+                };
+
+                wakeWordRecognizer.start();
+            } catch(e) {
+                console.warn("Passive wake word start failed:", e);
             }
         }
 
-        function startAuraAi() {
+        function wakeWordTriggered(fullTranscript) {
+            wakeWordCooldown = true;
+            setTimeout(() => { wakeWordCooldown = false; }, 2500);
+
+            // Zərif Apple təsdiq melodiyası
+            playAppleChime();
+
+            // Fon dinləməni dayandırırıq ki, aktiv əmr dinləyicisi ilə toqquşmasın
+            try {
+                if (wakeWordRecognizer) wakeWordRecognizer.abort();
+            } catch(e) {}
+
+            isVoiceSessionActive = true;
+
             const modal = document.getElementById('voiceModal');
             const output = document.getElementById('voiceOutputText');
             const langInd = document.getElementById('voiceLangIndicator');
             const titleEl = document.getElementById('voiceModalTitle');
             if (titleEl) titleEl.innerText = "AURA AI";
-            output.innerText = "Salam! Mən Aura, sizi dinləyirəm… 🎙️";
-            langInd.innerText = "Aura Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿";
-            logEvent(`✨ Aura AI (Avtomobil Köməkçisi) aktivdir (Azərbaycan dili)`);
-            startUniversalVoice();
+            if (langInd) langInd.innerText = "Aura Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿";
+            if (modal) modal.classList.add('active');
+
+            // Əgər istifadəçi "Aura" ilə yanaşı əmri də bir nəfəsə dedisə (Məs: "Aura, kondisioneri 20 dərəcəyə qoy")
+            const afterAura = fullTranscript.replace(/^.*?\b(?:aura|ey aura|hey aura|ay aura|oura|avra|ayra)\b[,:\s]*/i, '').trim();
+
+            if (afterAura.length > 2) {
+                if (output) output.innerText = `"${fullTranscript}"`;
+                setTimeout(() => {
+                    executeVoiceCommandText(fullTranscript);
+                }, 200);
+            } else {
+                if (output) output.innerText = "Bəli, sizi dinləyirəm… 🎙️";
+                startActiveSpeechSession();
+            }
+        }
+
+        function startActiveSpeechSession() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return;
+
+            if (activeCommandRecognizer) {
+                try { activeCommandRecognizer.abort(); } catch(e) {}
+            }
+
+            try {
+                activeCommandRecognizer = new SpeechRec();
+                activeCommandRecognizer.lang = 'az-AZ';
+                activeCommandRecognizer.interimResults = false;
+
+                activeCommandRecognizer.onresult = (e) => {
+                    const text = e.results[0][0].transcript;
+                    executeVoiceCommandText(text);
+                };
+
+                activeCommandRecognizer.onerror = () => {
+                    setTimeout(() => closeVoiceModal(), 2200);
+                };
+
+                activeCommandRecognizer.start();
+            } catch(e) {}
+        }
+
+        function startAuraAi() {
+            wakeWordTriggered("Aura");
+        }
+
+        function startUniversalVoice() {
+            startAuraAi();
         }
 
         function launchAppleSiri() {
@@ -3336,8 +3515,73 @@
         }
 
         function closeVoiceModal() {
-            document.getElementById('voiceModal').classList.remove('active');
+            const modal = document.getElementById('voiceModal');
+            if (modal) modal.classList.remove('active');
+            isVoiceSessionActive = false;
+
+            if (activeCommandRecognizer) {
+                try { activeCommandRecognizer.abort(); } catch(e) {}
+            }
+
+            // Fon "Aura" dinləməsini dərhal bərpa edirik
+            if (isWakeWordEnabled) {
+                setTimeout(() => {
+                    if (isWakeWordEnabled && !isVoiceSessionActive) {
+                        try {
+                            if (!wakeWordRecognizer) initPassiveWakeWordListener();
+                            else wakeWordRecognizer.start();
+                        } catch(e) {}
+                    }
+                }, 400);
+            }
         }
+
+        function toggleWakeWordListener() {
+            isWakeWordEnabled = !isWakeWordEnabled;
+            updateWakeBadge(isWakeWordEnabled);
+            if (isWakeWordEnabled) {
+                playAppleChime();
+                initPassiveWakeWordListener();
+                logEvent("🎙️ Daimi 'Aura' dinləməsi aktivləşdirildi");
+            } else {
+                if (wakeWordRecognizer) {
+                    try { wakeWordRecognizer.abort(); } catch(e) {}
+                }
+                logEvent("🔇 Daimi 'Aura' dinləməsi dayandırıldı");
+            }
+        }
+
+        function updateWakeBadge(active) {
+            const badge = document.getElementById('wakeWordBadge');
+            const text = document.getElementById('wakeWordText');
+            if (!badge || !text) return;
+            if (active) {
+                badge.classList.remove('inactive');
+                text.innerText = '"Aura" Dinlənilir';
+            } else {
+                badge.classList.add('inactive');
+                text.innerText = 'Daimi Dinləmə Söndürüldü';
+            }
+        }
+
+        // Brauzerlərin mikrofon siyasəti üçün: ilk toxunuşda və ya açılışda dərhal başladırıq
+        window.addEventListener('click', () => {
+            if (isWakeWordEnabled && !wakeWordRecognizer) {
+                initPassiveWakeWordListener();
+            }
+        }, { once: true });
+
+        window.addEventListener('touchstart', () => {
+            if (isWakeWordEnabled && !wakeWordRecognizer) {
+                initPassiveWakeWordListener();
+            }
+        }, { once: true });
+
+        setTimeout(() => {
+            if (isWakeWordEnabled && !wakeWordRecognizer) {
+                initPassiveWakeWordListener();
+            }
+        }, 800);
     </script>
 </body>
 </html>
