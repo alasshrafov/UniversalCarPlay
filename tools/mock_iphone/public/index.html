@@ -1454,13 +1454,13 @@
         .voice-modal-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(4, 7, 15, 0.92);
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.82), rgba(4, 7, 15, 0.92));
             backdrop-filter: blur(20px);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 50;
+            z-index: 600;
         }
 
         .voice-modal-overlay.active { display: flex; }
@@ -1501,22 +1501,501 @@
 
         .youtube-modal.active { display: flex; }
 
+        /* ======================================================== */
+        /* 📱 FULLSCREEN CARPLAY APPS (Waze, Spotify, Phone)        */
+        /* ======================================================== */
+        .carplay-fullscreen-app {
+            position: absolute;
+            inset: 0;
+            background: #080d19;
+            z-index: 45;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: appSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .carplay-fullscreen-app.active { display: flex; }
+
+        @keyframes appSlideIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 🎙️ Tətbiq Daxili Üzən Aura Dynamic Pill (Waze açıq olanda sürücünün yolunu kəsməyən ağıllı HUD) */
+        .inapp-aura-pill {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(10, 16, 30, 0.94);
+            border: 1px solid rgba(0, 229, 255, 0.45);
+            border-radius: 999px;
+            padding: 10px 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 650;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 229, 255, 0.35);
+            backdrop-filter: blur(25px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .inapp-aura-pill.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .inapp-aura-wave {
+            display: flex;
+            align-items: center;
+            gap: 3.5px;
+            height: 18px;
+        }
+
+        .inapp-aura-bar {
+            width: 3.5px;
+            height: 8px;
+            background: #00e5ff;
+            border-radius: 2px;
+            animation: inAppWave 0.75s infinite ease-in-out alternate;
+        }
+        .inapp-aura-bar:nth-child(2) { animation-delay: 0.2s; height: 16px; background: #38bdf8; }
+        .inapp-aura-bar:nth-child(3) { animation-delay: 0.4s; height: 12px; background: #818cf8; }
+        .inapp-aura-bar:nth-child(4) { animation-delay: 0.15s; height: 18px; background: #00e5ff; }
+
+        @keyframes inAppWave {
+            0% { height: 6px; }
+            100% { height: 18px; }
+        }
+
+        .inapp-aura-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .inapp-aura-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #00e5ff;
+            text-transform: uppercase;
+        }
+
+        .inapp-aura-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            max-width: 340px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 🗺️ WAZE CANLI NAVİQASİYA GÖRÜNÜŞÜ */
+        .waze-screen {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #0d1424;
+            user-select: none;
+        }
+
+        .waze-topbar {
+            height: 46px;
+            background: rgba(13, 20, 36, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 10;
+        }
+
+        .waze-logo-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 900;
+            color: #33ccff;
+            letter-spacing: 0.5px;
+        }
+
+        .waze-destination-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .waze-btn-exit {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .waze-btn-exit:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        /* Waze Manevr Banneri (Böyük Yaşıl Dönüş Qutusu) */
+        .waze-maneuver-box {
+            position: absolute;
+            top: 56px;
+            left: 18px;
+            right: 18px;
+            background: linear-gradient(135deg, #00d27a 0%, #00a85a 100%);
+            border-radius: 18px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 12px 30px rgba(0, 210, 122, 0.35);
+            z-index: 15;
+            color: #000;
+        }
+
+        .waze-turn-icon {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .waze-turn-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .waze-turn-dist {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: #022c1b;
+        }
+
+        .waze-turn-street {
+            font-size: 15px;
+            font-weight: 800;
+            color: #022c1b;
+        }
+
+        .waze-turn-next {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(2, 44, 27, 0.75);
+        }
+
+        /* Canlı 3D Magistral Yol və Naviqasiya Sahəsi */
+        .waze-road-viewport {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center top, #162444 0%, #090e1c 100%);
+        }
+
+        /* 3D Perspektiv Yol */
+        .waze-road-surface {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 380px;
+            height: 100%;
+            background: #1b263b;
+            clip-path: polygon(36% 0%, 64% 0%, 100% 100%, 0% 100%);
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Hərəkət edən qırıq-qırıq zolaq */
+        .waze-road-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #ffffff 0px,
+                #ffffff 45px,
+                transparent 45px,
+                transparent 90px
+            );
+            animation: roadDash 0.9s linear infinite;
+        }
+
+        @keyframes roadDash {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 90px; }
+        }
+
+        /* Göy parıltılı marşrut xətti */
+        .waze-route-path {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 229, 255, 0.75), rgba(0, 168, 255, 0.25));
+            clip-path: polygon(42% 0%, 58% 0%, 100% 100%, 0% 100%);
+            pointer-events: none;
+            filter: blur(2px);
+        }
+
+        /* Avtomobil Mayakı və 🚙 Avatara */
+        .waze-car-wrap {
+            position: absolute;
+            bottom: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 12;
+        }
+
+        .waze-car-beacon {
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(0, 229, 255, 0.22);
+            border: 2px solid #00e5ff;
+            animation: beaconPulse 1.8s infinite ease-out;
+            top: -5px;
+        }
+
+        @keyframes beaconPulse {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .waze-car-icon {
+            font-size: 42px;
+            filter: drop-shadow(0 8px 16px rgba(0, 229, 255, 0.8));
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Spidometr və Sürət Həddi Klasteri */
+        .waze-speed-cluster {
+            position: absolute;
+            bottom: 68px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 15;
+        }
+
+        .waze-speed-limit {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 6px solid #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #000;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .waze-speedometer-box {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+            border-radius: 14px;
+            padding: 6px 14px;
+            text-align: center;
+        }
+
+        .waze-cur-speed {
+            font-size: 22px;
+            font-weight: 900;
+            color: #ef4444;
+            line-height: 1;
+        }
+
+        .waze-speed-unit {
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        /* Radar və Təhlükə Xəbərdarlığı */
+        .waze-radar-badge {
+            position: absolute;
+            top: 140px;
+            right: 20px;
+            background: rgba(220, 38, 38, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.45);
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 15;
+            color: white;
+            animation: radarBlink 1.5s infinite alternate;
+        }
+
+        @keyframes radarBlink {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); box-shadow: 0 8px 30px rgba(220, 38, 38, 0.7); }
+        }
+
+        .waze-hazard-badge {
+            position: absolute;
+            top: 195px;
+            right: 20px;
+            background: rgba(234, 88, 12, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            padding: 7px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 15;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Waze Aşağı ETA və İdarəetmə Paneli */
+        .waze-bottom-bar {
+            height: 54px;
+            background: rgba(13, 20, 36, 0.96);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 15;
+        }
+
+        .waze-eta-info {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .waze-eta-time {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .waze-eta-stats {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .waze-traffic-pill {
+            background: rgba(0, 210, 122, 0.2);
+            border: 1px solid #00d27a;
+            color: #00d27a;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .waze-actions-cluster {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .waze-btn-action {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .waze-btn-action:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .waze-btn-voice-test {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(56, 189, 248, 0.3));
+            border: 1px solid #00e5ff;
+            color: #00e5ff;
+        }
+
+        /* 🎵 SPOTIFY FULLSCREEN TƏTBİQİ */
+        .spotify-screen {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #121212 0%, #1e1e24 100%);
+            padding: 24px 32px;
+            gap: 32px;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 📞 TELEFON FULLSCREEN TƏTBİQİ */
+        .phone-screen {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            padding: 18px 30px;
+            gap: 28px;
+            position: relative;
+        }
+
         /* Apple CarPlay İqlim və Kondisioner HUD Paneli */
         .carplay-climate-hud {
             position: absolute;
             bottom: 24px;
             left: 50%;
-            transform: translateX(-50%) translateY(120px);
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 229, 255, 0.3);
-            backdrop-filter: blur(30px);
+            transform: translateX(-50%) translateY(140px);
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 40px rgba(0, 229, 255, 0.35);
+            backdrop-filter: blur(35px);
             border-radius: 24px;
             padding: 12px 28px;
             display: flex;
             align-items: center;
             gap: 24px;
-            z-index: 60;
+            z-index: 700;
             transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             opacity: 0;
             pointer-events: none;
@@ -2194,6 +2673,170 @@
                         </div>
                     </div>
 
+                    <!-- Tətbiq Daxili Üzən Aura Dynamic Pill (Sürücünün qarşısını kəsmədən yuxarıda açılan lüks bildiriş) -->
+                    <div class="inapp-aura-pill" id="inAppAuraPill">
+                        <div class="inapp-aura-wave">
+                            <span class="inapp-aura-bar"></span>
+                            <span class="inapp-aura-bar"></span>
+                            <span class="inapp-aura-bar"></span>
+                            <span class="inapp-aura-bar"></span>
+                        </div>
+                        <div class="inapp-aura-info">
+                            <div class="inapp-aura-title" id="inAppAuraTitle">AURA AI • DİNLƏYİR</div>
+                            <div class="inapp-aura-text" id="inAppAuraText">"Kondisioneri söndür" deyin…</div>
+                        </div>
+                        <div style="font-size: 11px; background: rgba(0, 229, 255, 0.15); border: 1px solid rgba(0, 229, 255, 0.3); color: #00e5ff; padding: 3px 8px; border-radius: 8px; font-weight: 700;">az-AZ 🇦🇿</div>
+                    </div>
+
+                    <!-- Apple CarPlay Tam Ekran Tətbiqləri (Waze, Spotify, Telefon) -->
+                    <div class="carplay-fullscreen-app" id="carplayFullscreenApp">
+                        
+                        <!-- 1. WAZE CANLI NAVİQASİYA GÖRÜNÜŞÜ -->
+                        <div class="waze-screen" id="wazeAppView">
+                            
+                            <!-- Waze Üst Başlıq -->
+                            <div class="waze-topbar">
+                                <div class="waze-logo-badge">
+                                    <svg viewBox="0 0 100 100" style="width: 24px; height: 24px;">
+                                        <rect width="100" height="100" rx="20" fill="#33ccff"/>
+                                        <path d="M68 34 C64 34 60 37 59 41 C54 39 44 40 38 46 C32 52 32 62 38 68 C44 74 54 75 62 70 L72 73 C75 74 78 71 77 68 L76 61 C80 54 79 43 73 38 C72 35 70 34 68 34 Z" fill="#ffffff"/>
+                                        <circle cx="48" cy="53" r="3.5" fill="#222"/>
+                                        <circle cx="62" cy="53" r="3.5" fill="#222"/>
+                                    </svg>
+                                    <span>WAZE CANLI NAVİQASİYA</span>
+                                </div>
+                                <div class="waze-destination-text">📍 Heydər Əliyev Mərkəzi İstiqaməti</div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 11px; color: #34d399; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399;"></span> Canlı GPS
+                                    </span>
+                                    <button class="waze-btn-exit" onclick="goHome()">✕ Çıxış</button>
+                                </div>
+                            </div>
+
+                            <!-- Waze Yaşıl Manevr və Dönüş Banneri -->
+                            <div class="waze-maneuver-box">
+                                <div class="waze-turn-icon">↱</div>
+                                <div class="waze-turn-details">
+                                    <div class="waze-turn-dist">250 m</div>
+                                    <div class="waze-turn-street">Heydər Əliyev Prospektinə sağa dönün</div>
+                                    <div class="waze-turn-next">Növbəti manevr: Babək prospekti (3.2 km sonra)</div>
+                                </div>
+                                <div style="display: flex; gap: 6px;">
+                                    <button class="waze-btn-action waze-btn-voice-test" onclick="wakeWordTriggered('Aura, kondisioneri söndür')" title="Waze açıq ikən Aura səs əmrini sına">
+                                        🎙️ "Aura, kondisioneri söndür"
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 3D Perspektiv Magistral Yol Sahəsi -->
+                            <div class="waze-road-viewport">
+                                <!-- Yol qatı -->
+                                <div class="waze-road-surface">
+                                    <div class="waze-road-line"></div>
+                                    <div class="waze-route-path"></div>
+                                </div>
+
+                                <!-- Avtomobil Avatara və Mayak -->
+                                <div class="waze-car-wrap">
+                                    <div class="waze-car-beacon"></div>
+                                    <div class="waze-car-icon">🚙</div>
+                                </div>
+
+                                <!-- Spidometr Klasteri -->
+                                <div class="waze-speed-cluster">
+                                    <div class="waze-speed-limit" title="Yolun sürət həddi">60</div>
+                                    <div class="waze-speedometer-box">
+                                        <div class="waze-cur-speed">74</div>
+                                        <div class="waze-speed-unit">KM/H</div>
+                                    </div>
+                                </div>
+
+                                <!-- Radar və Yol Təhlükəsi Xəbərdarlığı -->
+                                <div class="waze-radar-badge">
+                                    <span style="font-size: 16px;">🚨</span>
+                                    <div style="font-size: 11px; font-weight: 800;">800m İrəlidə Stasionar Radar (60 km/s)</div>
+                                </div>
+
+                                <div class="waze-hazard-badge">
+                                    <span>⚠️</span>
+                                    <span>2.4 km irəlidə yol işləri</span>
+                                </div>
+                            </div>
+
+                            <!-- Waze Aşağı ETA və İdarəetmə Paneli -->
+                            <div class="waze-bottom-bar">
+                                <div class="waze-eta-info">
+                                    <span class="waze-eta-time">14:45</span>
+                                    <span class="waze-eta-stats">12 dəq • 8.4 km</span>
+                                    <span class="waze-traffic-pill">🟢 Sürətli Yol</span>
+                                </div>
+
+                                <div class="waze-actions-cluster">
+                                    <button class="waze-btn-action" onclick="showClimateHud('Kondisioner: ' + climateState.temp.toFixed(1) + '°C')">
+                                        ❄️ İqlim Paneli
+                                    </button>
+                                    <button class="waze-btn-action" onclick="logEvent('🔊 Waze: Səsli naviqasiya təlimatları aktivdir')">
+                                        🔊 Səs (Açıq)
+                                    </button>
+                                    <button class="waze-btn-action" onclick="logEvent('⚠️ Waze: Hadisə qeydə alındı')">
+                                        ⚠️ Bildir
+                                    </button>
+                                    <button class="waze-btn-action" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5;" onclick="goHome()">
+                                        🛑 Marşrutu Bitir
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- 2. SPOTIFY CANLI MUSİQİ GÖRÜNÜŞÜ -->
+                        <div class="spotify-screen" id="spotifyAppView" style="display: none;">
+                            <div style="width: 220px; height: 220px; border-radius: 20px; background: linear-gradient(135deg, #1ed760, #121212); box-shadow: 0 16px 40px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; font-size: 80px;">
+                                🎵
+                            </div>
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 14px;">
+                                <div>
+                                    <div style="font-size: 26px; font-weight: 800; color: white;" id="spotSongTitle">Blinding Lights</div>
+                                    <div style="font-size: 15px; color: #1ed760; font-weight: 600; margin-top: 4px;" id="spotSongArtist">The Weeknd • Spotify CarPlay</div>
+                                </div>
+                                <div style="height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; position: relative;">
+                                    <div style="width: 45%; height: 100%; background: #1ed760; border-radius: 3px;"></div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 20px; margin-top: 6px;">
+                                    <button class="music-btn" onclick="prevSong()" style="font-size: 28px;">⏮</button>
+                                    <button class="music-btn" onclick="togglePlayPause()" style="font-size: 34px; color: #1ed760;">⏯</button>
+                                    <button class="music-btn" onclick="nextSong()" style="font-size: 28px;">⏭</button>
+                                </div>
+                            </div>
+                            <button class="waze-btn-exit" style="position: absolute; top: 20px; right: 20px;" onclick="goHome()">✕ Bağla</button>
+                        </div>
+
+                        <!-- 3. TELEFON FULLSCREEN GÖRÜNÜŞÜ -->
+                        <div class="phone-screen" id="phoneAppView" style="display: none;">
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div style="font-size: 28px; font-weight: 700; color: white; margin-bottom: 18px; letter-spacing: 2px;" id="phoneDisplayNumber">+994 50 123 45 67</div>
+                                <div style="display: grid; grid-template-columns: repeat(3, 70px); gap: 12px;">
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('1')">1</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('2')">2</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('3')">3</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('4')">4</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('5')">5</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('6')">6</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('7')">7</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('8')">8</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('9')">9</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('*')">*</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('0')">0</button>
+                                    <button class="btn-wheel" style="height: 50px; font-size: 18px; font-weight: 800;" onclick="appendPhoneDigit('#')">#</button>
+                                </div>
+                                <button style="margin-top: 16px; width: 60px; height: 60px; border-radius: 50%; background: #34c759; border: none; font-size: 26px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(52, 199, 89, 0.4);" onclick="startPhoneCall()">📞</button>
+                            </div>
+                            <button class="waze-btn-exit" style="position: absolute; top: 20px; right: 20px;" onclick="goHome()">✕ Bağla</button>
+                        </div>
+
+                    </div>
+
                     <!-- Aura AI & Səs Köməkçisi Modalı -->
                     <div class="voice-modal-overlay" id="voiceModal" onclick="closeVoiceModal()">
                         <div class="voice-sphere-anim"></div>
@@ -2444,6 +3087,14 @@
                     </button>
                     <div style="font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.4; margin-top: 8px;">
                         🇦🇿 Düyməyə basmadan da maşında birbaşa <b>"Aura, kondisioneri 20 dərəcəyə qoy"</b> və ya <b>"Aura, musiqini dəyiş"</b> deyə bilərsiniz.
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button style="flex: 1; padding: 9px; border-radius: 10px; background: rgba(51, 204, 255, 0.15); border: 1px solid #33ccff; color: #33ccff; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onclick="launchApp('Waze')">
+                            🗺️ Waze-i Aç
+                        </button>
+                        <button style="flex: 1; padding: 9px; border-radius: 10px; background: rgba(0, 229, 255, 0.15); border: 1px solid #00e5ff; color: #00e5ff; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onclick="executeVoiceCommandText('Aura, kondisioneri söndür')">
+                            ❄️ Söndür Əmri
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2888,13 +3539,103 @@
             logEvent(`👆 Ekrana toxunma: X=${x}, Y=${y}`);
         }
 
-        function launchApp(name) { logEvent(`📱 Tətbiq açıldı: ${name}`); }
+        let activeFullscreenApp = null;
+        let inAppAuraTimeout = null;
+
+        function showInAppAuraPill(title, text) {
+            const pill = document.getElementById('inAppAuraPill');
+            const titleEl = document.getElementById('inAppAuraTitle');
+            const textEl = document.getElementById('inAppAuraText');
+            if (!pill) return;
+            if (titleEl) titleEl.innerText = title || "AURA AI • DİNLƏYİR";
+            if (textEl) textEl.innerText = text || "Sizi dinləyirəm… 🎙️";
+            pill.classList.add('active');
+
+            if (inAppAuraTimeout) clearTimeout(inAppAuraTimeout);
+            inAppAuraTimeout = setTimeout(() => {
+                hideInAppAuraPill();
+            }, 4000);
+        }
+
+        function hideInAppAuraPill() {
+            const pill = document.getElementById('inAppAuraPill');
+            if (pill) pill.classList.remove('active');
+            if (inAppAuraTimeout) clearTimeout(inAppAuraTimeout);
+        }
+
+        function launchApp(name) {
+            logEvent(`📱 Tətbiq açıldı: ${name}`);
+            activeFullscreenApp = name;
+
+            const fsContainer = document.getElementById('carplayFullscreenApp');
+            const appGrid = document.querySelector('.app-grid');
+            const splitDash = document.getElementById('carplaySplitDash');
+
+            if (appGrid) appGrid.classList.add('hidden-view');
+            if (splitDash) splitDash.classList.remove('active');
+
+            closeVoiceModal();
+            closeYouTubeParkMode();
+            closeInCarBrowser();
+
+            if (fsContainer) {
+                fsContainer.classList.add('active');
+                renderFullscreenApp(name);
+            }
+        }
+
+        function renderFullscreenApp(name) {
+            const wazeView = document.getElementById('wazeAppView');
+            const spotifyView = document.getElementById('spotifyAppView');
+            const phoneView = document.getElementById('phoneAppView');
+
+            if (wazeView) wazeView.style.display = 'none';
+            if (spotifyView) spotifyView.style.display = 'none';
+            if (phoneView) phoneView.style.display = 'none';
+
+            if (name === 'Waze' || name === 'Apple Maps' || name === 'Xəritələr') {
+                if (wazeView) wazeView.style.display = 'flex';
+                logEvent(`🧭 Waze: Canlı naviqasiya xəritəsi yükləndi (Heydər Əliyev Prospekti)`);
+            } else if (name === 'Spotify' || name === 'Musiqi') {
+                if (spotifyView) spotifyView.style.display = 'flex';
+                updateFullscreenMusic();
+            } else if (name === 'Telefon') {
+                if (phoneView) phoneView.style.display = 'flex';
+            } else {
+                if (wazeView) wazeView.style.display = 'flex';
+            }
+        }
+
+        function closeFullscreenApp() {
+            activeFullscreenApp = null;
+            const fsContainer = document.getElementById('carplayFullscreenApp');
+            if (fsContainer) fsContainer.classList.remove('active');
+            hideInAppAuraPill();
+        }
+
+        let typedPhoneNumber = '';
+        function appendPhoneDigit(d) {
+            if (typedPhoneNumber.length < 15) {
+                typedPhoneNumber += d;
+                const el = document.getElementById('phoneDisplayNumber');
+                if (el) el.innerText = typedPhoneNumber;
+                playAppleChime();
+            }
+        }
+
+        function startPhoneCall() {
+            if (!typedPhoneNumber) typedPhoneNumber = '+994 50 123 45 67';
+            logEvent(`📞 Zəng edilir: ${typedPhoneNumber}`);
+            playAppleChime();
+            speakFeedback(`Zəng edilir`);
+        }
 
         let isDashboardSplit = false;
         function toggleDashboardMode() {
             closeVoiceModal();
             closeYouTubeParkMode();
             closeInCarBrowser();
+            closeFullscreenApp();
             isDashboardSplit = !isDashboardSplit;
             const appGrid = document.querySelector('.app-grid');
             const splitDash = document.getElementById('carplaySplitDash');
@@ -2911,11 +3652,18 @@
 
         function goHome() {
             logEvent(`🏠 Əsas ekrana qayıdıldı`);
+            closeFullscreenApp();
             closeVoiceModal();
             closeYouTubeParkMode();
             closeInCarBrowser();
+            const appGrid = document.querySelector('.app-grid');
+            const splitDash = document.getElementById('carplaySplitDash');
             if (isDashboardSplit) {
-                toggleDashboardMode();
+                if (appGrid) appGrid.classList.add('hidden-view');
+                if (splitDash) splitDash.classList.add('active');
+            } else {
+                if (appGrid) appGrid.classList.remove('hidden-view');
+                if (splitDash) splitDash.classList.remove('active');
             }
         }
 
@@ -2944,20 +3692,32 @@
             }
         }
 
+        function updateFullscreenMusic() {
+            const title = document.getElementById('spotSongTitle');
+            const artist = document.getElementById('spotSongArtist');
+            if (title) title.innerText = playlist[currentTrackIdx].title;
+            if (artist) artist.innerText = playlist[currentTrackIdx].artist;
+        }
+
         function nextSong() {
             currentTrackIdx = (currentTrackIdx + 1) % playlist.length;
             updateDashboardTrack();
+            updateFullscreenMusic();
         }
 
         function prevSong() {
             currentTrackIdx = (currentTrackIdx - 1 + playlist.length) % playlist.length;
             updateDashboardTrack();
+            updateFullscreenMusic();
         }
 
         function updateDashboardTrack() {
             const track = playlist[currentTrackIdx];
-            document.getElementById('dashSongTitle').innerText = track.title;
-            document.querySelector('.song-artist').innerText = track.artist;
+            const dashTitle = document.getElementById('dashSongTitle');
+            const dashArtist = document.querySelector('.song-artist');
+            if (dashTitle) dashTitle.innerText = track.title;
+            if (dashArtist) dashArtist.innerText = track.artist;
+            updateFullscreenMusic();
             logEvent(`⏭ Yeni mahnı: ${track.title} (${track.artist})`);
         }
 
@@ -3208,7 +3968,7 @@
 
             let lower = text.toLowerCase().trim();
             // "Aura" və ya "Hey Aura" prefiksini süzürük
-            lower = lower.replace(/^(?:hey\s+)?aura[,:\s]*/i, '').trim();
+            lower = lower.replace(/^(?:hey\s+|ay\s+|ey\s+)?aura[,:\s]*/i, '').trim();
 
             // 1. Dərəcə Rəqəmlərinin Təyini (Həm rəqəm, həm Azərbaycan sözləri)
             let parsedTemp = null;
@@ -3232,7 +3992,7 @@
                 }
             }
 
-            // 2. Kondisioner / İqlim Əmrləri
+            // 2. Kondisioner / İqlim Əmrləri (Waze daxilində və ya istənilən ekranda)
             const isClimateContext = lower.includes('kondisioner') ||
                 lower.includes('klima') ||
                 lower.includes('dərəcə') ||
@@ -3251,7 +4011,11 @@
                         closeVoiceModal();
                         showClimateHud("Kondisioner Söndürüldü");
                         speakFeedback("Kondisioner söndürüldü");
-                    }, 500);
+                        if (activeFullscreenApp) {
+                            showInAppAuraPill("AURA AI", "✓ Kondisioner Söndürüldü");
+                            setTimeout(() => hideInAppAuraPill(), 2800);
+                        }
+                    }, 300);
                 } else if (parsedTemp !== null) {
                     climateState.temp = parsedTemp;
                     climateState.ac = true;
@@ -3259,38 +4023,102 @@
                         closeVoiceModal();
                         showClimateHud(`Kondisioner ${parsedTemp}°C təyin edildi`);
                         speakFeedback(`Kondisioner ${parsedTemp} dərəcəyə təyin edildi`);
-                    }, 500);
+                        if (activeFullscreenApp) {
+                            showInAppAuraPill("AURA AI", `✓ Temperatur: ${parsedTemp}°C`);
+                            setTimeout(() => hideInAppAuraPill(), 2800);
+                        }
+                    }, 300);
                 } else if (lower.includes('artır') || lower.includes('artir') || lower.includes('isti') || lower.includes('üşüdüm') || lower.includes('qızdır')) {
                     adjustClimateTemp(1);
-                    setTimeout(() => closeVoiceModal(), 500);
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        if (activeFullscreenApp) {
+                            showInAppAuraPill("AURA AI", `✓ Temperatur artırıldı (${climateState.temp.toFixed(1)}°C)`);
+                            setTimeout(() => hideInAppAuraPill(), 2800);
+                        }
+                    }, 300);
                 } else if (lower.includes('azalt') || lower.includes('soyut') || lower.includes('soyuq') || lower.includes('sərin')) {
                     adjustClimateTemp(-1);
-                    setTimeout(() => closeVoiceModal(), 500);
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        if (activeFullscreenApp) {
+                            showInAppAuraPill("AURA AI", `✓ Temperatur azaldıldı (${climateState.temp.toFixed(1)}°C)`);
+                            setTimeout(() => hideInAppAuraPill(), 2800);
+                        }
+                    }, 300);
                 } else {
                     climateState.ac = true;
                     setTimeout(() => {
                         closeVoiceModal();
                         showClimateHud("Kondisioner İşə Salındı");
                         speakFeedback("Kondisioner işə salındı");
-                    }, 500);
+                        if (activeFullscreenApp) {
+                            showInAppAuraPill("AURA AI", "✓ Kondisioner İşə Salındı");
+                            setTimeout(() => hideInAppAuraPill(), 2800);
+                        }
+                    }, 300);
                 }
                 return;
             }
 
-            // 3. Digər CarPlay Əmrləri
-            if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
+            // 3. Tətbiqlərin Səslə İdarəsi
+            if (lower.includes('waze') || lower.includes('naviqasiya') || lower.includes('xəritə') || lower.includes('xerite')) {
+                speakFeedback("Waze naviqasiyası açılır");
+                setTimeout(() => {
+                    closeVoiceModal();
+                    hideInAppAuraPill();
+                    launchApp('Waze');
+                }, 400);
+            } else if (lower.includes('spotify') || lower.includes('musiqi aç') || lower.includes('mahni aç')) {
+                speakFeedback("Spotify açılır");
+                setTimeout(() => {
+                    closeVoiceModal();
+                    hideInAppAuraPill();
+                    launchApp('Spotify');
+                }, 400);
+            } else if (lower.includes('telefon') || lower.includes('zəng') || lower.includes('zeng')) {
+                speakFeedback("Telefon açılır");
+                setTimeout(() => {
+                    closeVoiceModal();
+                    hideInAppAuraPill();
+                    launchApp('Telefon');
+                }, 400);
+            } else if (lower.includes('evə get') || lower.includes('eve get') || lower.includes('ana menyu') || lower.includes('əsas menyu') || lower.includes('esas menyu') || lower.includes('bağla') || lower.includes('çıx')) {
+                speakFeedback("Əsas ekrana qayıdıldı");
+                setTimeout(() => {
+                    closeVoiceModal();
+                    hideInAppAuraPill();
+                    goHome();
+                }, 400);
+            } else if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
                 speakFeedback("İnternet brauzeri açılır");
-                setTimeout(() => { closeVoiceModal(); openInCarBrowser(); }, 600);
+                setTimeout(() => {
+                    closeVoiceModal();
+                    hideInAppAuraPill();
+                    openInCarBrowser();
+                }, 500);
             } else if (lower.includes('youtube') || lower.includes('video')) {
                 speakFeedback("YouTube Park Rejimi açılır");
-                setTimeout(() => { closeVoiceModal(); openInCarBrowser('https://m.youtube.com'); }, 600);
+                setTimeout(() => {
+                    closeVoiceModal();
+                    hideInAppAuraPill();
+                    openInCarBrowser('https://m.youtube.com');
+                }, 500);
             } else if (lower.includes('mahnı') || lower.includes('musiqi') || lower.includes('dəyiş') || lower.includes('oxut') || lower.includes('növbəti')) {
                 nextSong();
                 speakFeedback("Musiqi dəyişdirildi");
-                setTimeout(() => closeVoiceModal(), 600);
+                if (activeFullscreenApp) {
+                    showInAppAuraPill("AURA AI", `🎵 ${playlist[currentTrackIdx].title}`);
+                    setTimeout(() => hideInAppAuraPill(), 2800);
+                }
+                setTimeout(() => closeVoiceModal(), 500);
             } else {
                 speakFeedback("Əmr qəbul edildi");
-                setTimeout(() => closeVoiceModal(), 800);
+                if (activeFullscreenApp) {
+                    showInAppAuraPill("AURA AI", "✓ Əmr qəbul edildi");
+                    setTimeout(() => hideInAppAuraPill(), 2200);
+                }
+                setTimeout(() => closeVoiceModal(), 600);
             }
         }
 
@@ -3381,25 +4209,39 @@
 
             isVoiceSessionActive = true;
 
-            const modal = document.getElementById('voiceModal');
-            const output = document.getElementById('voiceOutputText');
-            const langInd = document.getElementById('voiceLangIndicator');
-            const titleEl = document.getElementById('voiceModalTitle');
-            if (titleEl) titleEl.innerText = "AURA AI";
-            if (langInd) langInd.innerText = "Aura Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿";
-            if (modal) modal.classList.add('active');
-
             // Əgər istifadəçi "Aura" ilə yanaşı əmri də bir nəfəsə dedisə (Məs: "Aura, kondisioneri 20 dərəcəyə qoy")
             const afterAura = fullTranscript.replace(/^.*?\b(?:aura|ey aura|hey aura|ay aura|oura|avra|ayra)\b[,:\s]*/i, '').trim();
 
-            if (afterAura.length > 2) {
-                if (output) output.innerText = `"${fullTranscript}"`;
-                setTimeout(() => {
-                    executeVoiceCommandText(fullTranscript);
-                }, 200);
+            if (activeFullscreenApp) {
+                // Tətbiqin (Məsələn Waze) daxilində olanda NAVİQASİYANI BAĞLAMIRIQ!
+                // Yuxarıdan lüks üzən "Aura Pill" açılır, xəritə isə 100% aktiv qalır!
+                showInAppAuraPill("AURA AI", afterAura.length > 2 ? `"${fullTranscript}"` : "Sizi dinləyirəm… 🎙️");
+
+                if (afterAura.length > 2) {
+                    setTimeout(() => {
+                        executeVoiceCommandText(fullTranscript);
+                    }, 250);
+                } else {
+                    startActiveSpeechSession();
+                }
             } else {
-                if (output) output.innerText = "Bəli, sizi dinləyirəm… 🎙️";
-                startActiveSpeechSession();
+                const modal = document.getElementById('voiceModal');
+                const output = document.getElementById('voiceOutputText');
+                const langInd = document.getElementById('voiceLangIndicator');
+                const titleEl = document.getElementById('voiceModalTitle');
+                if (titleEl) titleEl.innerText = "AURA AI";
+                if (langInd) langInd.innerText = "Aura Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿";
+                if (modal) modal.classList.add('active');
+
+                if (afterAura.length > 2) {
+                    if (output) output.innerText = `"${fullTranscript}"`;
+                    setTimeout(() => {
+                        executeVoiceCommandText(fullTranscript);
+                    }, 200);
+                } else {
+                    if (output) output.innerText = "Bəli, sizi dinləyirəm… 🎙️";
+                    startActiveSpeechSession();
+                }
             }
         }
 
@@ -3422,7 +4264,10 @@
                 };
 
                 activeCommandRecognizer.onerror = () => {
-                    setTimeout(() => closeVoiceModal(), 2200);
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        hideInAppAuraPill();
+                    }, 2200);
                 };
 
                 activeCommandRecognizer.start();
@@ -3454,6 +4299,7 @@
             const modal = document.getElementById('voiceModal');
             if (modal) modal.classList.remove('active');
             isVoiceSessionActive = false;
+            if (!activeFullscreenApp) hideInAppAuraPill();
 
             if (activeCommandRecognizer) {
                 try { activeCommandRecognizer.abort(); } catch(e) {}
