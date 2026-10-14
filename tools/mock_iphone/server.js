@@ -32,25 +32,31 @@ const httpServer = http.createServer((req, res) => {
             '.jpg': 'image/jpeg',
             '.svg': 'image/svg+xml',
             '.css': 'text/css',
-            '.js': 'application/javascript'
+            '.js': 'application/javascript',
+            '.apk': 'application/vnd.android.package-archive'
         };
         const contentType = contentTypes[ext] || 'application/octet-stream';
+        const stat = fs.statSync(filePath);
+
+        const headers = {
+            'Content-Type': contentType,
+            'Content-Length': stat.size,
+            'Access-Control-Allow-Origin': '*'
+        };
+        if (ext === '.apk') {
+            headers['Content-Disposition'] = `attachment; filename="${path.basename(filePath)}"`;
+        }
 
         if (req.method === 'HEAD') {
-            res.writeHead(200, { 'Content-Type': contentType });
+            res.writeHead(200, headers);
             res.end();
             return;
         }
 
-        fs.readFile(filePath, (err, content) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-                res.end('Fayl oxunmadı.');
-                return;
-            }
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content);
-        });
+        res.writeHead(200, headers);
+        const readStream = fs.createReadStream(filePath);
+        readStream.pipe(res);
+        return;
     } else if (req.method === 'POST' && req.url === '/api/event') {
         let body = '';
         req.on('data', chunk => { body += chunk; });
