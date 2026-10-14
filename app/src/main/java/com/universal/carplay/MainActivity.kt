@@ -300,7 +300,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             }
         }
 
-        // 5. Bütün Dilləri (Azərbaycan) Dəstəkləyən Universal AI Səs Köməkçisi
+        // 5. Bütün Dilləri (Azərbaycan) Dəstəkləyən Aura AI Səs Köməkçisi
         voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText, param ->
             runOnUiThread {
                 when (commandType) {
@@ -320,14 +320,14 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     }
                     "OPEN_BROWSER" -> openBrowser("https://www.google.com")
                     "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
-                    else -> Toast.makeText(this, "AI Əmr: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+                    else -> Toast.makeText(this, "Aura: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
     private fun showClimateHud(state: VehicleHvacManager.ClimateState) {
-        val banner = "❄️ İqlim: ${state.targetTemp.toInt()}°C • ${if (state.isAcOn) "AC AÇIQ" else "AC BAĞLI"} • Fan: ${state.fanSpeed}/7"
+        val banner = "❄️ Aura İqlim: ${state.targetTemp.toInt()}°C • ${if (state.isAcOn) "AC AÇIQ" else "AC BAĞLI"} • Fan: ${state.fanSpeed}/7"
         Toast.makeText(this, banner, Toast.LENGTH_SHORT).show()
         tvDetail.text = banner
     }

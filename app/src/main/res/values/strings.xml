@@ -9,4 +9,5 @@
     <string name="profile_universal">Universal Android Rejimi</string>
     <string name="status_connected">Qoşuldu</string>
     <string name="status_disconnected">Qoşulmayıb</string>
+    <string name="voice_assistant_name">Aura AI</string>
 </resources>

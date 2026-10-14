@@ -138,10 +138,14 @@ class UniversalVoiceAssistant(
 
     /**
      * Sürücünün ana dilində dediyi cümləni tam və dəqiq anlayır
+     * Məsələn: "Aura, kondisioneri 20 dərəcəyə qoy" -> "kondisioneri 20 dərəcəyə qoy"
      */
     private fun parseAndExecuteCommand(text: String) {
-        val lower = text.lowercase(Locale.getDefault()).trim()
-        val extractedTemp = extractTemperature(text)
+        var lower = text.lowercase(Locale.getDefault()).trim()
+        // "Aura" və ya "Hey Aura" prefiksini süzürük
+        lower = lower.replace(Regex("""^(?:hey\s+)?aura[,:\s]*"""), "").trim()
+
+        val extractedTemp = extractTemperature(lower)
 
         val isClimateContext = lower.contains("kondisioner") ||
                 lower.contains("klima") ||
