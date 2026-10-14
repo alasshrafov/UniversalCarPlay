@@ -1039,19 +1039,24 @@
             margin-bottom: 4px;
         }
 
-        .luxury-car-svg-wrap {
+        .luxury-car-photo-wrap {
             width: 100%;
-            margin: 6px 0 4px 0;
+            height: 96px;
+            margin: 4px 0 2px 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
-        .luxury-car-svg {
-            width: 100%;
-            max-width: 225px;
-            height: auto;
-            filter: drop-shadow(0 6px 14px rgba(0,0,0,0.7));
+        .luxury-car-photo {
+            max-width: 100%;
+            max-height: 92px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.95)) drop-shadow(0 2px 14px var(--brand-glow));
+            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             animation: luxuryFloat 4s infinite alternate ease-in-out;
         }
 
@@ -2318,92 +2323,10 @@
                     <!-- 1. Avtomobil İdentifikasiyası və Aerodinamik Siluet -->
                     <div class="car-avatar-box">
                         <div class="car-brand-logo-large" id="sidebarLogoText">BYD</div>
-                        <div class="car-model-name" id="sidebarModelText">SEAL AWD EV</div>
+                        <div class="car-model-name" id="sidebarModelText">DESTROYER 05 DM-i</div>
                         
-                        <div class="luxury-car-svg-wrap">
-                            <svg class="luxury-car-svg" viewBox="0 0 240 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="carBodyGrad" x1="0" y1="20" x2="240" y2="60" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="#384252"/>
-                                        <stop offset="35%" stop-color="#1e2633"/>
-                                        <stop offset="70%" stop-color="#0f1520"/>
-                                        <stop offset="100%" stop-color="#080c14"/>
-                                    </linearGradient>
-                                    <linearGradient id="roofChrome" x1="40" y1="16" x2="200" y2="40" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="#94a3b8"/>
-                                        <stop offset="40%" stop-color="#ffffff"/>
-                                        <stop offset="80%" stop-color="#64748b"/>
-                                    </linearGradient>
-                                    <linearGradient id="glassTint" x1="70" y1="18" x2="185" y2="35" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.35"/>
-                                        <stop offset="100%" stop-color="#0a192f" stop-opacity="0.85"/>
-                                    </linearGradient>
-                                    <radialGradient id="groundGlow" cx="50%" cy="50%" r="50%">
-                                        <stop offset="0%" stop-color="var(--brand-color)" stop-opacity="0.55"/>
-                                        <stop offset="60%" stop-color="var(--brand-color)" stop-opacity="0.18"/>
-                                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
-                                    </radialGradient>
-                                    <linearGradient id="wheelRim" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="#cbd5e1"/>
-                                        <stop offset="50%" stop-color="#1e293b"/>
-                                        <stop offset="100%" stop-color="#94a3b8"/>
-                                    </linearGradient>
-                                </defs>
-
-                                <!-- Şassi İşıqlandırması / Underglow -->
-                                <ellipse cx="120" cy="62" rx="100" ry="6" fill="url(#groundGlow)"/>
-
-                                <!-- Aerodinamik Kupe / Fastback Gövdə -->
-                                <path d="M 12 52 C 10 49, 11 44, 18 42 C 28 39, 48 37, 62 33 C 72 23, 86 17, 115 16 C 145 15, 172 17, 192 27 C 204 33, 218 36, 230 38 C 233 39, 235 41, 234 44 C 233 47, 227 49, 224 52 L 204 52 C 204 43, 196 37, 186 37 C 176 37, 168 43, 168 52 L 76 52 C 76 43, 68 37, 58 37 C 48 37, 40 43, 40 52 Z" fill="url(#carBodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-
-                                <!-- Xrom Tavan Xətti -->
-                                <path d="M 64 33 C 74 22, 90 16, 118 16 C 146 16, 170 18, 190 28" stroke="url(#roofChrome)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-
-                                <!-- Panoramik Şüşə Dam / Şüşələr -->
-                                <path d="M 72 32 C 80 23, 93 19, 118 19 C 142 19, 162 21, 180 29 L 182 32 L 132 32 L 126 32 Z" fill="url(#glassTint)" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
-                                <line x1="128" y1="19" x2="128" y2="32" stroke="#0b111a" stroke-width="2.5"/>
-
-                                <!-- Çiyin Xətti (Shoulder Crease) -->
-                                <path d="M 28 41 C 60 38, 120 37, 175 36 C 195 36, 215 38, 228 40" stroke="rgba(255,255,255,0.28)" stroke-width="0.8" fill="none"/>
-
-                                <!-- Qapı Dəstəkləri (Flush Door Handles) -->
-                                <line x1="102" y1="36" x2="114" y2="36" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
-                                <line x1="148" y1="36" x2="160" y2="36" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
-
-                                <!-- Ön Matrix LED Fara (Kiber Sian) -->
-                                <path d="M 12 43 L 26 40 L 22 43 Z" fill="#00f2fe" style="filter: drop-shadow(0 0 5px #00f2fe);"/>
-
-                                <!-- Arxa 3D Continuous LED İşıq Xətti (Neon Qırmızı) -->
-                                <path d="M 226 39 L 233 40 L 231 43 L 223 42 Z" fill="#ff2d55" style="filter: drop-shadow(0 0 6px #ff2d55);"/>
-
-                                <!-- Ön Aero Turbin Təkər -->
-                                <g transform="translate(58, 52)">
-                                    <circle cx="0" cy="0" r="14.5" fill="#06090e"/>
-                                    <circle cx="0" cy="0" r="13" stroke="#1e293b" stroke-width="3" fill="#0a0f18"/>
-                                    <circle cx="0" cy="0" r="11" stroke="url(#wheelRim)" stroke-width="1.2" fill="#05080e"/>
-                                    <circle cx="0" cy="0" r="7.5" fill="#334155" opacity="0.8"/>
-                                    <path d="M 3 -6 A 7 7 0 0 1 7 -2" stroke="var(--brand-color)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                                    <line x1="-8" y1="0" x2="8" y2="0" stroke="#94a3b8" stroke-width="1.4"/>
-                                    <line x1="0" y1="-8" x2="0" y2="8" stroke="#94a3b8" stroke-width="1.4"/>
-                                    <line x1="-6" y1="-6" x2="6" y2="6" stroke="#64748b" stroke-width="1.2"/>
-                                    <line x1="-6" y1="6" x2="6" y2="-6" stroke="#64748b" stroke-width="1.2"/>
-                                    <circle cx="0" cy="0" r="2.5" fill="#cbd5e1"/>
-                                </g>
-
-                                <!-- Arxa Aero Turbin Təkər -->
-                                <g transform="translate(186, 52)">
-                                    <circle cx="0" cy="0" r="14.5" fill="#06090e"/>
-                                    <circle cx="0" cy="0" r="13" stroke="#1e293b" stroke-width="3" fill="#0a0f18"/>
-                                    <circle cx="0" cy="0" r="11" stroke="url(#wheelRim)" stroke-width="1.2" fill="#05080e"/>
-                                    <circle cx="0" cy="0" r="7.5" fill="#334155" opacity="0.8"/>
-                                    <path d="M 3 -6 A 7 7 0 0 1 7 -2" stroke="var(--brand-color)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                                    <line x1="-8" y1="0" x2="8" y2="0" stroke="#94a3b8" stroke-width="1.4"/>
-                                    <line x1="0" y1="-8" x2="0" y2="8" stroke="#94a3b8" stroke-width="1.4"/>
-                                    <line x1="-6" y1="-6" x2="6" y2="6" stroke="#64748b" stroke-width="1.2"/>
-                                    <line x1="-6" y1="6" x2="6" y2="-6" stroke="#64748b" stroke-width="1.2"/>
-                                    <circle cx="0" cy="0" r="2.5" fill="#cbd5e1"/>
-                                </g>
-                            </svg>
+                        <div class="luxury-car-photo-wrap">
+                            <img id="sidebarCarPhoto" class="luxury-car-photo" src="cars/byd_destroyer.jpg" alt="BYD Destroyer 05">
                         </div>
 
                         <div class="canbus-status-pill">
@@ -2586,7 +2509,7 @@
             cartwin: {
                 name: 'CarTwin',
                 title: 'CarTwin Premium Connect',
-                model: 'Universal Wireless Edition',
+                model: 'CONCEPT EV PROTO',
                 commercialTitle: 'CARTWIN',
                 commercialSub: 'PREMIUM CONNECT • WIRELESS CARPLAY',
                 desc: 'CarTwin Flagship Şousu',
@@ -2595,6 +2518,7 @@
                 glow: 'rgba(229, 184, 105, 0.55)',
                 icon: '♾️',
                 carEmoji: '🏎️',
+                photo: 'cars/byd_destroyer.jpg',
                 range: 'UNLIMITED',
                 aspect: '16 / 9',
                 svg: `
@@ -2606,16 +2530,17 @@
             byd: {
                 name: 'BYD',
                 title: 'BYD DiLink OS',
-                model: 'Seal / Han / Song / Atto 3',
-                commercialTitle: 'BUILD YOUR DREAMS',
-                commercialSub: 'BYD DILINK 5.0 • ULTRA SMART COCKPIT',
-                desc: 'BYD Ocean & Dynasty Şousu',
-                sub: 'Orijinal oval 3D xrom BYD loqosu lazer parıltısı ilə parıldayır.',
+                model: 'DESTROYER 05 DM-i',
+                commercialTitle: 'BYD DESTROYER 05',
+                commercialSub: 'DM-i SUPER HYBRID • BLADE BATTERY',
+                desc: 'BYD Destroyer 05 Şousu',
+                sub: 'Orijinal Destroyer 05 studiya fotosu və hibrid texnologiyası.',
                 color: '#00f2fe',
                 glow: 'rgba(0, 242, 254, 0.55)',
                 icon: '⚡',
                 carEmoji: '🏎️',
-                range: '520 KM',
+                photo: 'cars/byd_destroyer.jpg',
+                range: '1200 KM',
                 aspect: '16 / 9',
                 svg: `
                     <svg class="original-byd-badge-svg" viewBox="0 0 320 130" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2660,6 +2585,7 @@
                 glow: 'rgba(47, 128, 237, 0.55)',
                 icon: '🛡️',
                 carEmoji: '🚘',
+                photo: 'cars/changan_deepal.jpg',
                 range: '610 KM',
                 aspect: '21 / 9',
                 svg: `
@@ -2709,6 +2635,7 @@
                 glow: 'rgba(255, 214, 10, 0.5)',
                 icon: '👑',
                 carEmoji: '🚙',
+                photo: 'cars/liauto_l9.jpg',
                 range: '1315 KM',
                 aspect: '16 / 10',
                 svg: `
@@ -2748,6 +2675,7 @@
                 glow: 'rgba(48, 209, 88, 0.55)',
                 icon: '⚡',
                 carEmoji: '🏎️',
+                photo: 'cars/zeekr_001.jpg',
                 range: '680 KM',
                 aspect: '16 / 9',
                 svg: `
@@ -2785,6 +2713,7 @@
                 glow: 'rgba(21, 93, 252, 0.55)',
                 icon: '💎',
                 carEmoji: '🚘',
+                photo: 'cars/geely_monjaro.jpg',
                 range: '750 KM',
                 aspect: '16 / 9',
                 svg: `
@@ -2820,6 +2749,7 @@
                 glow: 'rgba(229, 62, 62, 0.55)',
                 icon: '🔥',
                 carEmoji: '🚙',
+                photo: 'cars/chery_tiggo8.jpg',
                 range: '710 KM',
                 aspect: '16 / 9',
                 svg: `
@@ -2850,6 +2780,7 @@
                 glow: 'rgba(197, 48, 48, 0.55)',
                 icon: '🚙',
                 carEmoji: '🚙',
+                photo: 'cars/haval_tank300.jpg',
                 range: '820 KM',
                 aspect: '16 / 9',
                 svg: `
@@ -2905,6 +2836,11 @@
             document.getElementById('hudBrandIcon').innerText = cfg.icon;
             document.getElementById('sidebarLogoText').innerText = cfg.name;
             document.getElementById('sidebarModelText').innerText = cfg.model;
+            const carPhotoEl = document.getElementById('sidebarCarPhoto');
+            if (carPhotoEl && cfg.photo) {
+                carPhotoEl.src = cfg.photo;
+                carPhotoEl.alt = cfg.model;
+            }
             const sidebarRangeEl = document.getElementById('sidebarRangeText');
             if (sidebarRangeEl) sidebarRangeEl.innerText = cfg.range.replace(' KM', '');
             document.getElementById('hudRange').innerText = cfg.range;
