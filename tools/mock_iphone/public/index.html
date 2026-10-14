@@ -1571,21 +1571,27 @@
                                 <path d="M37 28 C34 28 30 30 28 34 C25 40 27 54 41 68 C55 82 69 84 75 81 C79 79 81 75 81 72 C81 69 76 64 71 62 C68 60 64 61 62 63 L58 67 C53 64 45 56 42 51 L46 47 C48 45 49 41 47 38 C45 33 40 28 37 28 Z" fill="#ffffff"/>
                             </svg>
                         </div>
-                        <!-- Siri AI Dock Icon -->
-                        <div class="dock-icon" onclick="startUniversalVoice()" title="AI Səs (Siri)">
+                        <!-- Twin AI Dock Icon (Avtomobil Ağıllı Köməkçisi) -->
+                        <div class="dock-icon" onclick="startTwinAi()" title="Twin AI (Avtomobil Köməkçisi)">
                             <svg viewBox="0 0 100 100" class="ios-carplay-svg">
                                 <defs>
-                                    <radialGradient id="dockSiri" cx="50%" cy="50%" r="50%">
+                                    <linearGradient id="dockTwinAiBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#0f172a"/>
+                                        <stop offset="100%" stop-color="#020617"/>
+                                    </linearGradient>
+                                    <radialGradient id="dockTwinAiCore" cx="50%" cy="50%" r="50%">
                                         <stop offset="0%" stop-color="#ffffff"/>
-                                        <stop offset="25%" stop-color="#4facfe"/>
-                                        <stop offset="65%" stop-color="#f355da"/>
-                                        <stop offset="100%" stop-color="#05081c"/>
+                                        <stop offset="35%" stop-color="#00e5ff"/>
+                                        <stop offset="70%" stop-color="#3b82f6"/>
+                                        <stop offset="100%" stop-color="transparent"/>
                                     </radialGradient>
                                 </defs>
-                                <rect width="100" height="100" fill="#080c18"/>
-                                <circle cx="50" cy="50" r="38" fill="url(#dockSiri)"/>
-                                <path d="M22 50 Q36 30 50 50 T78 50" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round"/>
-                                <path d="M22 50 Q36 68 50 50 T78 50" stroke="#00f2fe" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                                <rect width="100" height="100" fill="url(#dockTwinAiBg)"/>
+                                <circle cx="50" cy="50" r="32" fill="url(#dockTwinAiCore)" opacity="0.85"/>
+                                <circle cx="50" cy="50" r="34" stroke="#00e5ff" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity="0.6"/>
+                                <path d="M30 50 Q40 32 50 50 T70 50" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                <path d="M36 50 Q43 62 50 50 T64 50" stroke="#38bdf8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                                <circle cx="50" cy="50" r="3.5" fill="#ffffff" filter="drop-shadow(0 0 5px #00e5ff)"/>
                             </svg>
                         </div>
                     </div>
@@ -1724,8 +1730,8 @@
                             <span class="app-label">YouTube (Park)</span>
                         </div>
 
-                        <!-- 8. AI Səs (Azərbaycan / Siri) -->
-                        <div class="app-card" onclick="startUniversalVoice()">
+                        <!-- 8. Apple Siri (iPhone Köməkçisi) -->
+                        <div class="app-card" onclick="launchAppleSiri()">
                             <div class="app-icon-box">
                                 <svg viewBox="0 0 100 100" class="ios-carplay-svg">
                                     <defs>
@@ -1744,7 +1750,34 @@
                                     <path d="M26 50 Q38 40 50 50 T74 50" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
                                 </svg>
                             </div>
-                            <span class="app-label">AI Səs (Siri)</span>
+                            <span class="app-label">Siri</span>
+                        </div>
+
+                        <!-- 9. Twin AI (CarTwin Ağıllı Avtomobil Köməkçisi) -->
+                        <div class="app-card" onclick="startTwinAi()">
+                            <div class="app-icon-box">
+                                <svg viewBox="0 0 100 100" class="ios-carplay-svg">
+                                    <defs>
+                                        <linearGradient id="gridTwinAiBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0f172a"/>
+                                            <stop offset="100%" stop-color="#020617"/>
+                                        </linearGradient>
+                                        <radialGradient id="gridTwinAiCore" cx="50%" cy="50%" r="50%">
+                                            <stop offset="0%" stop-color="#ffffff"/>
+                                            <stop offset="35%" stop-color="#00e5ff"/>
+                                            <stop offset="70%" stop-color="#3b82f6"/>
+                                            <stop offset="100%" stop-color="transparent"/>
+                                        </radialGradient>
+                                    </defs>
+                                    <rect width="100" height="100" fill="url(#gridTwinAiBg)"/>
+                                    <circle cx="50" cy="50" r="34" fill="url(#gridTwinAiCore)" opacity="0.9"/>
+                                    <circle cx="50" cy="50" r="36" stroke="#00e5ff" stroke-width="2" stroke-dasharray="5 5" fill="none" opacity="0.6"/>
+                                    <path d="M28 50 Q39 30 50 50 T72 50" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                                    <path d="M34 50 Q42 64 50 50 T66 50" stroke="#38bdf8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                                    <circle cx="50" cy="50" r="4" fill="#ffffff" filter="drop-shadow(0 0 8px #00e5ff)"/>
+                                </svg>
+                            </div>
+                            <span class="app-label">Twin AI</span>
                         </div>
 
                         <!-- 9. CarTwin Hub (Orijinal Brend) -->
@@ -1880,11 +1913,12 @@
                         </div>
                     </div>
 
-                    <!-- AI Universal Səs Köməkçisi Modalı -->
+                    <!-- CarTwin AI & Səs Köməkçisi Modalı -->
                     <div class="voice-modal-overlay" id="voiceModal" onclick="closeVoiceModal()">
                         <div class="voice-sphere-anim"></div>
-                        <div class="voice-command-text" id="voiceOutputText">Azərbaycan dilində danışın… 🎙️</div>
-                        <div style="margin-top: 8px; font-size: 13px; color: #00e5ff;" id="voiceLangIndicator">Dil: Azərbaycan dili 🇦🇿 (Süni İntellekt Aktivdir)</div>
+                        <div style="font-size: 15px; font-weight: 800; color: #00e5ff; letter-spacing: 1.5px; margin-top: 18px;" id="voiceModalTitle">TWIN AI</div>
+                        <div class="voice-command-text" id="voiceOutputText">Salam! Sizi dinləyirəm, sərbəst danışın… 🎙️</div>
+                        <div style="margin-top: 6px; font-size: 13px; color: #94a3b8;" id="voiceLangIndicator">CarTwin Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿</div>
 
                         <!-- Sınaq və Tez Əmrlər (Kondisioner, Musiqi, Brauzer) -->
                         <div class="voice-preset-chips" onclick="event.stopPropagation()">
@@ -2922,6 +2956,29 @@
                     rec.start();
                 } catch(e) {}
             }
+        function startTwinAi() {
+            const modal = document.getElementById('voiceModal');
+            const output = document.getElementById('voiceOutputText');
+            const langInd = document.getElementById('voiceLangIndicator');
+            const titleEl = document.getElementById('voiceModalTitle');
+            if (titleEl) titleEl.innerText = "TWIN AI";
+            output.innerText = "Salam! Sizi dinləyirəm, sərbəst danışın… 🎙️";
+            langInd.innerText = "CarTwin Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿";
+            logEvent(`⚡ Twin AI (Avtomobil Köməkçisi) aktivdir (Azərbaycan dili)`);
+            startUniversalVoice();
+        }
+
+        function launchAppleSiri() {
+            const modal = document.getElementById('voiceModal');
+            const output = document.getElementById('voiceOutputText');
+            const langInd = document.getElementById('voiceLangIndicator');
+            const titleEl = document.getElementById('voiceModalTitle');
+            if (titleEl) titleEl.innerText = "APPLE SIRI";
+            output.innerText = "Siri dinləyir (iPhone Zənglər & Mesajlar)…";
+            langInd.innerText = "Standart Apple CarPlay Xidməti";
+            logEvent(`🍎 Apple Siri: iPhone səs əlaqəsi aktivləşdirildi`);
+            playAppleChime();
+            modal.classList.add('active');
         }
 
         function closeVoiceModal() {
