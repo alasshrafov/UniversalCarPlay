@@ -33,14 +33,34 @@ const httpServer = http.createServer((req, res) => {
             '.svg': 'image/svg+xml',
             '.css': 'text/css',
             '.js': 'application/javascript',
-            '.apk': 'application/vnd.android.package-archive'
+            '.apk': 'application/vnd.android.package-archive',
+            '.webm': 'video/webm',
+            '.mp4': 'video/mp4'
         };
         const contentType = contentTypes[ext] || 'application/octet-stream';
         const stat = fs.statSync(filePath);
 
+        if (req.headers.range && (ext === '.webm' || ext === '.mp4')) {
+            const range = req.headers.range;
+            const parts = range.replace(/bytes=/, "").split("-");
+            const start = parseInt(parts[0], 10);
+            const end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1;
+            const chunksize = (end - start) + 1;
+            res.writeHead(206, {
+                'Content-Range': `bytes ${start}-${end}/${stat.size}`,
+                'Accept-Ranges': 'bytes',
+                'Content-Length': chunksize,
+                'Content-Type': contentType,
+                'Access-Control-Allow-Origin': '*'
+            });
+            fs.createReadStream(filePath, { start, end }).pipe(res);
+            return;
+        }
+
         const headers = {
             'Content-Type': contentType,
             'Content-Length': stat.size,
+            'Accept-Ranges': 'bytes',
             'Access-Control-Allow-Origin': '*'
         };
         if (ext === '.apk') {
