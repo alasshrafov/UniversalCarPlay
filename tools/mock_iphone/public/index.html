@@ -3958,178 +3958,305 @@
             }
         }
 
+        // ==========================================================
+        // 🔮 AURA AUTOMOTIVE INTELLIGENT VOICE ENGINE (100% BULLETPROOF)
+        // ==========================================================
+
         /**
-         * Azərbaycan dilində sərbəst deyilən əmrləri 100% dəqiq təhlil edən süni intellekt
+         * 1. Ultra-Dəqiq Azərbaycan & Çoxdilli Fonetik Mətn Normalizatoru
+         * Kiril, Türk və Azərbaycan hərflərini, vurğularını və yazılı rəqəmləri 100% bərabərləşdirir.
+         */
+        function normalizeSpeechText(raw) {
+            if (!raw) return '';
+            let str = raw.toLowerCase().trim();
+
+            // A) Kiril -> Latın transliterasiyası (Rus/Kiril STT sistemləri üçün)
+            const cyrMap = {
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
+                'ж': 'z', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+                'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+                'ф': 'f', 'х': 'x', 'ц': 'ts', 'ч': 'c', 'ш': 's', 'щ': 's', 'ъ': '',
+                'ы': 'i', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+            };
+            str = str.replace(/[а-яё]/g, c => cyrMap[c] || c);
+
+            // B) Azərbaycan & Türk hərflərini standart fonetikaya salırıq
+            str = str
+                .replace(/[əeëéèê]/g, 'e')
+                .replace(/[ıiïîí]/g, 'i')
+                .replace(/[öoóòô]/g, 'o')
+                .replace(/[üuúùû]/g, 'u')
+                .replace(/[ğg]/g, 'g')
+                .replace(/[çc]/g, 'c')
+                .replace(/[şs]/g, 's')
+                .replace(/[w]/g, 'v')
+                .replace(/[q]/g, 'g');
+
+            // C) Durğu işarələrini və lazımsız simvolları təmizləyirik
+            str = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'🇦🇿🎙️]/g, ' ');
+            str = str.replace(/\s+/g, ' ').trim();
+
+            // D) Azərbaycan sözləri ilə deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
+            const numWords = [
+                { w: 'iyirmi bir', n: '21' }, { w: 'yirmi bir', n: '21' },
+                { w: 'iyirmi iki', n: '22' }, { w: 'yirmi iki', n: '22' },
+                { w: 'iyirmi uc', n: '23' }, { w: 'yirmi uc', n: '23' },
+                { w: 'iyirmi dord', n: '24' }, { w: 'yirmi dord', n: '24' },
+                { w: 'iyirmi bes', n: '25' }, { w: 'yirmi bes', n: '25' },
+                { w: 'iyirmi alti', n: '26' }, { w: 'yirmi alti', n: '26' },
+                { w: 'iyirmi yeddi', n: '27' }, { w: 'yirmi yeddi', n: '27' },
+                { w: 'iyirmi sekkiz', n: '28' }, { w: 'yirmi sekkiz', n: '28' },
+                { w: 'iyirmi doqquz', n: '29' }, { w: 'yirmi doqquz', n: '29' },
+                { w: 'iyirmi', n: '20' }, { w: 'yirmi', n: '20' }, { w: 'yigirmi', n: '20' },
+                { w: 'on alti', n: '16' }, { w: 'on yeddi', n: '17' }, { w: 'on sekkiz', n: '18' },
+                { w: 'on doqquz', n: '19' }, { w: 'otuz', n: '30' }
+            ];
+            for (const item of numWords) {
+                str = str.replace(new RegExp('\\b' + item.w + '\\b', 'g'), item.n);
+            }
+
+            return str;
+        }
+
+        /**
+         * 2. Temperatur Dəyərinin Tapılması (16°C - 32°C)
+         */
+        function parseTemperatureValue(str) {
+            const match = str.match(/\b(1[6-9]|2[0-9]|3[0-2])\b/);
+            if (match) return parseFloat(match[1]);
+            return null;
+        }
+
+        /**
+         * 3. İntellektual Əmr və Niyyət Analizatoru (Intent Recognition)
+         * Həm "Aura ..." prefiksi ilə, həm də birbaşa deyilən əmrləri 100% tanıyır.
+         */
+        function analyzeCommandIntent(normText, isExplicitContext) {
+            if (!normText) return null;
+
+            // --- 1. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA (ƏN YÜKSƏK PRIORİTET) ---
+            if (/\b(waze|vaze|veiz|naviqasiya|navigasiya|xerite|xeriteni|yol|yolu|marsrut)\b/.test(normText)) {
+                return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
+            }
+
+            // --- 2. MUSİQİ: NÖVBƏTİ MAHNINI DƏYİŞ ---
+            if (/\b(deyis|novbeti|baska mahni|sonraki|mahnini deyis|musiqi deyis|mahni deyis|musiqini deyis)\b/.test(normText)) {
+                return { type: 'MUSIC_NEXT', desc: 'Musiqi Dəyişdirildi' };
+            }
+
+            // --- 3. MUSİQİ: SPOTİFY / MAHNINI AÇ ---
+            if (/\b(spotify|spotifay|musiqi ac|mahni ac|pleyer)\b/.test(normText)) {
+                return { type: 'APP_SPOTIFY', desc: 'Spotify Pleyer Açılır' };
+            }
+
+            // --- 4. TELEFON / ZƏNG ---
+            if (/\b(telefon|zeng|zeng et|nomre)\b/.test(normText)) {
+                return { type: 'APP_PHONE', desc: 'Telefon Açılır' };
+            }
+
+            // --- 5. ƏSAS EKRAN / EVƏ GET ---
+            if (/\b(ana ekran|esas ekran|ana menyu|esas menyu|eve get|cix|ekrani bagla)\b/.test(normText)) {
+                return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı' };
+            }
+
+            // --- 6. İNTERNET BRAUZERİ ---
+            if (/\b(brauzer|internet|google|sayt)\b/.test(normText)) {
+                return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
+            }
+
+            // --- 7. YOUTUBE ---
+            if (/\b(youtube|video|klip)\b/.test(normText)) {
+                return { type: 'APP_YOUTUBE', desc: 'YouTube Park Rejimi Açılır' };
+            }
+
+            const parsedTemp = parseTemperatureValue(normText);
+
+            // İqlim açar sözləri (kondi..., klima..., hava..., pec..., soyutma..., istilik...)
+            const hasClimateNoun = /(kondi|klim|hava|pec|soyutm|istilik)/.test(normText);
+            const hasTempWord = /\b(derece|temperatur|tempratur)\b/.test(normText);
+
+            // Söndürmə felləri (söndür, bağla, kapat, dayandır, lazım deyil, off)
+            const hasOffVerb = /\b(sondur|söndür|sundur|son dur|sondurmek|bagla|baglat|kapat|dayandir|kes|lazim deyil|off|kecir|söndürün|baglayin)\b/.test(normText);
+            
+            // İşə salma / yandırma felləri (aç, yandır, işə sal, qoş, on)
+            const hasOnVerb = /\b(ac|yandir|ise sal|qos|baslat|on|calis|yandır|işə sal)\b/.test(normText);
+
+            // Temperatur artırma / azaltma hisləri (q/g və digər fonetikalar nəzərə alınır)
+            const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|giz|usudum|usuduk|donuram|donuruq|artir|cox soyug|cox soyuq|biraz isti)\b/.test(normText);
+            const hasColdWord = /\b(soyuq|soyug|soyut|serin|terledim|azalt|cox isti|biraz soyuq|biraz soyug|isti oldu)\b/.test(normText);
+
+            // --- A) İQLİM: KONDİSİONERİ SÖNDÜR / BAĞLA / KAPAT ---
+            if (hasOffVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav'))) {
+                return { type: 'CLIMATE_OFF', desc: 'Kondisioner Söndürüldü' };
+            }
+
+            // --- B) İQLİM: DƏQİQ TEMPERATUR TƏYİNİ (Məsələn: 20 dərəcə, havanı 22 elə) ---
+            if (parsedTemp !== null && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('goy') || normText.includes('ele') || normText.includes('et') || normText.includes('yap'))) {
+                return { type: 'CLIMATE_SET_TEMP', temp: parsedTemp, desc: `Kondisioner ${parsedTemp}°C təyin edildi` };
+            }
+
+            // --- C) İQLİM: İSTİLİK ARTIR / QIZDIR ---
+            if (hasWarmWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('gizdir') || normText.includes('qizdir') || normText.includes('usudum') || normText.includes('donuram') || normText.includes('artir'))) {
+                return { type: 'CLIMATE_TEMP_UP', desc: 'Temperatur artırıldı' };
+            }
+
+            // --- D) İQLİM: SOYUT / AZALT ---
+            if (hasColdWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('soyut') || normText.includes('serin') || normText.includes('terledim') || normText.includes('azalt'))) {
+                return { type: 'CLIMATE_TEMP_DOWN', desc: 'Temperatur azaldıldı' };
+            }
+
+            // --- E) İQLİM: KONDİSİONERİ AÇ / İŞƏ SAL ---
+            if (hasOnVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav'))) {
+                return { type: 'CLIMATE_ON', desc: 'Kondisioner İşə Salındı' };
+            }
+
+            // Əgər Aura gözləyərkən sadəcə rəqəm deyilibsə (Məs: "20" və ya "22")
+            if (parsedTemp !== null && isExplicitContext) {
+                return { type: 'CLIMATE_SET_TEMP', temp: parsedTemp, desc: `Kondisioner ${parsedTemp}°C təyin edildi` };
+            }
+
+            return null;
+        }
+
+        /**
+         * 4. Tanınmış Əmrin Avtomobildə İcrası (CAN-Bus + HUD + Audio)
+         */
+        function executeResolvedIntent(intent, rawText) {
+            logEvent(`⚡ Aura Əmri İcra Edir: ${intent.desc} (Eşidildi: "${rawText}")`);
+            resetAuraAwakeState();
+
+            switch (intent.type) {
+                case 'CLIMATE_OFF':
+                    climateState.ac = false;
+                    showClimateHud("Kondisioner Söndürüldü");
+                    speakFeedback("Kondisioner söndürüldü");
+                    showVoiceSuccessFeedback("✓ Kondisioner Söndürüldü");
+                    break;
+
+                case 'CLIMATE_ON':
+                    climateState.ac = true;
+                    showClimateHud("Kondisioner İşə Salındı");
+                    speakFeedback("Kondisioner işə salındı");
+                    showVoiceSuccessFeedback("✓ Kondisioner İşə Salındı");
+                    break;
+
+                case 'CLIMATE_SET_TEMP':
+                    climateState.temp = intent.temp;
+                    climateState.ac = true;
+                    showClimateHud(`Kondisioner ${intent.temp}°C təyin edildi`);
+                    speakFeedback(`Kondisioner ${intent.temp} dərəcəyə təyin edildi`);
+                    showVoiceSuccessFeedback(`✓ Temperatur: ${intent.temp}°C`);
+                    break;
+
+                case 'CLIMATE_TEMP_UP':
+                    adjustClimateTemp(1);
+                    showVoiceSuccessFeedback(`✓ Temperatur: ${climateState.temp.toFixed(1)}°C`);
+                    break;
+
+                case 'CLIMATE_TEMP_DOWN':
+                    adjustClimateTemp(-1);
+                    showVoiceSuccessFeedback(`✓ Temperatur: ${climateState.temp.toFixed(1)}°C`);
+                    break;
+
+                case 'APP_WAZE':
+                    speakFeedback("Waze naviqasiyası açılır");
+                    showVoiceSuccessFeedback("✓ Waze Açılır");
+                    launchApp('Waze');
+                    break;
+
+                case 'APP_SPOTIFY':
+                    speakFeedback("Spotify açılır");
+                    showVoiceSuccessFeedback("✓ Spotify Açılır");
+                    launchApp('Spotify');
+                    break;
+
+                case 'APP_PHONE':
+                    speakFeedback("Telefon açılır");
+                    showVoiceSuccessFeedback("✓ Telefon Açılır");
+                    launchApp('Telefon');
+                    break;
+
+                case 'GO_HOME':
+                    speakFeedback("Əsas ekrana qayıdıldı");
+                    showVoiceSuccessFeedback("✓ Əsas Ekran");
+                    goHome();
+                    break;
+
+                case 'APP_BROWSER':
+                    speakFeedback("İnternet brauzeri açılır");
+                    showVoiceSuccessFeedback("✓ Brauzer Açılır");
+                    openInCarBrowser();
+                    break;
+
+                case 'APP_YOUTUBE':
+                    speakFeedback("YouTube açılır");
+                    showVoiceSuccessFeedback("✓ YouTube Açılır");
+                    openInCarBrowser('https://m.youtube.com');
+                    break;
+
+                case 'MUSIC_NEXT':
+                    nextSong();
+                    speakFeedback("Musiqi dəyişdirildi");
+                    showVoiceSuccessFeedback(`🎵 ${playlist[currentTrackIdx].title}`);
+                    break;
+            }
+        }
+
+        /**
+         * 5. Ekranda Uğurlu İcra Bildirişi
+         */
+        function showVoiceSuccessFeedback(text) {
+            if (activeFullscreenApp) {
+                showInAppAuraPill("AURA AI", text);
+                setTimeout(() => hideInAppAuraPill(), 2800);
+            } else {
+                const output = document.getElementById('voiceOutputText');
+                if (output) output.innerText = text;
+                setTimeout(() => closeVoiceModal(), 1400);
+            }
+        }
+
+        /**
+         * 6. Canlı Mətn Önizləməsi (Sürücünün dediyi sözləri anında ekranda əks etdirir)
+         */
+        function renderLiveSpeechPreview(text) {
+            if (activeFullscreenApp) {
+                const textEl = document.getElementById('inAppAuraText');
+                const pill = document.getElementById('inAppAuraPill');
+                if (textEl && pill) {
+                    textEl.innerText = `"${text}"`;
+                    pill.classList.add('active');
+                }
+            } else {
+                const output = document.getElementById('voiceOutputText');
+                if (output) output.innerText = `"${text}"`;
+            }
+        }
+
+        /**
+         * 7. Manual Əmr İcrası (Test düymələri və birbaşa sınaq üçün)
          */
         function executeVoiceCommandText(text) {
-            const output = document.getElementById('voiceOutputText');
-            if (output) output.innerText = `"${text}"`;
-            logEvent(`🗣️ Eşidildi: "${text}"`);
-
-            let lower = text.toLowerCase().trim();
-            // "Aura" və ya "Hey Aura" prefiksini süzürük
-            lower = lower.replace(/^(?:hey\s+|ay\s+|ey\s+)?aura[,:\s]*/i, '').trim();
-
-            // 1. Dərəcə Rəqəmlərinin Təyini (Həm rəqəm, həm Azərbaycan sözləri)
-            let parsedTemp = null;
-            const digitMatch = lower.match(/(?:^|\D)(1[6-9]|2[0-9]|3[0-2])(?:\D|$)/);
-            if (digitMatch) {
-                parsedTemp = parseFloat(digitMatch[1]);
+            renderLiveSpeechPreview(text);
+            const normalized = normalizeSpeechText(text);
+            const intent = analyzeCommandIntent(normalized, true);
+            if (intent) {
+                executeResolvedIntent(intent, text);
             } else {
-                const azNumberMap = [
-                    { w: 'iyirmi bir', v: 21 }, { w: 'iyirmi iki', v: 22 }, { w: 'iyirmi üç', v: 23 }, { w: 'iyirmi uc', v: 23 },
-                    { w: 'iyirmi dörd', v: 24 }, { w: 'iyirmi dord', v: 24 }, { w: 'iyirmi beş', v: 25 }, { w: 'iyirmi bes', v: 25 },
-                    { w: 'iyirmi altı', v: 26 }, { w: 'iyirmi alti', v: 26 }, { w: 'iyirmi yeddi', v: 27 }, { w: 'iyirmi səkkiz', v: 28 },
-                    { w: 'iyirmi sekkiz', v: 28 }, { w: 'iyirmi doqquz', v: 29 }, { w: 'iyirmi', v: 20 },
-                    { w: 'on altı', v: 16 }, { w: 'on alti', v: 16 }, { w: 'on yeddi', v: 17 }, { w: 'on səkkiz', v: 18 },
-                    { w: 'on sekkiz', v: 18 }, { w: 'on doqquz', v: 19 }, { w: 'otuz', v: 30 }
-                ];
-                for (const item of azNumberMap) {
-                    if (lower.includes(item.w)) {
-                        parsedTemp = item.v;
-                        break;
-                    }
-                }
-            }
-
-            // 2. Kondisioner / İqlim Əmrləri (Waze daxilində və ya istənilən ekranda)
-            const isClimateContext = lower.includes('kondisioner') ||
-                lower.includes('klima') ||
-                lower.includes('dərəcə') ||
-                lower.includes('derece') ||
-                lower.includes('hava') ||
-                lower.includes('temperatur') ||
-                lower.includes('isti') ||
-                lower.includes('soyut') ||
-                lower.includes('üşüdüm') ||
-                (parsedTemp !== null && (lower.includes('elə') || lower.includes('ele') || lower.includes('qoy') || lower.includes('et')));
-
-            if (isClimateContext) {
-                if (lower.includes('söndür') || lower.includes('sondur') || lower.includes('bağla') || lower.includes('bagla') || lower.includes('kapat') || lower.includes('lazım deyil')) {
-                    climateState.ac = false;
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        showClimateHud("Kondisioner Söndürüldü");
-                        speakFeedback("Kondisioner söndürüldü");
-                        if (activeFullscreenApp) {
-                            showInAppAuraPill("AURA AI", "✓ Kondisioner Söndürüldü");
-                            setTimeout(() => hideInAppAuraPill(), 2800);
-                        }
-                    }, 300);
-                } else if (parsedTemp !== null) {
-                    climateState.temp = parsedTemp;
-                    climateState.ac = true;
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        showClimateHud(`Kondisioner ${parsedTemp}°C təyin edildi`);
-                        speakFeedback(`Kondisioner ${parsedTemp} dərəcəyə təyin edildi`);
-                        if (activeFullscreenApp) {
-                            showInAppAuraPill("AURA AI", `✓ Temperatur: ${parsedTemp}°C`);
-                            setTimeout(() => hideInAppAuraPill(), 2800);
-                        }
-                    }, 300);
-                } else if (lower.includes('artır') || lower.includes('artir') || lower.includes('isti') || lower.includes('üşüdüm') || lower.includes('qızdır')) {
-                    adjustClimateTemp(1);
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        if (activeFullscreenApp) {
-                            showInAppAuraPill("AURA AI", `✓ Temperatur artırıldı (${climateState.temp.toFixed(1)}°C)`);
-                            setTimeout(() => hideInAppAuraPill(), 2800);
-                        }
-                    }, 300);
-                } else if (lower.includes('azalt') || lower.includes('soyut') || lower.includes('soyuq') || lower.includes('sərin')) {
-                    adjustClimateTemp(-1);
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        if (activeFullscreenApp) {
-                            showInAppAuraPill("AURA AI", `✓ Temperatur azaldıldı (${climateState.temp.toFixed(1)}°C)`);
-                            setTimeout(() => hideInAppAuraPill(), 2800);
-                        }
-                    }, 300);
-                } else {
-                    climateState.ac = true;
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        showClimateHud("Kondisioner İşə Salındı");
-                        speakFeedback("Kondisioner işə salındı");
-                        if (activeFullscreenApp) {
-                            showInAppAuraPill("AURA AI", "✓ Kondisioner İşə Salındı");
-                            setTimeout(() => hideInAppAuraPill(), 2800);
-                        }
-                    }, 300);
-                }
-                return;
-            }
-
-            // 3. Tətbiqlərin Səslə İdarəsi
-            if (lower.includes('waze') || lower.includes('naviqasiya') || lower.includes('xəritə') || lower.includes('xerite')) {
-                speakFeedback("Waze naviqasiyası açılır");
-                setTimeout(() => {
-                    closeVoiceModal();
-                    hideInAppAuraPill();
-                    launchApp('Waze');
-                }, 400);
-            } else if (lower.includes('spotify') || lower.includes('musiqi aç') || lower.includes('mahni aç')) {
-                speakFeedback("Spotify açılır");
-                setTimeout(() => {
-                    closeVoiceModal();
-                    hideInAppAuraPill();
-                    launchApp('Spotify');
-                }, 400);
-            } else if (lower.includes('telefon') || lower.includes('zəng') || lower.includes('zeng')) {
-                speakFeedback("Telefon açılır");
-                setTimeout(() => {
-                    closeVoiceModal();
-                    hideInAppAuraPill();
-                    launchApp('Telefon');
-                }, 400);
-            } else if (lower.includes('evə get') || lower.includes('eve get') || lower.includes('ana menyu') || lower.includes('əsas menyu') || lower.includes('esas menyu') || lower.includes('bağla') || lower.includes('çıx')) {
-                speakFeedback("Əsas ekrana qayıdıldı");
-                setTimeout(() => {
-                    closeVoiceModal();
-                    hideInAppAuraPill();
-                    goHome();
-                }, 400);
-            } else if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
-                speakFeedback("İnternet brauzeri açılır");
-                setTimeout(() => {
-                    closeVoiceModal();
-                    hideInAppAuraPill();
-                    openInCarBrowser();
-                }, 500);
-            } else if (lower.includes('youtube') || lower.includes('video')) {
-                speakFeedback("YouTube Park Rejimi açılır");
-                setTimeout(() => {
-                    closeVoiceModal();
-                    hideInAppAuraPill();
-                    openInCarBrowser('https://m.youtube.com');
-                }, 500);
-            } else if (lower.includes('mahnı') || lower.includes('musiqi') || lower.includes('dəyiş') || lower.includes('oxut') || lower.includes('növbəti')) {
-                nextSong();
-                speakFeedback("Musiqi dəyişdirildi");
-                if (activeFullscreenApp) {
-                    showInAppAuraPill("AURA AI", `🎵 ${playlist[currentTrackIdx].title}`);
-                    setTimeout(() => hideInAppAuraPill(), 2800);
-                }
-                setTimeout(() => closeVoiceModal(), 500);
-            } else {
-                speakFeedback("Əmr qəbul edildi");
-                if (activeFullscreenApp) {
-                    showInAppAuraPill("AURA AI", "✓ Əmr qəbul edildi");
-                    setTimeout(() => hideInAppAuraPill(), 2200);
-                }
-                setTimeout(() => closeVoiceModal(), 600);
+                logEvent(`🗣️ Eşidildi: "${text}" (Əmr təyin edilmədi)`);
+                showVoiceSuccessFeedback(`"${text}" (Əmr təyin edilmədi)`);
             }
         }
 
         // ==========================================================
-        // 🎙️ DAİMİ "AURA" OYANIŞ SÖZÜ VƏ SƏS KÖMƏKÇİSİ (PASSIVE WAKE WORD)
+        // 🎙️ Vahid, Fasiləsiz və Qırılmayan Səs Mühərriki
         // ==========================================================
         let isWakeWordEnabled = true;
-        let wakeWordRecognizer = null;
-        let activeCommandRecognizer = null;
-        let isVoiceSessionActive = false;
-        let wakeWordCooldown = false;
+        let persistentSpeechEngine = null;
+        let isAuraAwake = false;
+        let auraAwakeTimer = null;
+        let lastProcessedTranscript = '';
+        let lastProcessedTime = 0;
 
         function initPassiveWakeWordListener() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -4139,143 +4266,140 @@
                 return;
             }
 
-            if (wakeWordRecognizer) {
-                try { wakeWordRecognizer.abort(); } catch(e) {}
+            if (persistentSpeechEngine) {
+                try { persistentSpeechEngine.abort(); } catch(e) {}
             }
 
             try {
-                wakeWordRecognizer = new SpeechRec();
-                wakeWordRecognizer.continuous = true;
-                wakeWordRecognizer.interimResults = true;
-                wakeWordRecognizer.lang = 'az-AZ';
+                persistentSpeechEngine = new SpeechRec();
+                persistentSpeechEngine.continuous = true;
+                persistentSpeechEngine.interimResults = true;
+                try {
+                    persistentSpeechEngine.lang = 'az-AZ';
+                } catch(e) {
+                    persistentSpeechEngine.lang = 'tr-TR';
+                }
 
-                wakeWordRecognizer.onstart = () => {
-                    logEvent("🎙️ Daimi 'Aura' oyanış sözü aktivdir. Maşında istənilən vaxt 'Aura' deyin.");
+                persistentSpeechEngine.onstart = () => {
+                    logEvent("🎙️ Aura AI fasiləsiz dinləyir. 'Aura' və ya birbaşa 'Kondisioneri söndür' deyin.");
                     updateWakeBadge(true);
                 };
 
-                wakeWordRecognizer.onresult = (event) => {
-                    if (isVoiceSessionActive || wakeWordCooldown) return;
+                persistentSpeechEngine.onresult = (event) => {
+                    let interimText = '';
+                    let finalText = '';
 
                     for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        const transcript = event.results[i][0].transcript.trim();
-                        const lower = transcript.toLowerCase();
-
-                        // "Aura", "Hey Aura", "Ey Aura", "Ay Aura", "Oura", "Avra", "Ayra"
-                        const match = lower.match(/\b(aura|ey aura|hey aura|ay aura|oura|avra|ayra)\b/i);
-                        if (match) {
-                            logEvent(`⚡ OYANIŞ SÖZÜ DEYİLDİ: "${transcript}"`);
-                            wakeWordTriggered(transcript);
-                            break;
+                        const item = event.results[i][0];
+                        if (event.results[i].isFinal) {
+                            finalText += item.transcript + ' ';
+                        } else {
+                            interimText += item.transcript + ' ';
                         }
                     }
+
+                    const activeText = (finalText || interimText).trim();
+                    if (!activeText) return;
+
+                    renderLiveSpeechPreview(activeText);
+                    handleIncomingSpeechStream(activeText, !!finalText);
                 };
 
-                wakeWordRecognizer.onerror = (e) => {
+                persistentSpeechEngine.onerror = (e) => {
                     if (e.error === 'not-allowed') {
-                        logEvent("⚠️ Mikrofon icazəsi gözlənilir. Brauzerdə mikrofona icazə verin.");
+                        logEvent("⚠️ Mikrofona icazə lazımdır. Zəhmət olmasa ekrana toxunun və icazə verin.");
                         updateWakeBadge(false);
-                        isWakeWordEnabled = false;
+                    } else if (e.error === 'language-not-supported') {
+                        persistentSpeechEngine.lang = 'tr-TR';
+                        try { persistentSpeechEngine.start(); } catch(err) {}
                     }
                 };
 
-                wakeWordRecognizer.onend = () => {
-                    if (isWakeWordEnabled && !isVoiceSessionActive) {
+                persistentSpeechEngine.onend = () => {
+                    if (isWakeWordEnabled) {
                         setTimeout(() => {
-                            if (isWakeWordEnabled && !isVoiceSessionActive) {
-                                try { wakeWordRecognizer.start(); } catch(err) {}
+                            if (isWakeWordEnabled) {
+                                try { persistentSpeechEngine.start(); } catch(err) {}
                             }
-                        }, 300);
+                        }, 250);
                     }
                 };
 
-                wakeWordRecognizer.start();
+                persistentSpeechEngine.start();
             } catch(e) {
-                console.warn("Passive wake word start failed:", e);
+                console.warn("Persistent speech engine start error:", e);
             }
         }
 
-        function wakeWordTriggered(fullTranscript) {
-            wakeWordCooldown = true;
-            setTimeout(() => { wakeWordCooldown = false; }, 2500);
+        function handleIncomingSpeechStream(rawText, isFinal) {
+            const normalized = normalizeSpeechText(rawText);
+            const now = Date.now();
 
-            // Zərif Apple təsdiq melodiyası
+            // Oyanış sözünün olub-olmaması: "aura", "hey aura", "ey aura", "avra", "ayra", "oura", "avto"
+            const hasWakeWord = /\b(aura|ey aura|hey aura|ay aura|oura|avra|ayra|avto)\b/i.test(normalized);
+
+            // Əgər sürücü yalnız "Aura" dedisə və hələ əmr deməyibsə:
+            if (hasWakeWord) {
+                const afterWake = normalized.replace(/^.*?\b(aura|ey aura|hey aura|ay aura|oura|avra|ayra|avto)\b[,:\s]*/i, '').trim();
+                if (afterWake.length < 2) {
+                    triggerAuraWakePrompt();
+                    return;
+                }
+            }
+
+            // Təkrar emalı önləmək üçün 1.4 saniyəlik debouncinq
+            if (normalized === lastProcessedTranscript && (now - lastProcessedTime < 1400)) {
+                return;
+            }
+
+            // Niyyəti analiz edirik: həm "Aura" dedikdə, həm də birbaşa avtomobil əmri olduqda ("Kondisioneri söndür")
+            const intent = analyzeCommandIntent(normalized, isAuraAwake || hasWakeWord);
+
+            if (intent) {
+                lastProcessedTranscript = normalized;
+                lastProcessedTime = now;
+                executeResolvedIntent(intent, rawText);
+            } else if (isFinal && isAuraAwake) {
+                setTimeout(() => resetAuraAwakeState(), 2500);
+            }
+        }
+
+        function triggerAuraWakePrompt() {
+            isAuraAwake = true;
             playAppleChime();
 
-            // Fon dinləməni dayandırırıq ki, aktiv əmr dinləyicisi ilə toqquşmasın
-            try {
-                if (wakeWordRecognizer) wakeWordRecognizer.abort();
-            } catch(e) {}
-
-            isVoiceSessionActive = true;
-
-            // Əgər istifadəçi "Aura" ilə yanaşı əmri də bir nəfəsə dedisə (Məs: "Aura, kondisioneri 20 dərəcəyə qoy")
-            const afterAura = fullTranscript.replace(/^.*?\b(?:aura|ey aura|hey aura|ay aura|oura|avra|ayra)\b[,:\s]*/i, '').trim();
-
             if (activeFullscreenApp) {
-                // Tətbiqin (Məsələn Waze) daxilində olanda NAVİQASİYANI BAĞLAMIRIQ!
-                // Yuxarıdan lüks üzən "Aura Pill" açılır, xəritə isə 100% aktiv qalır!
-                showInAppAuraPill("AURA AI", afterAura.length > 2 ? `"${fullTranscript}"` : "Sizi dinləyirəm… 🎙️");
-
-                if (afterAura.length > 2) {
-                    setTimeout(() => {
-                        executeVoiceCommandText(fullTranscript);
-                    }, 250);
-                } else {
-                    startActiveSpeechSession();
-                }
+                showInAppAuraPill("AURA AI • DİNLƏYİR", "Bəli, sizi dinləyirəm… 🎙️");
             } else {
                 const modal = document.getElementById('voiceModal');
                 const output = document.getElementById('voiceOutputText');
-                const langInd = document.getElementById('voiceLangIndicator');
-                const titleEl = document.getElementById('voiceModalTitle');
-                if (titleEl) titleEl.innerText = "AURA AI";
-                if (langInd) langInd.innerText = "Aura Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿";
+                const title = document.getElementById('voiceModalTitle');
+                if (title) title.innerText = "AURA AI";
+                if (output) output.innerText = "Bəli, sizi dinləyirəm… 🎙️";
                 if (modal) modal.classList.add('active');
-
-                if (afterAura.length > 2) {
-                    if (output) output.innerText = `"${fullTranscript}"`;
-                    setTimeout(() => {
-                        executeVoiceCommandText(fullTranscript);
-                    }, 200);
-                } else {
-                    if (output) output.innerText = "Bəli, sizi dinləyirəm… 🎙️";
-                    startActiveSpeechSession();
-                }
             }
+
+            if (auraAwakeTimer) clearTimeout(auraAwakeTimer);
+            auraAwakeTimer = setTimeout(() => {
+                resetAuraAwakeState();
+            }, 6000);
         }
 
-        function startActiveSpeechSession() {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) return;
-
-            if (activeCommandRecognizer) {
-                try { activeCommandRecognizer.abort(); } catch(e) {}
+        function resetAuraAwakeState() {
+            isAuraAwake = false;
+            if (auraAwakeTimer) clearTimeout(auraAwakeTimer);
+            if (!activeFullscreenApp) {
+                closeVoiceModal();
+            } else {
+                hideInAppAuraPill();
             }
-
-            try {
-                activeCommandRecognizer = new SpeechRec();
-                activeCommandRecognizer.lang = 'az-AZ';
-                activeCommandRecognizer.interimResults = false;
-
-                activeCommandRecognizer.onresult = (e) => {
-                    const text = e.results[0][0].transcript;
-                    executeVoiceCommandText(text);
-                };
-
-                activeCommandRecognizer.onerror = () => {
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        hideInAppAuraPill();
-                    }, 2200);
-                };
-
-                activeCommandRecognizer.start();
-            } catch(e) {}
         }
 
         function startAuraAi() {
-            wakeWordTriggered("Aura");
+            triggerAuraWakePrompt();
+            if (!persistentSpeechEngine) {
+                initPassiveWakeWordListener();
+            }
         }
 
         function startUniversalVoice() {
@@ -4288,34 +4412,18 @@
             const langInd = document.getElementById('voiceLangIndicator');
             const titleEl = document.getElementById('voiceModalTitle');
             if (titleEl) titleEl.innerText = "APPLE SIRI";
-            output.innerText = "Siri dinləyir (iPhone Zənglər & Mesajlar)…";
-            langInd.innerText = "Standart Apple CarPlay Xidməti";
+            if (output) output.innerText = "Siri dinləyir (iPhone Zənglər & Mesajlar)…";
+            if (langInd) langInd.innerText = "Standart Apple CarPlay Xidməti";
             logEvent(`🍎 Apple Siri: iPhone səs əlaqəsi aktivləşdirildi`);
             playAppleChime();
-            modal.classList.add('active');
+            if (modal) modal.classList.add('active');
         }
 
         function closeVoiceModal() {
             const modal = document.getElementById('voiceModal');
             if (modal) modal.classList.remove('active');
-            isVoiceSessionActive = false;
+            isAuraAwake = false;
             if (!activeFullscreenApp) hideInAppAuraPill();
-
-            if (activeCommandRecognizer) {
-                try { activeCommandRecognizer.abort(); } catch(e) {}
-            }
-
-            // Fon "Aura" dinləməsini dərhal bərpa edirik
-            if (isWakeWordEnabled) {
-                setTimeout(() => {
-                    if (isWakeWordEnabled && !isVoiceSessionActive) {
-                        try {
-                            if (!wakeWordRecognizer) initPassiveWakeWordListener();
-                            else wakeWordRecognizer.start();
-                        } catch(e) {}
-                    }
-                }, 400);
-            }
         }
 
         function toggleWakeWordListener() {
@@ -4326,8 +4434,8 @@
                 initPassiveWakeWordListener();
                 logEvent("🎙️ Daimi 'Aura' dinləməsi aktivləşdirildi");
             } else {
-                if (wakeWordRecognizer) {
-                    try { wakeWordRecognizer.abort(); } catch(e) {}
+                if (persistentSpeechEngine) {
+                    try { persistentSpeechEngine.abort(); } catch(e) {}
                 }
                 logEvent("🔇 Daimi 'Aura' dinləməsi dayandırıldı");
             }
@@ -4342,28 +4450,24 @@
                 text.innerText = '"Aura" Dinlənilir';
             } else {
                 badge.classList.add('inactive');
-                text.innerText = 'Daimi Dinləmə Söndürüldü';
+                text.innerText = 'Mikrofona İcazə Verin (Toxunun)';
             }
         }
 
         // Brauzerlərin mikrofon siyasəti üçün: ilk toxunuşda və ya açılışda dərhal başladırıq
-        window.addEventListener('click', () => {
-            if (isWakeWordEnabled && !wakeWordRecognizer) {
-                initPassiveWakeWordListener();
-            }
-        }, { once: true });
-
-        window.addEventListener('touchstart', () => {
-            if (isWakeWordEnabled && !wakeWordRecognizer) {
-                initPassiveWakeWordListener();
-            }
-        }, { once: true });
+        ['click', 'touchstart', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, () => {
+                if (isWakeWordEnabled && !persistentSpeechEngine) {
+                    initPassiveWakeWordListener();
+                }
+            }, { once: true });
+        });
 
         setTimeout(() => {
-            if (isWakeWordEnabled && !wakeWordRecognizer) {
+            if (isWakeWordEnabled && !persistentSpeechEngine) {
                 initPassiveWakeWordListener();
             }
-        }, 800);
+        }, 600);
     </script>
 </body>
 </html>
