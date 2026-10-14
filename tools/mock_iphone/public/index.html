@@ -1962,6 +1962,129 @@
             color: #00f2fe;
         }
 
+        /* ========================================================== */
+        /* 🎬 CANLI TEST VİDEOSU VƏ AVTOMATİK TƏQDİMAT TURU */
+        /* ========================================================== */
+        .btn-demo-tour {
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.22), rgba(255, 149, 0, 0.3));
+            border: 1px solid rgba(255, 149, 0, 0.55);
+            color: #ff9f0a;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s;
+            user-select: none;
+            box-shadow: 0 0 15px rgba(255, 149, 0, 0.25);
+        }
+
+        .btn-demo-tour:hover {
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.4), rgba(255, 149, 0, 0.5));
+            border-color: #ff3b30;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(255, 149, 0, 0.55);
+            transform: scale(1.05);
+        }
+
+        .cinematic-tour-bar {
+            position: absolute;
+            bottom: 74px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: rgba(10, 15, 28, 0.96);
+            border: 1px solid rgba(255, 149, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 149, 0, 0.35);
+            backdrop-filter: blur(35px);
+            border-radius: 20px;
+            padding: 10px 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 800;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+            max-width: 90%;
+        }
+
+        .cinematic-tour-bar.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tour-step-badge {
+            background: #ff9f0a;
+            color: #000;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .tour-subtitle-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tour-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .btn-tour-rec {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulseRec 1.5s infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes pulseRec {
+            0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 0 22px rgba(239, 68, 68, 0.9); }
+        }
+
+        .btn-tour-exit {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #94a3b8;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-tour-exit:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         /* Aşağı: Kondisioner Zolağı */
         .bottom-climate-bar {
             height: 60px;
@@ -2862,6 +2985,11 @@
             <span class="wake-text" id="wakeWordText">"Aura" Dinlənilir</span>
         </div>
 
+        <!-- 🎬 Canlı Təqdimat Videosu və Tur Düyməsi -->
+        <button class="btn-demo-tour" onclick="startCinematicShowcaseTour()" title="Bütün funksiyaları nümayiş etdirən avtomatik təqdimat və video turunu başlat">
+            <span>🎬</span> Canlı Test Videosu & Tur
+        </button>
+
         <!-- Avtomobil Loqoları Seçimi -->
         <div class="car-selector-group">
             <button class="btn-car-brand active" onclick="triggerCommercialIntro('cartwin')">
@@ -3632,6 +3760,16 @@
                         </div>
                     </div>
 
+                </div>
+
+                <!-- 🎬 Canlı Təqdimat və Video Altyazı Paneli -->
+                <div class="cinematic-tour-bar" id="cinematicTourBar">
+                    <span class="tour-step-badge" id="tourStepBadge">ADIM 1 / 7</span>
+                    <div class="tour-subtitle-text" id="tourSubtitleText">Avtomobil Kokpiti və CAN-Bus Başladılır...</div>
+                    <div class="tour-controls">
+                        <button class="btn-tour-rec" id="btnTourRec" onclick="toggleScreenRecording()">🔴 Videonu Qeyd Et</button>
+                        <button class="btn-tour-exit" onclick="stopCinematicTour()">✕ Dayan</button>
+                    </div>
                 </div>
 
                 <!-- ======================================================== -->
@@ -4905,6 +5043,152 @@
             }
             logEvent(`🏁 Sürüş Rejimi: ${mode}`);
             applySpeedUpdate(currentTelemetrySpeed);
+        }
+
+        // ==========================================================
+        // 🎬 CANLI TEST VİDEOSU VƏ REJİSSORLU TƏQDİMAT TURU
+        // ==========================================================
+        let tourTimeouts = [];
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecordingActive = false;
+
+        function startCinematicShowcaseTour() {
+            stopCinematicTour();
+            const bar = document.getElementById('cinematicTourBar');
+            if (bar) bar.classList.add('active');
+
+            const setStep = (stepNum, text) => {
+                const badge = document.getElementById('tourStepBadge');
+                const sub = document.getElementById('tourSubtitleText');
+                if (badge) badge.innerText = `ADIM ${stepNum} / 7`;
+                if (sub) sub.innerText = text;
+                logEvent(`🎬 [Təqdimat]: ${text}`);
+            };
+
+            // 1. BYD Drivetrain və Başlanğıc
+            setStep(1, "🚗 1. BYD Destroyer 05 DM-i: Lüks CAN-Bus Kokpiti Başladılır...");
+            triggerCommercialIntro('byd');
+
+            // 2. Aura AI Səs Köməkçisi və Kondisioner Əmri
+            tourTimeouts.push(setTimeout(() => {
+                setStep(2, "🎙️ 2. AURA AI: 'Aura, kondisioneri 20 dərəcəyə qoy' əmri icra edilir...");
+                executeVoiceCommandText("Aura, kondisioneri 20 dərəcəyə qoy");
+            }, 4500));
+
+            // 3. Waze Naviqasiyası
+            tourTimeouts.push(setTimeout(() => {
+                setStep(3, "🗺️ 3. Waze Naviqasiyası: Canlı Xəritə, Radarlar və Yol Təhlükəsizliyi...");
+                launchApp('Waze');
+            }, 9500));
+
+            // 4. Tam Ekran Spidometr və 0-100 Sınağı
+            tourTimeouts.push(setTimeout(() => {
+                setStep(4, "🏎️ 4. Tam Ekran Spidometr: 0-260 km/s Şkala, Canlı GPS və 0-100 Sınağı...");
+                goHome();
+                openSpeedometerModal();
+                setSpeedometerSource('demo');
+                triggerAccelTest();
+            }, 15000));
+
+            // 5. Spotify Musiqi Pleyeri
+            tourTimeouts.push(setTimeout(() => {
+                closeSpeedometerModal();
+                setStep(5, "🎵 5. Spotify CarPlay: Sükan Arxası İdarəetmə və Musiqi Pleyeri...");
+                launchApp('Spotify');
+                nextSong();
+            }, 22000));
+
+            // 6. Avtomobil Dəyişimi (Zeekr 001)
+            tourTimeouts.push(setTimeout(() => {
+                goHome();
+                setStep(6, "🚘 6. Avtomobil Seçimi: Zeekr 001 Performance və Şassi Diaqnostikası...");
+                openVehicleProfileModal();
+                setTimeout(() => {
+                    selectBrandFromModal('zeekr');
+                }, 2000);
+            }, 27000));
+
+            // 7. 800V EV Batareya və Enerji İdarəetməsi
+            tourTimeouts.push(setTimeout(() => {
+                setStep(7, "⚡ 7. Yüksək Gərginlikli EV Batareya: 800V SiC, SoC % və Yürüş Hesabatı...");
+                openBatteryTelemetryModal();
+            }, 32500));
+
+            // Final
+            tourTimeouts.push(setTimeout(() => {
+                closeBatteryTelemetryModal();
+                const sub = document.getElementById('tourSubtitleText');
+                if (sub) sub.innerText = "✅ Universal CarPlay Təqdimatı Tamamlandı! Bütün funksiyalar aktivdir.";
+                setTimeout(() => stopCinematicTour(), 4500);
+            }, 37000));
+        }
+
+        function stopCinematicTour() {
+            tourTimeouts.forEach(t => clearTimeout(t));
+            tourTimeouts = [];
+            const bar = document.getElementById('cinematicTourBar');
+            if (bar) bar.classList.remove('active');
+        }
+
+        async function toggleScreenRecording() {
+            const btn = document.getElementById('btnTourRec');
+            if (isRecordingActive) {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                isRecordingActive = false;
+                if (btn) btn.innerHTML = "🔴 Videonu Qeyd Et";
+                logEvent("⏹️ Video qeydi dayandırıldı və yüklənir...");
+                return;
+            }
+
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                    alert("Brauzeriniz MediaRecorder və DisplayMedia API-ni dəstəkləmir.");
+                    return;
+                }
+
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { displaySurface: "browser", frameRate: 30 },
+                    audio: false
+                });
+
+                recordedChunks = [];
+                const options = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+                    ? { mimeType: 'video/webm;codecs=vp9' }
+                    : { mimeType: 'video/webm' };
+                mediaRecorder = new MediaRecorder(stream, options);
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `UniversalCarPlay_TestVideo_${Date.now()}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
+                    logEvent("💾 Video faylı uğurla kompyuterə yükləndi!");
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecordingActive = true;
+                if (btn) btn.innerHTML = "⏹️ Qeydi Bitir & Yüklə";
+                logEvent("🔴 Ekranın canlı video qeydi başladı...");
+
+                startCinematicShowcaseTour();
+            } catch(err) {
+                logEvent("⚠️ Video qeyd xətası və ya istifadəçi imtina etdi: " + err.message);
+            }
         }
 
         let activeFullscreenApp = null;
