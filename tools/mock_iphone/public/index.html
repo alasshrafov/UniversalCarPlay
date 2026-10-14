@@ -1526,8 +1526,10 @@
         }
 
         .spido-needle-group {
+            transform-box: view-box;
             transform-origin: 200px 200px;
-            transition: transform 0.15s cubic-bezier(0.12, 0.8, 0.32, 1);
+            transition: transform 0.08s ease-out;
+            will-change: transform;
         }
 
         .spido-tick-text {
@@ -1993,23 +1995,24 @@
 
         .cinematic-tour-bar {
             position: absolute;
-            bottom: 74px;
+            top: 20px;
             left: 50%;
-            transform: translateX(-50%) translateY(120px);
-            background: rgba(10, 15, 28, 0.96);
-            border: 1px solid rgba(255, 149, 0, 0.5);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 149, 0, 0.35);
+            transform: translateX(-50%) translateY(-120px);
+            background: linear-gradient(135deg, rgba(8, 14, 28, 0.97), rgba(15, 23, 42, 0.98));
+            border: 2px solid rgba(0, 242, 254, 0.65);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 242, 254, 0.35);
             backdrop-filter: blur(35px);
             border-radius: 20px;
-            padding: 10px 22px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             gap: 16px;
-            z-index: 800;
+            z-index: 1200;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             opacity: 0;
             pointer-events: none;
-            max-width: 90%;
+            max-width: 94%;
+            min-width: 720px;
         }
 
         .cinematic-tour-bar.active {
@@ -2019,25 +2022,27 @@
         }
 
         .tour-step-badge {
-            background: #ff9f0a;
-            color: #000;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #050b18;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 8px;
-            letter-spacing: 0.5px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            letter-spacing: 0.8px;
             white-space: nowrap;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+            flex-shrink: 0;
         }
 
         .tour-subtitle-text {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
             color: #ffffff;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            letter-spacing: 0.3px;
+            line-height: 1.35;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            flex: 1;
         }
 
         .tour-controls {
@@ -3648,15 +3653,16 @@
                         <div class="voice-sphere-anim"></div>
                         <div style="font-size: 16px; font-weight: 800; color: #00e5ff; letter-spacing: 2px; margin-top: 18px;" id="voiceModalTitle">AURA AI</div>
                         <div class="voice-command-text" id="voiceOutputText">Salam! Mən Aura, sizi dinləyirəm… 🎙️</div>
-                        <div style="margin-top: 6px; font-size: 13px; color: #94a3b8;" id="voiceLangIndicator">Aura Ağıllı Avtomobil Köməkçisi • Azərbaycan Dili 🇦🇿</div>
+                        <div style="margin-top: 6px; font-size: 13px; color: #00f2fe; font-weight: 700;" id="voiceLangIndicator">🌐 Çoxdilli Süni İntellekt: Azərbaycan 🇦🇿 • Русский 🇷🇺 • English 🇬🇧 • Türkçe 🇹🇷</div>
 
-                        <!-- Sınaq və Tez Əmrlər (Kondisioner, Musiqi, Brauzer) -->
+                        <!-- Sınaq və Tez Əmrlər (Çoxdilli AURA Presets) -->
                         <div class="voice-preset-chips" onclick="event.stopPropagation()">
-                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, kondisioneri 20 dərəcəyə qoy')">❄️ "Aura, kondisioneri 20 dərəcəyə qoy"</button>
-                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, havanı 22 dərəcə et')">🌡️ "Aura, havanı 22 dərəcə et"</button>
-                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, kondisioneri söndür')">🛑 "Aura, kondisioneri söndür"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, kondisioneri 20 dərəcəyə qoy')">🇦🇿 "Aura, kondisioneri 20 dərəcəyə qoy"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Аура, включи кондиционер 20 градусов')">🇷🇺 "Аура, включи кондиционер 20 градусов"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, open Waze navigation')">🇬🇧 "Aura, open Waze navigation"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, klimayı kapat')">🇹🇷 "Aura, klimayı kapat"</button>
                             <button class="voice-chip" onclick="executeVoiceCommandText('Aura, musiqini dəyiş')">🎵 "Aura, musiqini dəyiş"</button>
-                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, brauzeri aç')">🌐 "Aura, brauzeri aç"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Aura, kondisioneri söndür')">🛑 "Aura, kondisioneri söndür"</button>
                         </div>
 
                         <!-- Səsli Əlaqə Rejimi (İngiliscə təkrarı qadağan edən idarəetmə) -->
@@ -4653,6 +4659,7 @@
         function renderSpeedometerTicks() {
             const group = document.getElementById('spidoTicksGroup');
             if (!group) return;
+            if (group.children.length > 0) return;
             group.innerHTML = '';
 
             for (let speed = 0; speed <= 260; speed += 10) {
@@ -4776,7 +4783,8 @@
             const needle = document.getElementById('spidoNeedle');
             if (needle) {
                 const needleAngle = -130 + (kmh / 260) * 260;
-                needle.style.transform = `rotate(${needleAngle}deg)`;
+                needle.setAttribute('transform', `rotate(${needleAngle.toFixed(1)}, 200, 200)`);
+                needle.style.transform = `rotate(${needleAngle.toFixed(1)}deg)`;
             }
 
             const fillArc = document.getElementById('spidoFillArc');
@@ -4818,7 +4826,8 @@
                 if (kmh >= 100) {
                     const timeTaken = ((Date.now() - accelTestState.startTime) / 1000).toFixed(1);
                     accelTestState.active = false;
-                    clearInterval(accelTestState.timerId);
+                    if (accelTestState.timerId) { clearInterval(accelTestState.timerId); accelTestState.timerId = null; }
+                    if (accelTestState.sprintInterval) { clearInterval(accelTestState.sprintInterval); accelTestState.sprintInterval = null; }
                     const timeEl = document.getElementById('spidoAccelTime');
                     if (timeEl) timeEl.innerHTML = `${timeTaken} <small>SAN</small>`;
                     const btn = document.getElementById('btnAccelTest');
@@ -4946,9 +4955,11 @@
         }
 
         function triggerAccelTest() {
+            stopDemoDriveSimulation();
             if (accelTestState.active) {
                 accelTestState.active = false;
-                clearInterval(accelTestState.timerId);
+                if (accelTestState.timerId) { clearInterval(accelTestState.timerId); accelTestState.timerId = null; }
+                if (accelTestState.sprintInterval) { clearInterval(accelTestState.sprintInterval); accelTestState.sprintInterval = null; }
                 const btn = document.getElementById('btnAccelTest');
                 if (btn) btn.innerText = "▶ Sınaq Başlat";
                 return;
@@ -4959,7 +4970,7 @@
             if (btn) btn.innerText = "⏳ 3-2-1 QAZ!";
             if (timeEl) timeEl.innerHTML = `0.0 <small>SAN</small>`;
 
-            applySpeedUpdate(0, "🚦 LAUNCH CONTROL: HAZIRLAŞIN...");
+            applySpeedUpdate(0, "🚦 LAUNCH CONTROL: SPORT REJİMİ HAZIRDIR...");
             setDriveMode('SPORT');
 
             setTimeout(() => {
@@ -4968,25 +4979,27 @@
                 accelTestState.startTime = Date.now();
 
                 accelTestState.timerId = setInterval(() => {
+                    if (!accelTestState.active) {
+                        clearInterval(accelTestState.timerId);
+                        return;
+                    }
                     const elapsed = ((Date.now() - accelTestState.startTime) / 1000).toFixed(1);
                     if (timeEl) timeEl.innerHTML = `${elapsed} <small>SAN</small>`;
-                }, 100);
+                }, 80);
 
-                if (telemetrySource === 'demo' || currentTelemetrySpeed < 5) {
-                    let s = 0;
-                    const sprintInterval = setInterval(() => {
-                        if (!accelTestState.active) {
-                            clearInterval(sprintInterval);
-                            return;
-                        }
-                        s += Math.floor(Math.random() * 5) + 4;
-                        applySpeedUpdate(s, "⚡ 0-100 SÜRƏTLƏNMƏ SINAĞI...");
-                        if (s >= 100) {
-                            clearInterval(sprintInterval);
-                        }
-                    }, 180);
-                }
-            }, 1200);
+                let s = 0;
+                accelTestState.sprintInterval = setInterval(() => {
+                    if (!accelTestState.active) {
+                        clearInterval(accelTestState.sprintInterval);
+                        return;
+                    }
+                    s += Math.floor(Math.random() * 3) + 5;
+                    applySpeedUpdate(s, "⚡ 0-100 SÜRƏTLƏNMƏ SINAĞI...");
+                    if (s >= 104) {
+                        clearInterval(accelTestState.sprintInterval);
+                    }
+                }, 130);
+            }, 1000);
         }
 
         function openSpeedometerModal() {
@@ -5066,67 +5079,85 @@
             const setStep = (stepNum, text) => {
                 const badge = document.getElementById('tourStepBadge');
                 const sub = document.getElementById('tourSubtitleText');
-                if (badge) badge.innerText = `ADIM ${stepNum} / 7`;
+                if (badge) badge.innerText = `ADIM ${stepNum} / 8`;
                 if (sub) sub.innerText = text;
                 logEvent(`🎬 [Təqdimat]: ${text}`);
             };
 
-            // 1. BYD Drivetrain və Başlanğıc
-            setStep(1, "🚗 1. BYD Destroyer 05 DM-i: Lüks CAN-Bus Kokpiti Başladılır...");
+            // 1. BYD Destroyer 05 Drivetrain və Kokpit
+            setStep(1, "🚗 1. BYD Destroyer 05 DM-i: Lüks CAN-Bus Kokpiti, Rəqəmsal Alətlər və Telemetriya Başladılır...");
             triggerCommercialIntro('byd');
 
-            // 2. Aura AI Səs Köməkçisi və Kondisioner Əmri
+            // 2. AURA AI (Azərbaycan Dili): "Aura, kondisioneri 20 dərəcəyə qoy"
             tourTimeouts.push(setTimeout(() => {
-                setStep(2, "🎙️ 2. AURA AI: 'Aura, kondisioneri 20 dərəcəyə qoy' əmri icra edilir...");
-                executeVoiceCommandText("Aura, kondisioneri 20 dərəcəyə qoy");
-            }, 4500));
+                setStep(2, "🇦🇿 2. AURA AI (Azərbaycan Dili): 'Aura, kondisioneri 20 dərəcəyə qoy' -> CAN-Bus iqlim sistemi 20.0°C AUTO rejimə keçir!");
+                triggerAuraWakePrompt();
+                setTimeout(() => {
+                    executeVoiceCommandText("Aura, kondisioneri 20 dərəcəyə qoy");
+                }, 1200);
+            }, 6500));
 
-            // 3. Waze Naviqasiyası
+            // 3. AURA AI (Русский Язык): "Аура, открой Waze навигацию"
             tourTimeouts.push(setTimeout(() => {
-                setStep(3, "🗺️ 3. Waze Naviqasiyası: Canlı Xəritə, Radarlar və Yol Təhlükəsizliyi...");
-                launchApp('Waze');
-            }, 9500));
+                setStep(3, "🇷🇺 3. AURA AI (Русский Язык): 'Аура, открой Waze навигацию' -> Rus dilində əmr dərhal tanınır və Waze açılır!");
+                triggerAuraWakePrompt();
+                setTimeout(() => {
+                    executeVoiceCommandText("Аура, открой Waze навигацию");
+                }, 1200);
+            }, 14500));
 
-            // 4. Tam Ekran Spidometr və 0-100 Sınağı
+            // 4. Waze Daxilində Fasiləsiz Səs İntellekti: "Aura, kondisioneri söndür"
             tourTimeouts.push(setTimeout(() => {
-                setStep(4, "🏎️ 4. Tam Ekran Spidometr: 0-260 km/s Şkala, Canlı GPS və 0-100 Sınağı...");
+                setStep(4, "🌟 4. FASİLƏSİZ İNTELLEKT: Waze daxilində ikən 'Aura, kondisioneri söndür' -> Waze bağlanmır, Dinamik Aura Kapsulu ilə icra olunur!");
+                applySpeedUpdate(68, "🛣️ HEYDƏR ƏLİYEV PR. • SÜRƏT: 68 KM/S");
+                setTimeout(() => {
+                    executeVoiceCommandText("Aura, kondisioneri söndür");
+                }, 1500);
+            }, 22500));
+
+            // 5. Tam Ekran Spidometr & 0-100 Sürətlənmə Sınağı
+            tourTimeouts.push(setTimeout(() => {
+                setStep(5, "🏎️ 5. TAM EKRAN SPİDOMETR: 0-260 km/s Dinamik SVG Şkala, Güc Çıxışı (+kW) və 0-100 Launch Control Sınağı!");
                 goHome();
                 openSpeedometerModal();
-                setSpeedometerSource('demo');
-                triggerAccelTest();
-            }, 15000));
+                setTimeout(() => {
+                    triggerAccelTest();
+                }, 800);
+            }, 31000));
 
-            // 5. Spotify Musiqi Pleyeri
+            // 6. AURA AI (English) & Spotify CarPlay Pleyeri
             tourTimeouts.push(setTimeout(() => {
                 closeSpeedometerModal();
-                setStep(5, "🎵 5. Spotify CarPlay: Sükan Arxası İdarəetmə və Musiqi Pleyeri...");
+                setStep(6, "🇬🇧 6. AURA AI (English): 'Aura, next song please' -> Spotify pleyeri açılır və növbəti musiqiyə keçid edilir!");
                 launchApp('Spotify');
-                nextSong();
-            }, 22000));
+                setTimeout(() => {
+                    executeVoiceCommandText("Aura, next song");
+                }, 1400);
+            }, 43000));
 
-            // 6. Avtomobil Dəyişimi (Zeekr 001)
+            // 7. Çin Avtomobilləri (BYD, Zeekr, Li Auto, Changan...) və Zeekr 001 Seçimi
             tourTimeouts.push(setTimeout(() => {
                 goHome();
-                setStep(6, "🚘 6. Avtomobil Seçimi: Zeekr 001 Performance və Şassi Diaqnostikası...");
+                setStep(7, "🚘 7. BÜTÜN ÇİN AVTOMOBİLLƏRİ: BYD, Zeekr 001, Li Auto, Changan, Haval, Geely, Chery Orijinal Studiya Dizaynları!");
                 openVehicleProfileModal();
                 setTimeout(() => {
                     selectBrandFromModal('zeekr');
-                }, 2000);
-            }, 27000));
+                }, 3000);
+            }, 52000));
 
-            // 7. 800V EV Batareya və Enerji İdarəetməsi
+            // 8. 800V EV Yüksək Gərginlikli Batareya və Enerji İdarəetməsi
             tourTimeouts.push(setTimeout(() => {
-                setStep(7, "⚡ 7. Yüksək Gərginlikli EV Batareya: 800V SiC, SoC % və Yürüş Hesabatı...");
+                setStep(8, "⚡ 8. 800V EV BATAREYA MONITORİNQİ: SiC Platforması, 120 kW Supercharging, Hüceyrə Balansı və 620 KM Yürüş Ehtiyatı!");
                 openBatteryTelemetryModal();
-            }, 32500));
+            }, 61500));
 
-            // Final
+            // Final: Təqdimat Uğurla Tamamlandı
             tourTimeouts.push(setTimeout(() => {
                 closeBatteryTelemetryModal();
                 const sub = document.getElementById('tourSubtitleText');
-                if (sub) sub.innerText = "✅ Universal CarPlay Təqdimatı Tamamlandı! Bütün funksiyalar aktivdir.";
-                setTimeout(() => stopCinematicTour(), 4500);
-            }, 37000));
+                if (sub) sub.innerText = "✅ Universal CarPlay Təqdimatı Tamamlandı! Bütün çoxdilli və telemetriya sistemləri aktivdir.";
+                setTimeout(() => stopCinematicTour(), 6000);
+            }, 71000));
         }
 
         function stopCinematicTour() {
@@ -5653,8 +5684,9 @@
             str = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'🇦🇿🎙️]/g, ' ');
             str = str.replace(/\s+/g, ' ').trim();
 
-            // D) Azərbaycan sözləri ilə deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
+            // D) Çoxdilli (Azərbaycan, Rus, İngilis, Türk) deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
             const numWords = [
+                // Azərbaycan & Türk
                 { w: 'iyirmi bir', n: '21' }, { w: 'yirmi bir', n: '21' },
                 { w: 'iyirmi iki', n: '22' }, { w: 'yirmi iki', n: '22' },
                 { w: 'iyirmi uc', n: '23' }, { w: 'yirmi uc', n: '23' },
@@ -5666,7 +5698,25 @@
                 { w: 'iyirmi doqquz', n: '29' }, { w: 'yirmi doqquz', n: '29' },
                 { w: 'iyirmi', n: '20' }, { w: 'yirmi', n: '20' }, { w: 'yigirmi', n: '20' },
                 { w: 'on alti', n: '16' }, { w: 'on yeddi', n: '17' }, { w: 'on sekkiz', n: '18' },
-                { w: 'on doqquz', n: '19' }, { w: 'otuz', n: '30' }
+                { w: 'on doqquz', n: '19' }, { w: 'otuz', n: '30' },
+                // Rus (Translit cyrMap sonrasi: двадцать -> dvadtsat)
+                { w: 'dvadtsat odin', n: '21' }, { w: 'dvadtsat dva', n: '22' },
+                { w: 'dvadtsat tri', n: '23' }, { w: 'dvadtsat cetire', n: '24' },
+                { w: 'dvadtsat pyat', n: '25' }, { w: 'dvadtsat sest', n: '26' },
+                { w: 'dvadtsat sem', n: '27' }, { w: 'dvadtsat vosem', n: '28' },
+                { w: 'dvadtsat devyat', n: '29' }, { w: 'dvadtsat', n: '20' },
+                { w: 'sestnadtsat', n: '16' }, { w: 'semnadtsat', n: '17' },
+                { w: 'vosemnadtsat', n: '18' }, { w: 'devyatnadtsat', n: '19' },
+                { w: 'tridtsat', n: '30' },
+                // İngilis
+                { w: 'twenty one', n: '21' }, { w: 'twenty two', n: '22' },
+                { w: 'twenty three', n: '23' }, { w: 'twenty four', n: '24' },
+                { w: 'twenty five', n: '25' }, { w: 'twenty six', n: '26' },
+                { w: 'twenty seven', n: '27' }, { w: 'twenty eight', n: '28' },
+                { w: 'twenty nine', n: '29' }, { w: 'twenty', n: '20' },
+                { w: 'sixteen', n: '16' }, { w: 'seventeen', n: '17' },
+                { w: 'eighteen', n: '18' }, { w: 'nineteen', n: '19' },
+                { w: 'thirty', n: '30' }
             ];
             for (const item of numWords) {
                 str = str.replace(new RegExp('\\b' + item.w + '\\b', 'g'), item.n);
@@ -5685,39 +5735,55 @@
         }
 
         /**
-         * 3. İntellektual Əmr və Niyyət Analizatoru (Intent Recognition)
-         * Həm "Aura ..." prefiksi ilə, həm də birbaşa deyilən əmrləri 100% tanıyır.
+         * Səsləndirilən Əmrin Dilinin Təyini (AZ, RU, EN, TR)
+         */
+        function detectCommandLanguage(rawText) {
+            if (!rawText) return 'az';
+            if (/[а-яёА-ЯЁ]/.test(rawText) || /\b(vklyuci|viklyuci|otkroy|zakroy|teplee|xolodnee|sleduyusca|sleduyusciy|muziku|pesnya|gradus|gradusov|konditsioner)\b/i.test(rawText)) {
+                return 'ru';
+            }
+            if (/\b(turn|switch|open|close|next|song|music|temperature|degrees|climate|home|phone|browser|skip)\b/i.test(rawText)) {
+                return 'en';
+            }
+            if (/\b(klima|kapat|sicaklik|calistir|sarki|muzigi|derece yap)\b/i.test(rawText)) {
+                return 'tr';
+            }
+            return 'az';
+        }
+
+        /**
+         * 3. İntellektual Çoxdilli Əmr və Niyyət Analizatoru (AZ, RU, EN, TR)
          */
         function analyzeCommandIntent(normText, isExplicitContext) {
             if (!normText) return null;
 
-            // --- 1. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA (ƏN YÜKSƏK PRIORİTET) ---
-            if (/\b(waze|vaze|veiz|naviqasiya|navigasiya|xerite|xeriteni|yol|yolu|marsrut)\b/.test(normText)) {
+            // --- 1. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA (AZ/RU/EN/TR) ---
+            if (/\b(waze|vaze|veiz|naviqasiya|navigasiya|navigats|xerite|karta|kartu|map|maps|route|yol|marsrut)\b/.test(normText)) {
                 return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
             }
 
-            // --- 2. MUSİQİ: NÖVBƏTİ MAHNINI DƏYİŞ ---
-            if (/\b(deyis|novbeti|baska mahni|sonraki|mahnini deyis|musiqi deyis|mahni deyis|musiqini deyis)\b/.test(normText)) {
+            // --- 2. MUSİQİ: NÖVBƏTİ MAHNINI DƏYİŞ (AZ/RU/EN/TR) ---
+            if (/\b(deyis|novbeti|baska mahni|sonraki|mahnini deyis|musiqi deyis|mahni deyis|musiqini deyis|sleduyusc|pereklyuci|next song|next track|skip track|skip song|sarki degis)\b/.test(normText)) {
                 return { type: 'MUSIC_NEXT', desc: 'Musiqi Dəyişdirildi' };
             }
 
             // --- 3. MUSİQİ: SPOTİFY / MAHNINI AÇ ---
-            if (/\b(spotify|spotifay|musiqi ac|mahni ac|pleyer)\b/.test(normText)) {
+            if (/\b(spotify|spotifay|musiqi ac|mahni ac|muziku|pesnyu|play music|open spotify)\b/.test(normText)) {
                 return { type: 'APP_SPOTIFY', desc: 'Spotify Pleyer Açılır' };
             }
 
             // --- 4. TELEFON / ZƏNG ---
-            if (/\b(telefon|zeng|zeng et|nomre)\b/.test(normText)) {
+            if (/\b(telefon|zeng|zeng et|nomre|pozvonit|call|phone)\b/.test(normText)) {
                 return { type: 'APP_PHONE', desc: 'Telefon Açılır' };
             }
 
             // --- 5. ƏSAS EKRAN / EVƏ GET ---
-            if (/\b(ana ekran|esas ekran|ana menyu|esas menyu|eve get|cix|ekrani bagla)\b/.test(normText)) {
+            if (/\b(ana ekran|esas ekran|ana menyu|esas menyu|eve get|cix|ekrani bagla|domoy|glavniy|home|go home)\b/.test(normText)) {
                 return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı' };
             }
 
             // --- 6. İNTERNET BRAUZERİ ---
-            if (/\b(brauzer|internet|google|sayt)\b/.test(normText)) {
+            if (/\b(brauzer|internet|google|sayt|browser|web)\b/.test(normText)) {
                 return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
             }
 
@@ -5728,46 +5794,45 @@
 
             const parsedTemp = parseTemperatureValue(normText);
 
-            // İqlim açar sözləri (kondi..., klima..., hava..., pec..., soyutma..., istilik...)
-            const hasClimateNoun = /(kondi|klim|hava|pec|soyutm|istilik)/.test(normText);
-            const hasTempWord = /\b(derece|temperatur|tempratur)\b/.test(normText);
+            // İqlim açar sözləri (AZ / RU / EN / TR)
+            const hasClimateNoun = /(kondi|klim|hava|pec|soyutm|istilik|vozduh|ac|air condition|climate|fan)/.test(normText);
+            const hasTempWord = /\b(derece|temperatur|tempratur|gradus|gradusov|temperature|degrees)\b/.test(normText);
 
-            // Söndürmə felləri (söndür, bağla, kapat, dayandır, lazım deyil, off)
-            const hasOffVerb = /\b(sondur|söndür|sundur|son dur|sondurmek|bagla|baglat|kapat|dayandir|kes|lazim deyil|off|kecir|söndürün|baglayin)\b/.test(normText);
+            // Söndürmə felləri (AZ / RU / EN / TR)
+            const hasOffVerb = /\b(sondur|sundur|son dur|bagla|kapat|dayandir|kes|off|viklyuci|otklyuci|zakroy|pogasit|turn off|switch off|shut off|disable)\b/.test(normText);
             
-            // İşə salma / yandırma felləri (aç, yandır, işə sal, qoş, on)
-            const hasOnVerb = /\b(ac|yandir|ise sal|qos|baslat|on|calis|yandır|işə sal)\b/.test(normText);
+            // İşə salma / yandırma felləri (AZ / RU / EN / TR)
+            const hasOnVerb = /\b(ac|yandir|ise sal|qos|baslat|on|calis|vklyuci|podklyuci|otkroy|turn on|switch on|enable|start)\b/.test(normText);
 
-            // Temperatur artırma / azaltma hisləri (q/g və digər fonetikalar nəzərə alınır)
-            const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|giz|usudum|usuduk|donuram|donuruq|artir|cox soyug|cox soyuq|biraz isti)\b/.test(normText);
-            const hasColdWord = /\b(soyuq|soyug|soyut|serin|terledim|azalt|cox isti|biraz soyuq|biraz soyug|isti oldu)\b/.test(normText);
+            // Temperatur artırma / azaltma
+            const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|usudum|donuram|artir|cox soyug|teplee|pribav|warmer|heat|increase)\b/.test(normText);
+            const hasColdWord = /\b(soyuq|soyug|soyut|serin|terledim|azalt|xolodnee|ubav|cooler|decrease|chill)\b/.test(normText);
 
-            // --- A) İQLİM: KONDİSİONERİ SÖNDÜR / BAĞLA / KAPAT ---
-            if (hasOffVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav'))) {
+            // --- A) İQLİM: KONDİSİONERİ SÖNDÜR / ВЫКЛЮЧИ / TURN OFF ---
+            if (hasOffVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav') || normText.includes('ac'))) {
                 return { type: 'CLIMATE_OFF', desc: 'Kondisioner Söndürüldü' };
             }
 
-            // --- B) İQLİM: DƏQİQ TEMPERATUR TƏYİNİ (Məsələn: 20 dərəcə, havanı 22 elə) ---
-            if (parsedTemp !== null && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('goy') || normText.includes('ele') || normText.includes('et') || normText.includes('yap'))) {
+            // --- B) İQLİM: DƏQİQ TEMPERATUR TƏYİNİ (Məsələn: 20 dərəcə, 20 градусов, 20 degrees, 20 derece) ---
+            if (parsedTemp !== null && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('goy') || normText.includes('ele') || normText.includes('et') || normText.includes('yap') || normText.includes('postav') || normText.includes('set'))) {
                 return { type: 'CLIMATE_SET_TEMP', temp: parsedTemp, desc: `Kondisioner ${parsedTemp}°C təyin edildi` };
             }
 
-            // --- C) İQLİM: İSTİLİK ARTIR / QIZDIR ---
-            if (hasWarmWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('gizdir') || normText.includes('qizdir') || normText.includes('usudum') || normText.includes('donuram') || normText.includes('artir'))) {
+            // --- C) İQLİM: İSTİLİK ARTIR / QIZDIR / ТЕПЛЕЕ ---
+            if (hasWarmWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('gizdir') || normText.includes('teplee') || normText.includes('warmer'))) {
                 return { type: 'CLIMATE_TEMP_UP', desc: 'Temperatur artırıldı' };
             }
 
-            // --- D) İQLİM: SOYUT / AZALT ---
-            if (hasColdWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('soyut') || normText.includes('serin') || normText.includes('terledim') || normText.includes('azalt'))) {
+            // --- D) İQLİM: SOYUT / AZALT / ХОЛОДНЕЕ ---
+            if (hasColdWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('soyut') || normText.includes('xolodnee') || normText.includes('cooler'))) {
                 return { type: 'CLIMATE_TEMP_DOWN', desc: 'Temperatur azaldıldı' };
             }
 
-            // --- E) İQLİM: KONDİSİONERİ AÇ / İŞƏ SAL ---
-            if (hasOnVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav'))) {
+            // --- E) İQLİM: KONDİSİONERİ AÇ / ВКЛЮЧИ / TURN ON ---
+            if (hasOnVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('ac'))) {
                 return { type: 'CLIMATE_ON', desc: 'Kondisioner İşə Salındı' };
             }
 
-            // Əgər Aura gözləyərkən sadəcə rəqəm deyilibsə (Məs: "20" və ya "22")
             if (parsedTemp !== null && isExplicitContext) {
                 return { type: 'CLIMATE_SET_TEMP', temp: parsedTemp, desc: `Kondisioner ${parsedTemp}°C təyin edildi` };
             }
@@ -5776,33 +5841,63 @@
         }
 
         /**
-         * 4. Tanınmış Əmrin Avtomobildə İcrası (CAN-Bus + HUD + Audio)
+         * 4. Tanınmış Çoxdilli Əmrin Avtomobildə İcrası (CAN-Bus + HUD + Audio)
          */
         function executeResolvedIntent(intent, rawText) {
-            logEvent(`⚡ Aura Əmri İcra Edir: ${intent.desc} (Eşidildi: "${rawText}")`);
+            const lang = detectCommandLanguage(rawText);
+            const langIndicator = document.getElementById('voiceLangIndicator');
+            if (langIndicator) {
+                if (lang === 'ru') langIndicator.innerText = "🌐 AURA AI • Русский Язык 🇷🇺 (Canlı Tərcümə Aktiv)";
+                else if (lang === 'en') langIndicator.innerText = "🌐 AURA AI • English 🇬🇧 (Natural Voice Co-Pilot)";
+                else if (lang === 'tr') langIndicator.innerText = "🌐 AURA AI • Türkçe 🇹🇷 (Akıllı Araç Asistanı)";
+                else langIndicator.innerText = "🌐 AURA AI • Azərbaycan Dili 🇦🇿 (Süni İntellekt)";
+            }
+
+            logEvent(`⚡ Aura Əmri İcra Edir [${lang.toUpperCase()}]: ${intent.desc} (Eşidildi: "${rawText}")`);
             resetAuraAwakeState();
+
+            let feedbackText = "";
+            let speechVoiceText = "";
 
             switch (intent.type) {
                 case 'CLIMATE_OFF':
                     climateState.ac = false;
-                    showClimateHud("Kondisioner Söndürüldü");
-                    speakFeedback("Kondisioner söndürüldü");
-                    showVoiceSuccessFeedback("✓ Kondisioner Söndürüldü");
+                    feedbackText = (lang === 'ru') ? "✓ Кондиционер выключен" :
+                                   (lang === 'en') ? "✓ Air conditioning turned off" :
+                                   (lang === 'tr') ? "✓ Klima kapatıldı" : "✓ Kondisioner Söndürüldü";
+                    speechVoiceText = (lang === 'ru') ? "Кондиционер выключен" :
+                                      (lang === 'en') ? "Air conditioning turned off" :
+                                      (lang === 'tr') ? "Klima kapatıldı" : "Kondisioner söndürüldü";
+                    showClimateHud(speechVoiceText);
+                    speakFeedback(speechVoiceText);
+                    showVoiceSuccessFeedback(feedbackText);
                     break;
 
                 case 'CLIMATE_ON':
                     climateState.ac = true;
-                    showClimateHud("Kondisioner İşə Salındı");
-                    speakFeedback("Kondisioner işə salındı");
-                    showVoiceSuccessFeedback("✓ Kondisioner İşə Salındı");
+                    feedbackText = (lang === 'ru') ? "✓ Кондиционер включен" :
+                                   (lang === 'en') ? "✓ Air conditioning on" :
+                                   (lang === 'tr') ? "✓ Klima açıldı" : "✓ Kondisioner İşə Salındı";
+                    speechVoiceText = (lang === 'ru') ? "Кондиционер включен" :
+                                      (lang === 'en') ? "Air conditioning on" :
+                                      (lang === 'tr') ? "Klima açıldı" : "Kondisioner işə salındı";
+                    showClimateHud(speechVoiceText);
+                    speakFeedback(speechVoiceText);
+                    showVoiceSuccessFeedback(feedbackText);
                     break;
 
                 case 'CLIMATE_SET_TEMP':
                     climateState.temp = intent.temp;
                     climateState.ac = true;
-                    showClimateHud(`Kondisioner ${intent.temp}°C təyin edildi`);
-                    speakFeedback(`Kondisioner ${intent.temp} dərəcəyə təyin edildi`);
-                    showVoiceSuccessFeedback(`✓ Temperatur: ${intent.temp}°C`);
+                    feedbackText = (lang === 'ru') ? `✓ Температура: ${intent.temp}°C` :
+                                   (lang === 'en') ? `✓ Climate: ${intent.temp}°C` :
+                                   (lang === 'tr') ? `✓ Klima: ${intent.temp}°C` : `✓ Temperatur: ${intent.temp}°C`;
+                    speechVoiceText = (lang === 'ru') ? `Кондиционер ${intent.temp} градусов установлен` :
+                                      (lang === 'en') ? `Temperature set to ${intent.temp} degrees` :
+                                      (lang === 'tr') ? `Klima ${intent.temp} derece ayarlandı` : `Kondisioner ${intent.temp} dərəcəyə təyin edildi`;
+                    showClimateHud(speechVoiceText);
+                    speakFeedback(speechVoiceText);
+                    showVoiceSuccessFeedback(feedbackText);
                     break;
 
                 case 'CLIMATE_TEMP_UP':
@@ -5816,8 +5911,14 @@
                     break;
 
                 case 'APP_WAZE':
-                    speakFeedback("Waze naviqasiyası açılır");
-                    showVoiceSuccessFeedback("✓ Waze Açılır");
+                    feedbackText = (lang === 'ru') ? "✓ Открываю Waze навигацию" :
+                                   (lang === 'en') ? "✓ Opening Waze navigation" :
+                                   (lang === 'tr') ? "✓ Waze açılıyor" : "✓ Waze Açılır";
+                    speechVoiceText = (lang === 'ru') ? "Открываю Waze" :
+                                      (lang === 'en') ? "Opening Waze navigation" :
+                                      (lang === 'tr') ? "Waze açılıyor" : "Waze naviqasiyası açılır";
+                    speakFeedback(speechVoiceText);
+                    showVoiceSuccessFeedback(feedbackText);
                     launchApp('Waze');
                     break;
 
@@ -5853,7 +5954,13 @@
 
                 case 'MUSIC_NEXT':
                     nextSong();
-                    speakFeedback("Musiqi dəyişdirildi");
+                    feedbackText = (lang === 'ru') ? "✓ Следующий трек" :
+                                   (lang === 'en') ? "✓ Next track playing" :
+                                   (lang === 'tr') ? "✓ Sonraki parça" : "✓ Musiqi Dəyişdirildi";
+                    speechVoiceText = (lang === 'ru') ? "Следующая песня" :
+                                      (lang === 'en') ? "Next song" :
+                                      (lang === 'tr') ? "Müzik değiştirildi" : "Musiqi dəyişdirildi";
+                    speakFeedback(speechVoiceText);
                     showVoiceSuccessFeedback(`🎵 ${playlist[currentTrackIdx].title}`);
                     break;
             }
