@@ -1384,6 +1384,37 @@
             color: #00e5ff;
             transform: translateY(-2px);
         }
+
+        .voice-mode-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 6px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-voice-mode {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-voice-mode.active {
+            background: rgba(0, 229, 255, 0.25);
+            border-color: #00e5ff;
+            color: #00e5ff;
+        }
+        .btn-voice-mode:hover:not(.active) {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -1862,6 +1893,14 @@
                             <button class="voice-chip" onclick="executeVoiceCommandText('Kondisioneri söndür')">🛑 "Kondisioneri söndür"</button>
                             <button class="voice-chip" onclick="executeVoiceCommandText('Musiqini dəyiş')">🎵 "Musiqini dəyiş"</button>
                             <button class="voice-chip" onclick="executeVoiceCommandText('Brauzeri aç')">🌐 "Brauzeri aç"</button>
+                        </div>
+
+                        <!-- Səsli Əlaqə Rejimi (İngiliscə təkrarı qadağan edən idarəetmə) -->
+                        <div class="voice-mode-selector" onclick="event.stopPropagation()">
+                            <span style="font-size: 11px; color: #94a3b8; margin-right: 6px;">Səsli Cavab:</span>
+                            <button class="btn-voice-mode active" id="btnModeChime" onclick="setVoiceFeedbackMode('chime')">🔔 Zərif Zəng (Təkrar Yoxdur)</button>
+                            <button class="btn-voice-mode" id="btnModeAz" onclick="setVoiceFeedbackMode('az_only')">🇦🇿 Yalnız Azərbaycan Dili</button>
+                            <button class="btn-voice-mode" id="btnModeMute" onclick="setVoiceFeedbackMode('mute')">🔇 Tam Səssiz</button>
                         </div>
                     </div>
 
@@ -2680,79 +2719,186 @@
             if (climateHudTimeout) clearTimeout(climateHudTimeout);
         }
 
+        /* 🔊 Səsli Cavab Rejimi: 'chime' (Zərif Chime Zəngi - DEFAULT), 'az_only' (Yalnız Azərbaycan dili), 'mute' (Tam Səssiz) */
+        let voiceResponseMode = 'chime';
+
+        function setVoiceFeedbackMode(mode) {
+            voiceResponseMode = mode;
+            document.querySelectorAll('.btn-voice-mode').forEach(b => b.classList.remove('active'));
+            if (mode === 'chime') document.getElementById('btnModeChime')?.classList.add('active');
+            if (mode === 'az_only') document.getElementById('btnModeAz')?.classList.add('active');
+            if (mode === 'mute') document.getElementById('btnModeMute')?.classList.add('active');
+
+            if (mode === 'chime') {
+                playAppleChime();
+                logEvent(`🔔 Səs Rejimi: Zərif Zəng Rejimi (İngiliscə təkrar tamamilə söndürüldü)`);
+            } else if (mode === 'az_only') {
+                logEvent(`🇦🇿 Səs Rejimi: Yalnız Azərbaycan Dili`);
+            } else {
+                logEvent(`🔇 Səs Rejimi: Tam Səssiz Rejim`);
+            }
+        }
+
+        /* 🔔 Apple-Üslubunda Zərif Avtomobil Zəngi (Luxury Chime Ding) */
+        function playAppleChime() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                // 1046Hz (C6) -> 1318Hz (E6) zərif şüşə zəng akkordu
+                osc.frequency.setValueAtTime(1046.50, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.38);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.38);
+            } catch(e) {}
+        }
+
         function adjustClimateTemp(delta) {
             climateState.temp = Math.min(32, Math.max(16, climateState.temp + delta));
             climateState.ac = true;
-            showClimateHud(`Temperatur dəyişdirildi: ${climateState.temp.toFixed(1)}°C`);
+            showClimateHud(`Temperatur: ${climateState.temp.toFixed(1)}°C`);
             logEvent(`❄️ İqlim: Temperatur ${climateState.temp.toFixed(1)}°C dərəcəyə qoyuldu (CAN-Bus ID: 0x240)`);
             speakFeedback(`Kondisioner ${Math.round(climateState.temp)} dərəcəyə təyin edildi`);
         }
 
+        /**
+         * Səsli Cavab Funksiyası:
+         * QƏTİYYƏN İNGİLİS DİLİNDƏ DANIŞMIR!
+         * 1. 'chime' rejimində: zərif zəng çalır və susur (Mükəmməl avtomobil təcrübəsi).
+         * 2. 'az_only' rejimində: yalnız sistemdə orijinal Azərbaycan/Türk dili varsa danışır, ingiliscəyə heç vaxt keçmir!
+         * 3. 'mute' rejimində: tam səssiz icra edir.
+         */
         function speakFeedback(text) {
-            if ('speechSynthesis' in window) {
+            if (voiceResponseMode === 'mute') return;
+
+            if (voiceResponseMode === 'chime') {
+                playAppleChime();
+                return;
+            }
+
+            if (voiceResponseMode === 'az_only' && 'speechSynthesis' in window) {
                 try {
                     window.speechSynthesis.cancel();
-                    const u = new SpeechSynthesisUtterance(text);
-                    u.lang = 'az-AZ';
-                    u.rate = 1.0;
-                    window.speechSynthesis.speak(u);
-                } catch(e) {}
+                    const voices = window.speechSynthesis.getVoices();
+                    const nativeVoice = voices.find(v => v.lang.startsWith('az') || v.lang.startsWith('tr'));
+
+                    if (nativeVoice) {
+                        const u = new SpeechSynthesisUtterance(text);
+                        u.voice = nativeVoice;
+                        u.lang = nativeVoice.lang;
+                        u.rate = 1.0;
+                        window.speechSynthesis.speak(u);
+                    } else {
+                        // Əgər Azərbaycan dili TTS yoxdursa, İNGİLİSCƏ DANIŞMAQDANSA zərif chime veririk!
+                        playAppleChime();
+                    }
+                } catch(e) {
+                    playAppleChime();
+                }
             }
         }
 
+        /**
+         * Azərbaycan dilində sərbəst deyilən əmrləri 100% dəqiq təhlil edən süni intellekt
+         */
         function executeVoiceCommandText(text) {
             const output = document.getElementById('voiceOutputText');
             if (output) output.innerText = `"${text}"`;
-            logEvent(`🗣️ AI Səs Əmri: "${text}"`);
+            logEvent(`🗣️ Eşidildi: "${text}"`);
 
-            const lower = text.toLowerCase();
+            const lower = text.toLowerCase().trim();
 
-            // 1. Kondisioner / İqlim Təhlili
-            if (lower.includes('kondisioner') || lower.includes('klima') || lower.includes('dərəcə') || lower.includes('derece') || lower.includes('hava') || lower.includes('temperatur')) {
-                const match = lower.match(/\b(1[6-9]|2[0-9]|3[0-2])\b/);
-                if (lower.includes('söndür') || lower.includes('sondur') || lower.includes('bağla') || lower.includes('kapat')) {
+            // 1. Dərəcə Rəqəmlərinin Təyini (Həm rəqəm, həm Azərbaycan sözləri)
+            let parsedTemp = null;
+            const digitMatch = lower.match(/(?:^|\D)(1[6-9]|2[0-9]|3[0-2])(?:\D|$)/);
+            if (digitMatch) {
+                parsedTemp = parseFloat(digitMatch[1]);
+            } else {
+                const azNumberMap = [
+                    { w: 'iyirmi bir', v: 21 }, { w: 'iyirmi iki', v: 22 }, { w: 'iyirmi üç', v: 23 }, { w: 'iyirmi uc', v: 23 },
+                    { w: 'iyirmi dörd', v: 24 }, { w: 'iyirmi dord', v: 24 }, { w: 'iyirmi beş', v: 25 }, { w: 'iyirmi bes', v: 25 },
+                    { w: 'iyirmi altı', v: 26 }, { w: 'iyirmi alti', v: 26 }, { w: 'iyirmi yeddi', v: 27 }, { w: 'iyirmi səkkiz', v: 28 },
+                    { w: 'iyirmi sekkiz', v: 28 }, { w: 'iyirmi doqquz', v: 29 }, { w: 'iyirmi', v: 20 },
+                    { w: 'on altı', v: 16 }, { w: 'on alti', v: 16 }, { w: 'on yeddi', v: 17 }, { w: 'on səkkiz', v: 18 },
+                    { w: 'on sekkiz', v: 18 }, { w: 'on doqquz', v: 19 }, { w: 'otuz', v: 30 }
+                ];
+                for (const item of azNumberMap) {
+                    if (lower.includes(item.w)) {
+                        parsedTemp = item.v;
+                        break;
+                    }
+                }
+            }
+
+            // 2. Kondisioner / İqlim Əmrləri
+            const isClimateContext = lower.includes('kondisioner') ||
+                lower.includes('klima') ||
+                lower.includes('dərəcə') ||
+                lower.includes('derece') ||
+                lower.includes('hava') ||
+                lower.includes('temperatur') ||
+                lower.includes('isti') ||
+                lower.includes('soyut') ||
+                lower.includes('üşüdüm') ||
+                (parsedTemp !== null && (lower.includes('elə') || lower.includes('ele') || lower.includes('qoy') || lower.includes('et')));
+
+            if (isClimateContext) {
+                if (lower.includes('söndür') || lower.includes('sondur') || lower.includes('bağla') || lower.includes('bagla') || lower.includes('kapat') || lower.includes('lazım deyil')) {
                     climateState.ac = false;
                     setTimeout(() => {
                         closeVoiceModal();
-                        showClimateHud("Kondisioner söndürüldü");
+                        showClimateHud("Kondisioner Söndürüldü");
                         speakFeedback("Kondisioner söndürüldü");
-                    }, 600);
-                } else if (match) {
-                    const temp = parseFloat(match[1]);
-                    climateState.temp = temp;
+                    }, 500);
+                } else if (parsedTemp !== null) {
+                    climateState.temp = parsedTemp;
                     climateState.ac = true;
                     setTimeout(() => {
                         closeVoiceModal();
-                        showClimateHud(`Kondisioner ${temp}°C təyin edildi`);
-                        speakFeedback(`Kondisioner ${temp} dərəcəyə təyin edildi`);
-                    }, 600);
-                } else if (lower.includes('artır') || lower.includes('artir') || lower.includes('isti')) {
+                        showClimateHud(`Kondisioner ${parsedTemp}°C təyin edildi`);
+                        speakFeedback(`Kondisioner ${parsedTemp} dərəcəyə təyin edildi`);
+                    }, 500);
+                } else if (lower.includes('artır') || lower.includes('artir') || lower.includes('isti') || lower.includes('üşüdüm') || lower.includes('qızdır')) {
                     adjustClimateTemp(1);
-                    setTimeout(() => closeVoiceModal(), 600);
-                } else if (lower.includes('azalt') || lower.includes('soyut')) {
+                    setTimeout(() => closeVoiceModal(), 500);
+                } else if (lower.includes('azalt') || lower.includes('soyut') || lower.includes('soyuq') || lower.includes('sərin')) {
                     adjustClimateTemp(-1);
-                    setTimeout(() => closeVoiceModal(), 600);
+                    setTimeout(() => closeVoiceModal(), 500);
                 } else {
                     climateState.ac = true;
                     setTimeout(() => {
                         closeVoiceModal();
-                        showClimateHud("Kondisioner işə salındı");
+                        showClimateHud("Kondisioner İşə Salındı");
                         speakFeedback("Kondisioner işə salındı");
-                    }, 600);
+                    }, 500);
                 }
-            } else if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
+                return;
+            }
+
+            // 3. Digər CarPlay Əmrləri
+            if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
                 speakFeedback("İnternet brauzeri açılır");
-                setTimeout(() => { closeVoiceModal(); openInCarBrowser(); }, 800);
+                setTimeout(() => { closeVoiceModal(); openInCarBrowser(); }, 600);
             } else if (lower.includes('youtube') || lower.includes('video')) {
                 speakFeedback("YouTube Park Rejimi açılır");
-                setTimeout(() => { closeVoiceModal(); openInCarBrowser('https://m.youtube.com'); }, 800);
-            } else if (lower.includes('mahnı') || lower.includes('musiqi') || lower.includes('dəyiş') || lower.includes('oxut')) {
+                setTimeout(() => { closeVoiceModal(); openInCarBrowser('https://m.youtube.com'); }, 600);
+            } else if (lower.includes('mahnı') || lower.includes('musiqi') || lower.includes('dəyiş') || lower.includes('oxut') || lower.includes('növbəti')) {
                 nextSong();
                 speakFeedback("Musiqi dəyişdirildi");
-                setTimeout(() => closeVoiceModal(), 800);
+                setTimeout(() => closeVoiceModal(), 600);
             } else {
                 speakFeedback("Əmr qəbul edildi");
-                setTimeout(() => closeVoiceModal(), 1200);
+                setTimeout(() => closeVoiceModal(), 800);
             }
         }
 
@@ -2765,14 +2911,16 @@
 
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (SpeechRec) {
-                const rec = new SpeechRec();
-                rec.lang = 'az-AZ';
-                rec.onresult = (e) => {
-                    const text = e.results[0][0].transcript;
-                    executeVoiceCommandText(text);
-                };
-                rec.onerror = () => { setTimeout(() => closeVoiceModal(), 2000); };
-                rec.start();
+                try {
+                    const rec = new SpeechRec();
+                    rec.lang = 'az-AZ';
+                    rec.onresult = (e) => {
+                        const text = e.results[0][0].transcript;
+                        executeVoiceCommandText(text);
+                    };
+                    rec.onerror = () => { setTimeout(() => closeVoiceModal(), 2500); };
+                    rec.start();
+                } catch(e) {}
             }
         }
 

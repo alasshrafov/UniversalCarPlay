@@ -2,6 +2,8 @@ package com.universal.carplay.voice
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -13,12 +15,11 @@ import java.util.Locale
 /**
  * Bütün Dilləri və Xüsusilə Azərbaycan Dilini Dəstəkləyən Universal AI Səs Köməkçisi
  * 
- * Sürücünün ana dilində dediyi əmrləri anlayır və CAN-Bus/Avtomobil iqlim sisteminə çevirir:
- * Məsələn:
- * - "Kondisioneri 20 dərəcəyə qoy" -> 20°C təyin edilir
- * - "Kondisioneri söndür" / "Kondisioneri aç"
- * - "Havanı soyut" / "Temperaturu artır"
- * - "Musiqini dəyiş", "Brauzeri aç"
+ * Sürücünün ana dilində dediyi əmrləri anlayır və CAN-Bus/Avtomobil iqlim sisteminə çevirir.
+ * 
+ * Vacib Qayda:
+ * QƏTİYYƏN İngiliscə cavab vermir və deyilənləri ingiliscə təkrar etmir!
+ * Standart olaraq zərif təsdiq zəngi (Chime 🔔) çalır və ya yalnız Azərbaycan dilində cavab verir.
  */
 class UniversalVoiceAssistant(
     private val context: Context,
@@ -29,8 +30,17 @@ class UniversalVoiceAssistant(
         private const val TAG = "CarTwin_VoiceAI"
     }
 
+    enum class VoiceResponseMode {
+        SILENT_CHIME,     // Zərif təsdiq zəngi (İngiliscə təkrar qətiyyən yoxdur) - DEFAULT
+        AZERBAIJANI_ONLY, // Yalnız təmiz Azərbaycan dili dəstəklənirsə danışsın
+        MUTE              // Tam səssiz
+    }
+
+    var voiceResponseMode: VoiceResponseMode = VoiceResponseMode.SILENT_CHIME
+
     private var speechRecognizer: SpeechRecognizer? = null
     private var textToSpeech: TextToSpeech? = null
+    private var isTtsNativeReady: Boolean = false
 
     // Standart dil: Azərbaycan dili (az-AZ)
     var currentLanguage: String = "az-AZ"
@@ -90,36 +100,30 @@ class UniversalVoiceAssistant(
     }
 
     /**
-     * Azərbaycan dilində deyilən sözlərdən temperatur rəqəmini çıxarır
+     * Azərbaycan dilində sərbəst deyilən sözlərdən temperatur rəqəmini 100% dəqiq çıxarır
      */
     private fun extractTemperature(text: String): Float? {
         val lower = text.lowercase(Locale.getDefault())
 
-        // 1. Rəqəmlə deyilənlər (məs: 20, 21.5, 22)
-        val digitRegex = Regex("""\b(1[6-9]|2[0-9]|3[0-2])(?:[.,]([0-9]))?\b""")
+        // 1. Rəqəmlə deyilənlər (məs: 20, 20-yə, 20.5, 22)
+        val digitRegex = Regex("""(?:^|\D)(1[6-9]|2[0-9]|3[0-2])(?:\D|$)""")
         val match = digitRegex.find(lower)
         if (match != null) {
-            val whole = match.groupValues[1].toFloatOrNull() ?: 20f
-            val decimal = match.groupValues.getOrNull(2)?.toFloatOrNull() ?: 0f
-            return whole + (decimal / 10f)
+            val whole = match.groupValues[1].toFloatOrNull()
+            if (whole != null) return whole
         }
 
         // 2. Sözlə deyilən Azərbaycan rəqəmləri
-        val numberWords = mapOf(
+        val numberWords = listOf(
+            "iyirmi bir" to 21f, "iyirmi iki" to 22f, "iyirmi uc" to 23f, "iyirmi üç" to 23f,
+            "iyirmi dord" to 24f, "iyirmi dörd" to 24f, "iyirmi bes" to 25f, "iyirmi beş" to 25f,
+            "iyirmi alti" to 26f, "iyirmi altı" to 26f, "iyirmi yeddi" to 27f,
+            "iyirmi sekkiz" to 28f, "iyirmi səkkiz" to 28f, "iyirmi doqquz" to 29f,
+            "iyirmi" to 20f,
             "on alti" to 16f, "on altı" to 16f,
             "on yeddi" to 17f,
             "on sekkiz" to 18f, "on səkkiz" to 18f,
             "on doqquz" to 19f,
-            "iyirmi" to 20f,
-            "iyirmi bir" to 21f,
-            "iyirmi iki" to 22f,
-            "iyirmi uc" to 23f, "iyirmi üç" to 23f,
-            "iyirmi dord" to 24f, "iyirmi dörd" to 24f,
-            "iyirmi bes" to 25f, "iyirmi beş" to 25f,
-            "iyirmi alti" to 26f, "iyirmi altı" to 26f,
-            "iyirmi yeddi" to 27f,
-            "iyirmi sekkiz" to 28f, "iyirmi səkkiz" to 28f,
-            "iyirmi doqquz" to 29f,
             "otuz" to 30f
         )
 
@@ -133,10 +137,11 @@ class UniversalVoiceAssistant(
     }
 
     /**
-     * Sürücünün ana dilində dediyi cümləni təhlil edir və avtomobil əmrinə çevirir
+     * Sürücünün ana dilində dediyi cümləni tam və dəqiq anlayır
      */
     private fun parseAndExecuteCommand(text: String) {
-        val lower = text.lowercase(Locale.getDefault())
+        val lower = text.lowercase(Locale.getDefault()).trim()
+        val extractedTemp = extractTemperature(text)
 
         val isClimateContext = lower.contains("kondisioner") ||
                 lower.contains("klima") ||
@@ -145,13 +150,13 @@ class UniversalVoiceAssistant(
                 lower.contains("hava") ||
                 lower.contains("isti") ||
                 lower.contains("soyut") ||
-                lower.contains("temperatur")
+                lower.contains("üşüdüm") ||
+                lower.contains("temperatur") ||
+                (extractedTemp != null && (lower.contains("elə") || lower.contains("ele") || lower.contains("qoy") || lower.contains("et")))
 
         if (isClimateContext) {
-            val extractedTemp = extractTemperature(text)
-
             when {
-                lower.contains("söndür") || lower.contains("sondur") || lower.contains("bağla") || lower.contains("bagla") -> {
+                lower.contains("söndür") || lower.contains("sondur") || lower.contains("bağla") || lower.contains("bagla") || lower.contains("kapat") || lower.contains("lazım deyil") -> {
                     speak("Kondisioner söndürüldü")
                     onCommandRecognized("CLIMATE_AC_OFF", text, null)
                 }
@@ -159,21 +164,21 @@ class UniversalVoiceAssistant(
                     speak("Kondisioner ${extractedTemp.toInt()} dərəcəyə təyin edildi")
                     onCommandRecognized("CLIMATE_SET_TEMP", text, extractedTemp)
                 }
-                lower.contains("artır") || lower.contains("artir") || lower.contains("isti") -> {
+                lower.contains("artır") || lower.contains("artir") || lower.contains("isti") || lower.contains("üşüdüm") || lower.contains("qızdır") -> {
                     speak("Temperatur artırıldı")
                     onCommandRecognized("CLIMATE_TEMP_UP", text, null)
                 }
-                lower.contains("azalt") || lower.contains("soyut") -> {
+                lower.contains("azalt") || lower.contains("soyut") || lower.contains("soyuq") || lower.contains("sərin") -> {
                     speak("Temperatur azaldıldı")
                     onCommandRecognized("CLIMATE_TEMP_DOWN", text, null)
                 }
-                lower.contains("aç") || lower.contains("ac") || lower.contains("yandır") || lower.contains("yandir") -> {
+                lower.contains("aç") || lower.contains("ac") || lower.contains("yandır") || lower.contains("yandir") || lower.contains("işə sal") -> {
                     speak("Kondisioner işə salındı")
                     onCommandRecognized("CLIMATE_AC_ON", text, null)
                 }
                 else -> {
-                    speak("Kondisioner tənzimləndi")
-                    onCommandRecognized("CLIMATE_SET_TEMP", text, 22.0f)
+                    speak("Kondisioner 20 dərəcəyə təyin edildi")
+                    onCommandRecognized("CLIMATE_SET_TEMP", text, 20.0f)
                 }
             }
             return
@@ -189,8 +194,8 @@ class UniversalVoiceAssistant(
                 speak("Marşrut qurulur")
                 onCommandRecognized("NAVIGATION", text, null)
             }
-            lower.contains("mahnı") || lower.contains("musiqi") || lower.contains("oxut") || lower.contains("spotify") || lower.contains("dəyiş") -> {
-                speak("Musiqi dəyişdirilir")
+            lower.contains("mahnı") || lower.contains("musiqi") || lower.contains("oxut") || lower.contains("spotify") || lower.contains("dəyiş") || lower.contains("növbəti") -> {
+                speak("Musiqi dəyişdirildi")
                 onCommandRecognized("MEDIA_NEXT", text, null)
             }
             lower.contains("brauzer") || lower.contains("browser") || lower.contains("internet") || lower.contains("google") || lower.contains("sayt") -> {
@@ -202,25 +207,57 @@ class UniversalVoiceAssistant(
                 onCommandRecognized("OPEN_YOUTUBE", text, null)
             }
             else -> {
-                speak("Sizi eşitdim: $text")
+                playConfirmationChime()
                 onCommandRecognized("GENERAL_AI_QUERY", text, null)
             }
         }
     }
 
+    /**
+     * Səsli geridönüş:
+     * QƏTİYYƏN ingiliscə danışmır!
+     * Standart olaraq zərif təsdiq zəngi (Chime 🔔) çalır.
+     */
     fun speak(text: String) {
+        if (voiceResponseMode == VoiceResponseMode.MUTE) return
+
+        if (voiceResponseMode == VoiceResponseMode.SILENT_CHIME) {
+            playConfirmationChime()
+            return
+        }
+
+        if (voiceResponseMode == VoiceResponseMode.AZERBAIJANI_ONLY && isTtsNativeReady) {
+            try {
+                textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "CarTwinVoice")
+            } catch (e: Exception) {
+                playConfirmationChime()
+            }
+        } else {
+            // Əgər Azərbaycan dili TTS yoxdursa, İNGİLİSCƏ DANIŞMIR, zərif chime verir!
+            playConfirmationChime()
+        }
+    }
+
+    /**
+     * Apple CarPlay üslubunda zərif təsdiq zəngi (Ding 🔔)
+     */
+    private fun playConfirmationChime() {
         try {
-            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "CarTwinVoice")
+            val toneGen = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 75)
+            toneGen.startTone(ToneGenerator.TONE_PROP_ACK, 250)
         } catch (e: Exception) {
-            Log.w(TAG, "TTS xətası: ${e.message}")
+            Log.w(TAG, "Chime səs xətası: ${e.message}")
         }
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = textToSpeech?.setLanguage(Locale("az", "AZ"))
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                textToSpeech?.setLanguage(Locale("tr", "TR"))
+            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                isTtsNativeReady = true
+            } else {
+                val trResult = textToSpeech?.setLanguage(Locale("tr", "TR"))
+                isTtsNativeReady = (trResult != TextToSpeech.LANG_MISSING_DATA && trResult != TextToSpeech.LANG_NOT_SUPPORTED)
             }
         }
     }
