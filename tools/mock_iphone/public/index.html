@@ -1225,6 +1225,165 @@
         }
 
         .youtube-modal.active { display: flex; }
+
+        /* Apple CarPlay İqlim və Kondisioner HUD Paneli */
+        .carplay-climate-hud {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 229, 255, 0.3);
+            backdrop-filter: blur(30px);
+            border-radius: 24px;
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            z-index: 60;
+            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .carplay-climate-hud.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .climate-hud-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .climate-temp-badge {
+            font-size: 34px;
+            font-weight: 800;
+            color: #00e5ff;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .climate-mode-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .climate-pill {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+        .climate-pill.active {
+            background: rgba(0, 229, 255, 0.25);
+            color: #00e5ff;
+            border: 1px solid rgba(0, 229, 255, 0.5);
+        }
+        .climate-hud-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .fan-animation-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .fan-bars {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 18px;
+        }
+        .f-bar {
+            width: 4px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+        .f-bar:nth-child(2) { height: 8px; }
+        .f-bar:nth-child(3) { height: 10px; }
+        .f-bar:nth-child(4) { height: 12px; }
+        .f-bar:nth-child(5) { height: 14px; }
+        .f-bar:nth-child(6) { height: 16px; }
+        .f-bar:nth-child(7) { height: 18px; }
+        .f-bar.active {
+            background: #00e5ff;
+            box-shadow: 0 0 8px #00e5ff;
+        }
+        .climate-action-text {
+            font-size: 12px;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        .climate-hud-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-climate-hud-temp {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-climate-hud-temp:hover {
+            background: rgba(0, 229, 255, 0.35);
+            border-color: #00e5ff;
+            transform: scale(1.1);
+        }
+        .btn-climate-hud-close {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            margin-left: 6px;
+        }
+        .btn-climate-hud-close:hover { color: white; }
+
+        /* Voice Preset Chips */
+        .voice-preset-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 20px;
+            max-width: 540px;
+        }
+        .voice-chip {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .voice-chip:hover {
+            background: rgba(0, 229, 255, 0.3);
+            border-color: #00e5ff;
+            color: #00e5ff;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -1693,8 +1852,49 @@
                     <!-- AI Universal Səs Köməkçisi Modalı -->
                     <div class="voice-modal-overlay" id="voiceModal" onclick="closeVoiceModal()">
                         <div class="voice-sphere-anim"></div>
-                        <div class="voice-command-text" id="voiceOutputText">Azərbaycan dilində danışın…</div>
-                        <div style="margin-top: 8px; font-size: 13px; color: var(--brand-color);" id="voiceLangIndicator">Dil: Azərbaycan dili 🇦🇿</div>
+                        <div class="voice-command-text" id="voiceOutputText">Azərbaycan dilində danışın… 🎙️</div>
+                        <div style="margin-top: 8px; font-size: 13px; color: #00e5ff;" id="voiceLangIndicator">Dil: Azərbaycan dili 🇦🇿 (Süni İntellekt Aktivdir)</div>
+
+                        <!-- Sınaq və Tez Əmrlər (Kondisioner, Musiqi, Brauzer) -->
+                        <div class="voice-preset-chips" onclick="event.stopPropagation()">
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Kondisioneri 20 dərəcəyə qoy')">❄️ "Kondisioneri 20 dərəcəyə qoy"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Havanı 22 dərəcə et')">🌡️ "Havanı 22 dərəcə et"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Kondisioneri söndür')">🛑 "Kondisioneri söndür"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Musiqini dəyiş')">🎵 "Musiqini dəyiş"</button>
+                            <button class="voice-chip" onclick="executeVoiceCommandText('Brauzeri aç')">🌐 "Brauzeri aç"</button>
+                        </div>
+                    </div>
+
+                    <!-- Apple CarPlay İqlim və Kondisioner (HVAC) Paneli -->
+                    <div class="carplay-climate-hud" id="carplayClimateHud">
+                        <div class="climate-hud-left">
+                            <span class="climate-temp-badge" id="hudTempDisplay">20.0°C</span>
+                            <div class="climate-mode-tags">
+                                <span class="climate-pill active" id="hudAcStatus">A/C ON</span>
+                                <span class="climate-pill active" id="hudAutoStatus">AUTO</span>
+                                <span class="climate-pill" id="hudSyncStatus">SYNC</span>
+                            </div>
+                        </div>
+                        <div class="climate-hud-center">
+                            <div class="fan-animation-wrap">
+                                <span class="fan-icon" style="font-size: 20px;">❄️</span>
+                                <div class="fan-bars" id="hudFanBars">
+                                    <span class="f-bar active"></span>
+                                    <span class="f-bar active"></span>
+                                    <span class="f-bar active"></span>
+                                    <span class="f-bar"></span>
+                                    <span class="f-bar"></span>
+                                    <span class="f-bar"></span>
+                                    <span class="f-bar"></span>
+                                </div>
+                            </div>
+                            <div class="climate-action-text" id="hudActionDesc">Kondisioner 20°C təyin edildi</div>
+                        </div>
+                        <div class="climate-hud-right">
+                            <button class="btn-climate-hud-temp" onclick="adjustClimateTemp(-1)" title="Temperaturu Azalt">-</button>
+                            <button class="btn-climate-hud-temp" onclick="adjustClimateTemp(1)" title="Temperaturu Artır">+</button>
+                            <button class="btn-climate-hud-close" onclick="hideClimateHud()">✕</button>
+                        </div>
                     </div>
 
                     <!-- YouTube Park Rejimi -->
@@ -2427,6 +2627,135 @@
             }).catch(() => {});
         }
 
+        /* ❄️ Avtomobil Kondisioner və İqlim İdarəetmə Sistemi (HVAC / CAN-Bus) */
+        let climateState = {
+            temp: 20.0,
+            ac: true,
+            auto: true,
+            fan: 3
+        };
+        let climateHudTimeout = null;
+
+        function showClimateHud(descText) {
+            const hud = document.getElementById('carplayClimateHud');
+            const tempBadge = document.getElementById('hudTempDisplay');
+            const acPill = document.getElementById('hudAcStatus');
+            const desc = document.getElementById('hudActionDesc');
+            const fanBars = document.getElementById('hudFanBars');
+
+            if (!hud) return;
+
+            tempBadge.innerText = `${climateState.temp.toFixed(1)}°C`;
+            if (climateState.ac) {
+                acPill.classList.add('active');
+                acPill.innerText = 'A/C ON';
+                tempBadge.style.color = '#00e5ff';
+            } else {
+                acPill.classList.remove('active');
+                acPill.innerText = 'A/C OFF';
+                tempBadge.style.color = '#94a3b8';
+            }
+
+            if (descText) desc.innerText = descText;
+
+            const bars = fanBars ? fanBars.querySelectorAll('.f-bar') : [];
+            bars.forEach((b, idx) => {
+                if (idx < climateState.fan) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+
+            hud.classList.add('active');
+            if (climateHudTimeout) clearTimeout(climateHudTimeout);
+            climateHudTimeout = setTimeout(() => {
+                hideClimateHud();
+            }, 4500);
+        }
+
+        function hideClimateHud() {
+            const hud = document.getElementById('carplayClimateHud');
+            if (hud) hud.classList.remove('active');
+            if (climateHudTimeout) clearTimeout(climateHudTimeout);
+        }
+
+        function adjustClimateTemp(delta) {
+            climateState.temp = Math.min(32, Math.max(16, climateState.temp + delta));
+            climateState.ac = true;
+            showClimateHud(`Temperatur dəyişdirildi: ${climateState.temp.toFixed(1)}°C`);
+            logEvent(`❄️ İqlim: Temperatur ${climateState.temp.toFixed(1)}°C dərəcəyə qoyuldu (CAN-Bus ID: 0x240)`);
+            speakFeedback(`Kondisioner ${Math.round(climateState.temp)} dərəcəyə təyin edildi`);
+        }
+
+        function speakFeedback(text) {
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    const u = new SpeechSynthesisUtterance(text);
+                    u.lang = 'az-AZ';
+                    u.rate = 1.0;
+                    window.speechSynthesis.speak(u);
+                } catch(e) {}
+            }
+        }
+
+        function executeVoiceCommandText(text) {
+            const output = document.getElementById('voiceOutputText');
+            if (output) output.innerText = `"${text}"`;
+            logEvent(`🗣️ AI Səs Əmri: "${text}"`);
+
+            const lower = text.toLowerCase();
+
+            // 1. Kondisioner / İqlim Təhlili
+            if (lower.includes('kondisioner') || lower.includes('klima') || lower.includes('dərəcə') || lower.includes('derece') || lower.includes('hava') || lower.includes('temperatur')) {
+                const match = lower.match(/\b(1[6-9]|2[0-9]|3[0-2])\b/);
+                if (lower.includes('söndür') || lower.includes('sondur') || lower.includes('bağla') || lower.includes('kapat')) {
+                    climateState.ac = false;
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        showClimateHud("Kondisioner söndürüldü");
+                        speakFeedback("Kondisioner söndürüldü");
+                    }, 600);
+                } else if (match) {
+                    const temp = parseFloat(match[1]);
+                    climateState.temp = temp;
+                    climateState.ac = true;
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        showClimateHud(`Kondisioner ${temp}°C təyin edildi`);
+                        speakFeedback(`Kondisioner ${temp} dərəcəyə təyin edildi`);
+                    }, 600);
+                } else if (lower.includes('artır') || lower.includes('artir') || lower.includes('isti')) {
+                    adjustClimateTemp(1);
+                    setTimeout(() => closeVoiceModal(), 600);
+                } else if (lower.includes('azalt') || lower.includes('soyut')) {
+                    adjustClimateTemp(-1);
+                    setTimeout(() => closeVoiceModal(), 600);
+                } else {
+                    climateState.ac = true;
+                    setTimeout(() => {
+                        closeVoiceModal();
+                        showClimateHud("Kondisioner işə salındı");
+                        speakFeedback("Kondisioner işə salındı");
+                    }, 600);
+                }
+            } else if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
+                speakFeedback("İnternet brauzeri açılır");
+                setTimeout(() => { closeVoiceModal(); openInCarBrowser(); }, 800);
+            } else if (lower.includes('youtube') || lower.includes('video')) {
+                speakFeedback("YouTube Park Rejimi açılır");
+                setTimeout(() => { closeVoiceModal(); openInCarBrowser('https://m.youtube.com'); }, 800);
+            } else if (lower.includes('mahnı') || lower.includes('musiqi') || lower.includes('dəyiş') || lower.includes('oxut')) {
+                nextSong();
+                speakFeedback("Musiqi dəyişdirildi");
+                setTimeout(() => closeVoiceModal(), 800);
+            } else {
+                speakFeedback("Əmr qəbul edildi");
+                setTimeout(() => closeVoiceModal(), 1200);
+            }
+        }
+
         function startUniversalVoice() {
             const modal = document.getElementById('voiceModal');
             const output = document.getElementById('voiceOutputText');
@@ -2440,28 +2769,10 @@
                 rec.lang = 'az-AZ';
                 rec.onresult = (e) => {
                     const text = e.results[0][0].transcript;
-                    output.innerText = `"${text}"`;
-                    logEvent(`🗣️ Eşidildi: "${text}"`);
-                    const lower = text.toLowerCase();
-                    if (lower.includes('brauzer') || lower.includes('google') || lower.includes('internet') || lower.includes('sayt')) {
-                        setTimeout(() => { closeVoiceModal(); openInCarBrowser(); }, 800);
-                    } else if (lower.includes('youtube') || lower.includes('video')) {
-                        setTimeout(() => { closeVoiceModal(); openInCarBrowser('https://m.youtube.com'); }, 800);
-                    } else {
-                        setTimeout(() => closeVoiceModal(), 2000);
-                    }
+                    executeVoiceCommandText(text);
                 };
-                rec.onerror = () => { setTimeout(() => closeVoiceModal(), 1500); };
+                rec.onerror = () => { setTimeout(() => closeVoiceModal(), 2000); };
                 rec.start();
-            } else {
-                setTimeout(() => {
-                    output.innerText = `"Brauzeri aç" (Sınaq əmri)`;
-                    logEvent(`🗣️ Eşidildi: "Brauzeri aç"`);
-                    setTimeout(() => {
-                        closeVoiceModal();
-                        openInCarBrowser();
-                    }, 1200);
-                }, 1500);
             }
         }
 

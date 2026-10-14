@@ -33,6 +33,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.universal.carplay.car.DayNightManager
 import com.universal.carplay.car.SteeringWheelManager
 import com.universal.carplay.car.VehicleDetector
+import com.universal.carplay.car.VehicleHvacManager
 import com.universal.carplay.car.VehicleStateManager
 import com.universal.carplay.connectivity.CarPlaySessionCoordinator
 import com.universal.carplay.connectivity.CarPlayUsbManager
@@ -96,6 +97,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var steeringWheelManager: SteeringWheelManager
     private lateinit var dayNightManager: DayNightManager
     private lateinit var voiceAssistant: UniversalVoiceAssistant
+    private lateinit var vehicleHvacManager: VehicleHvacManager
     private lateinit var usbManager: CarPlayUsbManager
     private val cryptoHandshake = CarPlayCryptoHandshake()
 
@@ -291,16 +293,43 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         // 3. Gecə/Gündüz Rejimi
         dayNightManager = DayNightManager(this)
 
-        // 4. Bütün Dilləri Dəstəkləyən Universal AI Səs Köməkçisi
-        voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText ->
+        // 4. Avtomobil İqlim və Kondisioner Meneceri (CAN-Bus)
+        vehicleHvacManager = VehicleHvacManager(this) { state ->
+            runOnUiThread {
+                showClimateHud(state)
+            }
+        }
+
+        // 5. Bütün Dilləri (Azərbaycan) Dəstəkləyən Universal AI Səs Köməkçisi
+        voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText, param ->
             runOnUiThread {
                 when (commandType) {
+                    "CLIMATE_SET_TEMP" -> {
+                        val target = param ?: 22.0f
+                        vehicleHvacManager.setTemperature(target)
+                    }
+                    "CLIMATE_AC_OFF" -> vehicleHvacManager.setAcPower(false)
+                    "CLIMATE_AC_ON" -> vehicleHvacManager.setAcPower(true)
+                    "CLIMATE_TEMP_UP" -> {
+                        val current = vehicleHvacManager.getClimateState().targetTemp
+                        vehicleHvacManager.setTemperature(current + 1.0f)
+                    }
+                    "CLIMATE_TEMP_DOWN" -> {
+                        val current = vehicleHvacManager.getClimateState().targetTemp
+                        vehicleHvacManager.setTemperature(current - 1.0f)
+                    }
                     "OPEN_BROWSER" -> openBrowser("https://www.google.com")
                     "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
                     else -> Toast.makeText(this, "AI Əmr: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    private fun showClimateHud(state: VehicleHvacManager.ClimateState) {
+        val banner = "❄️ İqlim: ${state.targetTemp.toInt()}°C • ${if (state.isAcOn) "AC AÇIQ" else "AC BAĞLI"} • Fan: ${state.fanSpeed}/7"
+        Toast.makeText(this, banner, Toast.LENGTH_SHORT).show()
+        tvDetail.text = banner
     }
 
     private fun initSessionCoordinator() {
