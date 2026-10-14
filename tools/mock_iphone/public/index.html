@@ -1289,6 +1289,679 @@
             color: #94a3b8;
         }
 
+        /* ========================================================== */
+        /* 🕹️ İNTERAKTİV YAN PANEL KARTLARI (TOXUNMA VƏ VİZUAL EFFEKTLƏR) */
+        /* ========================================================== */
+        .interactive-telemetry-card {
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            user-select: none;
+        }
+
+        .interactive-telemetry-card:hover {
+            transform: translateY(-2px) scale(1.015);
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65), 0 0 20px var(--brand-glow);
+        }
+
+        .interactive-telemetry-card:active {
+            transform: scale(0.965);
+        }
+
+        .card-tap-indicator {
+            position: absolute;
+            top: 7px;
+            right: 8px;
+            font-size: 10px;
+            color: #64748b;
+            opacity: 0.55;
+            transition: all 0.2s;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .interactive-telemetry-card:hover .card-tap-indicator {
+            opacity: 1;
+            color: var(--brand-color);
+            transform: scale(1.08);
+        }
+
+        /* ========================================================== */
+        /* 🏎️ SPİDOMETR ALƏTLƏR PANELİ MODALI (FULLSCREEN COCKPIT HUD) */
+        /* ========================================================== */
+        .spido-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 40%, rgba(12, 18, 32, 0.96) 0%, rgba(3, 6, 14, 0.99) 100%);
+            backdrop-filter: blur(35px);
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 24px;
+            z-index: 680;
+            overflow-y: auto;
+            animation: fadeInCockpit 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .spido-modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeInCockpit {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .spido-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+        }
+
+        .spido-vehicle-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spido-brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--brand-color);
+            box-shadow: 0 0 12px var(--brand-color);
+        }
+
+        .spido-car-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .spido-drive-modes {
+            display: flex;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 3px 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .spido-mode-pill {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .spido-mode-pill.active {
+            color: #ffffff;
+            background: var(--brand-color);
+            box-shadow: 0 0 12px var(--brand-glow);
+        }
+
+        .spido-top-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spido-gps-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #00f2fe;
+            letter-spacing: 0.5px;
+        }
+
+        .gps-pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 8px #00f2fe;
+            animation: pulseGps 1.5s infinite;
+        }
+
+        @keyframes pulseGps {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.7); }
+        }
+
+        .spido-close-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            padding: 5px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .spido-close-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            color: white;
+        }
+
+        /* Spidometr Şkalası və Oxu */
+        .spido-dial-wrapper {
+            position: relative;
+            width: 360px;
+            height: 270px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spido-gauge-svg {
+            width: 360px;
+            height: 360px;
+            transform: translateY(-20px);
+            overflow: visible;
+        }
+
+        .spido-bg-track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.06);
+            stroke-width: 14;
+            stroke-linecap: round;
+            stroke-dasharray: 726 1005.3;
+            stroke-dashoffset: 0;
+            transform-origin: 200px 200px;
+            transform: rotate(140deg);
+        }
+
+        .spido-glow-arc {
+            fill: none;
+            stroke: url(#spidoGlowGrad);
+            stroke-width: 22;
+            stroke-linecap: round;
+            stroke-dasharray: 726 1005.3;
+            stroke-dashoffset: 726;
+            transform-origin: 200px 200px;
+            transform: rotate(140deg);
+            filter: blur(8px);
+            opacity: 0.7;
+            transition: stroke-dashoffset 0.15s ease-out;
+        }
+
+        .spido-fill-arc {
+            fill: none;
+            stroke: url(#spidoGrad);
+            stroke-width: 14;
+            stroke-linecap: round;
+            stroke-dasharray: 726 1005.3;
+            stroke-dashoffset: 726;
+            transform-origin: 200px 200px;
+            transform: rotate(140deg);
+            transition: stroke-dashoffset 0.15s ease-out;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5));
+        }
+
+        .spido-needle-group {
+            transform-origin: 200px 200px;
+            transition: transform 0.15s cubic-bezier(0.12, 0.8, 0.32, 1);
+        }
+
+        .spido-tick-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            fill: #64748b;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+
+        .spido-tick-line {
+            stroke: rgba(255, 255, 255, 0.18);
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .spido-tick-line.major {
+            stroke: rgba(255, 255, 255, 0.45);
+            stroke-width: 3;
+        }
+
+        /* Mərkəzi Sürət Klasteri */
+        .spido-center-cluster {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -40%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .spido-speed-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 82px;
+            font-weight: 900;
+            line-height: 0.9;
+            background: linear-gradient(180deg, #ffffff 20%, #f1f5f9 65%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -3px;
+            font-variant-numeric: tabular-nums;
+            filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.6));
+        }
+
+        .spido-speed-unit {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: var(--brand-color);
+            margin-top: 4px;
+        }
+
+        .spido-gear-hud {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .spido-gear-item {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            color: #475569;
+            padding: 1px 5px;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .spido-gear-item.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+        }
+
+        .spido-power-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            margin-top: 6px;
+        }
+
+        .spido-power-flow span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #00f2fe;
+            letter-spacing: 0.5px;
+        }
+
+        .spido-mini-bar {
+            width: 100px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .spido-mini-fill {
+            height: 100%;
+            width: 35%;
+            background: linear-gradient(90deg, #00f2fe, var(--brand-color));
+            border-radius: 2px;
+            transition: width 0.2s;
+        }
+
+        /* Telemetriya Göstəricilər Toru */
+        .spido-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .spido-stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .spido-stat-card .stat-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .spido-stat-card .stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .spido-stat-card .stat-val small {
+            font-size: 9px;
+            color: #94a3b8;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .spido-mini-btn {
+            margin-top: 3px;
+            background: rgba(0, 242, 254, 0.15);
+            border: 1px solid #00f2fe;
+            color: #00f2fe;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .spido-mini-btn:hover {
+            background: #00f2fe;
+            color: #000;
+        }
+
+        /* İdarəetmə Paneli (Mənbə və Tənzimləmə) */
+        .spido-control-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 6px 14px;
+            margin-top: 6px;
+        }
+
+        .spido-source-switch {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-source-toggle {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-source-toggle.active {
+            background: rgba(0, 242, 254, 0.2);
+            border-color: #00f2fe;
+            color: #00f2fe;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        .spido-manual-throttle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spido-manual-throttle input[type=range] {
+            width: 130px;
+            accent-color: #00f2fe;
+            cursor: pointer;
+        }
+
+        /* ========================================================== */
+        /* 🚘 AVTOMOBİL SEÇİMİ VƏ DİAQNOSTİKA MODALI */
+        /* ========================================================== */
+        .vehicle-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 30%, rgba(14, 20, 36, 0.96) 0%, rgba(4, 7, 16, 0.99) 100%);
+            backdrop-filter: blur(35px);
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 22px;
+            z-index: 680;
+            overflow-y: auto;
+            animation: fadeInCockpit 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .vehicle-modal-overlay.active {
+            display: flex;
+        }
+
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .vehicle-grid-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .vehicle-grid-card:hover, .vehicle-grid-card.active {
+            border-color: var(--brand-color);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 18px var(--brand-glow);
+            transform: translateY(-2px);
+        }
+
+        .vehicle-grid-card.active::before {
+            content: '✓ AKTİV';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: #30d158;
+            color: #000;
+            font-size: 8px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+
+        .vehicle-card-img {
+            width: 100%;
+            height: 52px;
+            object-fit: contain;
+            margin: 4px 0 6px 0;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+        }
+
+        .vehicle-card-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .vehicle-card-sub {
+            font-size: 9px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .vehicle-card-range {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #30d158;
+            margin-top: 4px;
+        }
+
+        .vehicle-diag-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .vehicle-diag-bar span strong {
+            color: #ffffff;
+        }
+
+        /* ========================================================== */
+        /* ⚡ BATAREYA VƏ ENERJİ TELEMETRİYASI MODALI */
+        /* ========================================================== */
+        .battery-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 30%, rgba(10, 24, 20, 0.96) 0%, rgba(3, 8, 7, 0.99) 100%);
+            backdrop-filter: blur(35px);
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px 22px;
+            z-index: 680;
+            animation: fadeInCockpit 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .battery-modal-overlay.active {
+            display: flex;
+        }
+
+        .battery-telemetry-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 10px 0;
+            gap: 20px;
+        }
+
+        .battery-soc-circle-wrap {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .battery-soc-svg {
+            width: 160px;
+            height: 160px;
+            transform: rotate(-90deg);
+        }
+
+        .battery-soc-text-center {
+            position: absolute;
+            text-align: center;
+        }
+
+        .battery-soc-percent {
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: #30d158;
+            line-height: 1;
+        }
+
+        .battery-soc-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .battery-metrics-columns {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .battery-card-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 8px 12px;
+        }
+
+        .battery-card-item .b-label {
+            font-size: 9px;
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .battery-card-item .b-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+
+        .battery-card-item .b-val.green {
+            color: #30d158;
+        }
+
+        .battery-card-item .b-val.cyan {
+            color: #00f2fe;
+        }
+
         /* Aşağı: Kondisioner Zolağı */
         .bottom-climate-bar {
             height: 60px;
@@ -2961,10 +3634,277 @@
 
                 </div>
 
+                <!-- ======================================================== -->
+                <!-- 🏎️ FULLSCREEN SPEEDOMETER (SPİDOMETR) ALƏTLƏR PANELİ -->
+                <!-- ======================================================== -->
+                <div class="spido-modal-overlay" id="speedometerModal" onclick="closeSpeedometerModal()">
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%;" onclick="event.stopPropagation()">
+                        <!-- Kokpit Yuxarı Zolağı -->
+                        <div class="spido-top-bar">
+                            <div class="spido-vehicle-info">
+                                <span class="spido-brand-dot"></span>
+                                <span class="spido-car-title" id="spidoCarTitle">BYD DESTROYER 05 DM-i</span>
+                                <div class="spido-drive-modes">
+                                    <button class="spido-mode-pill active" id="spidoModeSport" onclick="setDriveMode('SPORT', this)">SPORT</button>
+                                    <button class="spido-mode-pill" id="spidoModeComfort" onclick="setDriveMode('COMFORT', this)">COMFORT</button>
+                                    <button class="spido-mode-pill" id="spidoModeEco" onclick="setDriveMode('ECO', this)">ECO</button>
+                                </div>
+                            </div>
+                            
+                            <div class="spido-top-right">
+                                <div class="spido-gps-pill" id="spidoGpsStatus">
+                                    <span class="gps-pulse-dot"></span>
+                                    <span id="spidoGpsText">🛰️ CANLI GPS SÜRƏTİ</span>
+                                </div>
+                                <button class="spido-close-btn" onclick="closeSpeedometerModal()">✕ Bağla</button>
+                            </div>
+                        </div>
+
+                        <!-- Əsas Spidometr Dairəsi və Animasiyalı SVG Şkala -->
+                        <div class="spido-dial-wrapper">
+                            <svg class="spido-gauge-svg" viewBox="0 0 400 400">
+                                <defs>
+                                    <linearGradient id="spidoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00f2fe" />
+                                        <stop offset="40%" stop-color="#30d158" />
+                                        <stop offset="75%" stop-color="#ffd60a" />
+                                        <stop offset="100%" stop-color="#ff3b30" />
+                                    </linearGradient>
+                                    <linearGradient id="spidoGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="rgba(0, 242, 254, 0.4)" />
+                                        <stop offset="100%" stop-color="rgba(255, 59, 48, 0.5)" />
+                                    </linearGradient>
+                                    <filter id="gaugeGlow" x="-30%" y="-30%" width="160%" height="160%">
+                                        <feGaussianBlur stdDeviation="6" result="blur" />
+                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                    </filter>
+                                </defs>
+
+                                <!-- Arxa Fon Dairəvi Şkalası (260 dərəcəlik qövs) -->
+                                <circle class="spido-bg-track" cx="200" cy="200" r="160" />
+                                
+                                <!-- Animasiyalı Rəqəmsal Qövs (Sürət artdıqca parıldayaraq dolur) -->
+                                <circle class="spido-glow-arc" id="spidoGlowArc" cx="200" cy="200" r="160" />
+                                <circle class="spido-fill-arc" id="spidoFillArc" cx="200" cy="200" r="160" />
+
+                                <!-- Şkala Təyinat Xətləri və Rəqəmlər (0, 20, 40 ... 260) -->
+                                <g class="spido-ticks-group" id="spidoTicksGroup"></g>
+
+                                <!-- Animasiyalı Ox / İynə Göstəricisi (Needle) -->
+                                <g class="spido-needle-group" id="spidoNeedle" transform="rotate(-130, 200, 200)">
+                                    <circle cx="200" cy="200" r="10" fill="#00f2fe" filter="url(#gaugeGlow)" />
+                                    <line x1="200" y1="200" x2="200" y2="52" stroke="url(#spidoGrad)" stroke-width="4" stroke-linecap="round" />
+                                    <polygon points="196,62 204,62 200,44" fill="#ffffff" />
+                                </g>
+                            </svg>
+
+                            <!-- Mərkəzi Sürət Məlumatı -->
+                            <div class="spido-center-cluster">
+                                <div class="spido-speed-number" id="spidoBigValue">0</div>
+                                <div class="spido-speed-unit">KM / H</div>
+                                
+                                <div class="spido-gear-hud">
+                                    <span class="spido-gear-item active" id="sgP">P</span>
+                                    <span class="spido-gear-item" id="sgR">R</span>
+                                    <span class="spido-gear-item" id="sgN">N</span>
+                                    <span class="spido-gear-item" id="sgD">D</span>
+                                    <span class="spido-gear-item" id="sgS">S</span>
+                                </div>
+
+                                <div class="spido-power-flow" id="spidoPowerFlow">
+                                    <span id="spidoPowerVal">0 kW (Dayanma)</span>
+                                    <div class="spido-mini-bar"><div class="spido-mini-fill" id="spidoMiniFill"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aşağı Telemetriya Kartları və Canlı Göstəricilər -->
+                        <div class="spido-stats-grid">
+                            <div class="spido-stat-card">
+                                <span class="stat-label">🏁 MAKSİMAL SÜRƏT</span>
+                                <span class="stat-val" id="spidoMaxSpeed">0 <small>KM/H</small></span>
+                            </div>
+                            <div class="spido-stat-card">
+                                <span class="stat-label">⏱️ 0-100 KM/S SINAQ</span>
+                                <span class="stat-val" id="spidoAccelTime">--.- <small>SAN</small></span>
+                                <button class="spido-mini-btn" id="btnAccelTest" onclick="triggerAccelTest()">▶ Sınaq Başlat</button>
+                            </div>
+                            <div class="spido-stat-card">
+                                <span class="stat-label">📏 SƏFƏR MƏSAFƏSİ</span>
+                                <span class="stat-val" id="spidoTripDist">0.0 <small>KM</small></span>
+                            </div>
+                            <div class="spido-stat-card">
+                                <span class="stat-label">🕒 ORTA SÜRƏT</span>
+                                <span class="stat-val" id="spidoAvgSpeed">0 <small>KM/H</small></span>
+                            </div>
+                        </div>
+
+                        <!-- Mənbə və Sürüş Simulyasiya İdarəetmə Paneli -->
+                        <div class="spido-control-strip">
+                            <div class="spido-source-switch">
+                                <button class="btn-source-toggle active" id="btnSourceGps" onclick="setSpeedometerSource('gps')">🛰️ Canlı GPS (Real Avtomobil)</button>
+                                <button class="btn-source-toggle" id="btnSourceDemo" onclick="setSpeedometerSource('demo')">🏎️ Sınaq Sürüşü (Demo)</button>
+                            </div>
+                            
+                            <div class="spido-manual-throttle" id="manualThrottleWrap">
+                                <span style="font-size: 11px; color: #94a3b8;">Qaz Pedalı:</span>
+                                <input type="range" id="spidoThrottleSlider" min="0" max="220" value="0" oninput="manualSetSpeed(this.value)">
+                                <span id="throttleValLabel" style="font-weight: 700; color: #00f2fe; width: 55px; font-variant-numeric: tabular-nums;">0 km/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- 🚘 AVTOMOBİL SEÇİMİ VƏ DİAQNOSTİKA MODALI -->
+                <!-- ======================================================== -->
+                <div class="vehicle-modal-overlay" id="vehicleProfileModal" onclick="closeVehicleProfileModal()">
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%;" onclick="event.stopPropagation()">
+                        <div class="spido-top-bar">
+                            <div class="spido-vehicle-info">
+                                <span class="spido-brand-dot"></span>
+                                <span class="spido-car-title">AVTOMOBİL SEÇİMİ VƏ CAN-BUS ŞƏBƏKƏSİ</span>
+                            </div>
+                            <button class="spido-close-btn" onclick="closeVehicleProfileModal()">✕ Bağla</button>
+                        </div>
+
+                        <div class="vehicle-grid">
+                            <!-- 1. BYD -->
+                            <div class="vehicle-grid-card active" id="vcard_byd" onclick="selectBrandFromModal('byd')">
+                                <div class="vehicle-card-name">BYD DESTROYER 05</div>
+                                <div class="vehicle-card-sub">DM-i Super Hybrid • Luxury Sedan</div>
+                                <img src="cars/byd_destroyer.jpg" class="vehicle-card-img" alt="BYD">
+                                <div class="vehicle-card-range">⚡ 1245 KM Yürüş • 8.3s (0-100)</div>
+                            </div>
+                            <!-- 2. Zeekr -->
+                            <div class="vehicle-grid-card" id="vcard_zeekr" onclick="selectBrandFromModal('zeekr')">
+                                <div class="vehicle-card-name">ZEEKR 001</div>
+                                <div class="vehicle-card-sub">Dual-Motor Performance Shooting Brake</div>
+                                <img src="cars/zeekr_001.jpg" class="vehicle-card-img" alt="Zeekr">
+                                <div class="vehicle-card-range">⚡ 680 KM • 400 kW • 3.8s (0-100)</div>
+                            </div>
+                            <!-- 3. Li Auto -->
+                            <div class="vehicle-grid-card" id="vcard_liauto" onclick="selectBrandFromModal('liauto')">
+                                <div class="vehicle-card-name">LI AUTO L9</div>
+                                <div class="vehicle-card-sub">Flagship Smart Executive SUV</div>
+                                <img src="cars/liauto_l9.jpg" class="vehicle-card-img" alt="Li Auto">
+                                <div class="vehicle-card-range">⚡ 1100 KM • 800V SiC Architecture</div>
+                            </div>
+                            <!-- 4. Changan Deepal -->
+                            <div class="vehicle-grid-card" id="vcard_changan" onclick="selectBrandFromModal('changan')">
+                                <div class="vehicle-card-name">CHANGAN DEEPAL SL03</div>
+                                <div class="vehicle-card-sub">Cyber Sport Aerodynamic Fastback</div>
+                                <img src="cars/changan_deepal.jpg" class="vehicle-card-img" alt="Changan">
+                                <div class="vehicle-card-range">⚡ 705 KM • Fastback Aerodynamics</div>
+                            </div>
+                            <!-- 5. Geely Monjaro -->
+                            <div class="vehicle-grid-card" id="vcard_geely" onclick="selectBrandFromModal('geely')">
+                                <div class="vehicle-card-name">GEELY MONJARO</div>
+                                <div class="vehicle-card-sub">Flyme Auto Flagship Luxury SUV</div>
+                                <img src="cars/geely_monjaro.jpg" class="vehicle-card-img" alt="Geely">
+                                <div class="vehicle-card-range">⚡ 750 KM • AWD BorgWarner</div>
+                            </div>
+                            <!-- 6. Chery Tiggo 8 -->
+                            <div class="vehicle-grid-card" id="vcard_chery" onclick="selectBrandFromModal('chery')">
+                                <div class="vehicle-card-name">CHERY TIGGO 8 PRO</div>
+                                <div class="vehicle-card-sub">Lion OS Intelligent All-Wheel Drive</div>
+                                <img src="cars/chery_tiggo8.jpg" class="vehicle-card-img" alt="Chery">
+                                <div class="vehicle-card-range">⚡ 710 KM • 7-Nəfərlik Lüks Salon</div>
+                            </div>
+                            <!-- 7. Haval Tank 300 -->
+                            <div class="vehicle-grid-card" id="vcard_haval" onclick="selectBrandFromModal('haval')">
+                                <div class="vehicle-card-name">HAVAL TANK 300</div>
+                                <div class="vehicle-card-sub">Coffee Intelligence 4x4 Off-Road</div>
+                                <img src="cars/haval_tank300.jpg" class="vehicle-card-img" alt="Haval">
+                                <div class="vehicle-card-range">⚡ 650 KM • Differensial Kilidləri</div>
+                            </div>
+                            <!-- 8. CarTwin Concept -->
+                            <div class="vehicle-grid-card" id="vcard_cartwin" onclick="selectBrandFromModal('cartwin')">
+                                <div class="vehicle-card-name">CARTWIN CONCEPT</div>
+                                <div class="vehicle-card-sub">Universal Autonomous Apple CarPlay Cockpit</div>
+                                <div style="font-size: 36px; margin: 8px 0;">🌐</div>
+                                <div class="vehicle-card-range">⚡ Universal Protokol • Multi-Avtomobil</div>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-diag-bar">
+                            <span>🚪 Qapılar: <strong>4 Qapı Bağlı & Kilidli</strong></span>
+                            <span>💡 İşıqlar: <strong>Adaptiv Matrix LED Aktiv</strong></span>
+                            <span>🛞 Təkər Təzyiqi: <strong>2.4 BAR (Optimal)</strong></span>
+                            <span>⚡ CAN-Bus: <strong style="color: #30d158;">100% Sinxron</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- ⚡ BATAREYA VƏ ENERJİ TELEMETRİYASI MODALI -->
+                <!-- ======================================================== -->
+                <div class="battery-modal-overlay" id="batteryTelemetryModal" onclick="closeBatteryTelemetryModal()">
+                    <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%;" onclick="event.stopPropagation()">
+                        <div class="spido-top-bar">
+                            <div class="spido-vehicle-info">
+                                <span class="spido-brand-dot" style="background: #30d158; box-shadow: 0 0 10px #30d158;"></span>
+                                <span class="spido-car-title">YÜKSƏK GƏRGİNLİKLİ BATAREYA VƏ ENERJİ İDARƏETMƏSİ</span>
+                            </div>
+                            <button class="spido-close-btn" onclick="closeBatteryTelemetryModal()">✕ Bağla</button>
+                        </div>
+
+                        <div class="battery-telemetry-body">
+                            <!-- Böyük SoC Halqası -->
+                            <div class="battery-soc-circle-wrap">
+                                <svg class="battery-soc-svg" viewBox="0 0 160 160">
+                                    <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" />
+                                    <circle id="batterySocCircleFill" cx="80" cy="80" r="66" fill="none" stroke="#30d158" stroke-width="12" stroke-linecap="round" stroke-dasharray="414.7" stroke-dashoffset="58" filter="drop-shadow(0 0 8px rgba(48,209,88,0.5))" />
+                                </svg>
+                                <div class="battery-soc-text-center">
+                                    <div class="battery-soc-percent" id="modalBatterySoc">86%</div>
+                                    <div class="battery-soc-label">BATAREYA</div>
+                                </div>
+                            </div>
+
+                            <!-- Telemetriya Sütunları -->
+                            <div class="battery-metrics-columns">
+                                <div class="battery-card-item">
+                                    <div class="b-label">TƏXMİNİ YÜRÜŞ</div>
+                                    <div class="b-val green" id="modalBatteryRange">580 KM</div>
+                                </div>
+                                <div class="battery-card-item">
+                                    <div class="b-label">ŞARJ ARXİTEKTURASI</div>
+                                    <div class="b-val cyan">800V SiC RAPID</div>
+                                </div>
+                                <div class="battery-card-item">
+                                    <div class="b-label">BATAREYA SAĞLAMLIĞI (SOH)</div>
+                                    <div class="b-val">99.4% (Əla)</div>
+                                </div>
+                                <div class="battery-card-item">
+                                    <div class="b-label">HÜCEYRƏ TEMPERATURU</div>
+                                    <div class="b-val cyan">24.5°C (Optimal)</div>
+                                </div>
+                                <div class="battery-card-item">
+                                    <div class="b-label">ORTA ENERJİ SƏRFİYYATI</div>
+                                    <div class="b-val">15.8 kWh / 100 km</div>
+                                </div>
+                                <div class="battery-card-item">
+                                    <div class="b-label">ŞARJ PORTU (CCS2 / GB-T)</div>
+                                    <div class="b-val green">Hazır • Kilid Açıq</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-diag-bar">
+                            <span>🌱 Eco Rejimində: <strong>~625 KM</strong></span>
+                            <span>⚡ Comfort Rejimində: <strong>~580 KM</strong></span>
+                            <span>🔥 Sport Rejimində: <strong>~510 KM</strong></span>
+                            <span>🔋 Batareya Tutumu: <strong>92.4 kWh</strong></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Sağ Yan Avtomobil Paneli: Lüks EV Kokpiti -->
                 <div class="car-widget-sidebar">
                     <!-- 1. Avtomobil İdentifikasiyası və Aerodinamik Siluet -->
-                    <div class="car-avatar-box">
+                    <div class="car-avatar-box interactive-telemetry-card" onclick="openVehicleProfileModal()" title="Avtomobili dəyiş və vəziyyətə bax">
+                        <span class="card-tap-indicator">↗ Seçim</span>
                         <div class="car-brand-logo-large" id="sidebarLogoText">BYD</div>
                         <div class="car-model-name" id="sidebarModelText">DESTROYER 05 DM-i</div>
                         
@@ -2979,30 +3919,32 @@
                     </div>
 
                     <!-- 2. Rəqəmsal Kokpit Spidometri və Transmissiya -->
-                    <div class="speed-gauge-box">
+                    <div class="speed-gauge-box interactive-telemetry-card" onclick="openSpeedometerModal()" title="Canlı Spidometri Aç">
+                        <span class="card-tap-indicator">↗ Spidometr</span>
                         <div class="speed-main-wrap">
-                            <div class="speed-value" id="speedDisplay">74</div>
+                            <div class="speed-value" id="speedDisplay">0</div>
                             <div class="speed-unit">KM/H</div>
                         </div>
 
                         <div class="gear-selector-row">
-                            <span class="gear-pill">P</span>
-                            <span class="gear-pill">R</span>
-                            <span class="gear-pill">N</span>
-                            <span class="gear-pill active">D</span>
+                            <span class="gear-pill active" id="sidebarGearP">P</span>
+                            <span class="gear-pill" id="sidebarGearR">R</span>
+                            <span class="gear-pill" id="sidebarGearN">N</span>
+                            <span class="gear-pill" id="sidebarGearD">D</span>
                         </div>
 
                         <div class="telemetry-row">
                             <span>POWER OUTPUT</span>
-                            <span class="telemetry-val-highlight">+38 kW</span>
+                            <span class="telemetry-val-highlight" id="sidebarPowerText">0 kW</span>
                         </div>
                         <div class="power-bar-track">
-                            <div class="power-bar-fill"></div>
+                            <div class="power-bar-fill" id="sidebarPowerFill" style="width: 5%;"></div>
                         </div>
                     </div>
 
                     <!-- 3. Yüksək Gərginlikli Batareya və Məsafə -->
-                    <div class="battery-widget">
+                    <div class="battery-widget interactive-telemetry-card" onclick="openBatteryTelemetryModal()" title="Batareya və Enerji İdarəetməsi">
+                        <span class="card-tap-indicator">↗ Batareya</span>
                         <div class="battery-header-row">
                             <div class="range-readout">
                                 <span class="range-number" id="sidebarRangeText">580</span>
@@ -3011,7 +3953,7 @@
                             <div class="soc-badge" id="sidebarSocText">86%</div>
                         </div>
 
-                        <div class="ev-segmented-bar">
+                        <div class="ev-segmented-bar" id="sidebarBatterySegments">
                             <div class="ev-seg active"></div>
                             <div class="ev-seg active"></div>
                             <div class="ev-seg active"></div>
@@ -3498,6 +4440,16 @@
             document.getElementById('brandDescTitle').innerText = cfg.desc;
             document.getElementById('brandDescSub').innerText = cfg.sub;
 
+            // Spidometr və Batareya modallarını sinxronlaşdırırıq
+            const spidoCarTitle = document.getElementById('spidoCarTitle');
+            if (spidoCarTitle) spidoCarTitle.innerText = `${cfg.name} ${cfg.model}`;
+            const modalBatteryRange = document.getElementById('modalBatteryRange');
+            if (modalBatteryRange) modalBatteryRange.innerText = cfg.range;
+
+            document.querySelectorAll('.vehicle-grid-card').forEach(c => c.classList.remove('active'));
+            const activeVCard = document.getElementById(`vcard_${currentBrandKey}`);
+            if (activeVCard) activeVCard.classList.add('active');
+
             const screen = document.getElementById('carScreen');
             if (screen) screen.style.aspectRatio = cfg.aspect;
 
@@ -3537,6 +4489,422 @@
             const x = Math.round(e.clientX - rect.left);
             const y = Math.round(e.clientY - rect.top);
             logEvent(`👆 Ekrana toxunma: X=${x}, Y=${y}`);
+        }
+
+        // ==========================================================
+        // 🏎️ CAN-BUS & GPS SPİDOMETR VƏ TELEMETRİYA MÜHƏRRİKİ
+        // ==========================================================
+        let gpsWatchId = null;
+        let currentTelemetrySpeed = 0;
+        let maxSessionSpeed = 0;
+        let totalTripDistanceMeters = 0;
+        let lastGpsPosition = null;
+        let speedSamples = [];
+        let telemetrySource = 'gps'; // 'gps' | 'demo'
+        let demoDriveInterval = null;
+        let isSpeedometerOpen = false;
+        let currentDriveMode = 'SPORT';
+        let lastSpeedWarningTime = 0;
+        let accelTestState = { active: false, startTime: 0, timerId: null };
+
+        function renderSpeedometerTicks() {
+            const group = document.getElementById('spidoTicksGroup');
+            if (!group) return;
+            group.innerHTML = '';
+
+            for (let speed = 0; speed <= 260; speed += 10) {
+                const isMajor = (speed % 20 === 0);
+                const angleDeg = -130 + (speed / 260) * 260;
+                const rad = (angleDeg - 90) * Math.PI / 180;
+
+                const rInner = isMajor ? 138 : 148;
+                const rOuter = 158;
+
+                const x1 = 200 + rInner * Math.cos(rad);
+                const y1 = 200 + rInner * Math.sin(rad);
+                const x2 = 200 + rOuter * Math.cos(rad);
+                const y2 = 200 + rOuter * Math.sin(rad);
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x1.toFixed(1));
+                line.setAttribute('y1', y1.toFixed(1));
+                line.setAttribute('x2', x2.toFixed(1));
+                line.setAttribute('y2', y2.toFixed(1));
+                line.setAttribute('class', isMajor ? 'spido-tick-line major' : 'spido-tick-line');
+                group.appendChild(line);
+
+                if (isMajor) {
+                    const tx = 200 + 118 * Math.cos(rad);
+                    const ty = 200 + 118 * Math.sin(rad);
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', tx.toFixed(1));
+                    text.setAttribute('y', ty.toFixed(1));
+                    text.setAttribute('class', 'spido-tick-text');
+                    text.textContent = speed;
+                    group.appendChild(text);
+                }
+            }
+        }
+
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function applySpeedUpdate(kmh, statusText) {
+            kmh = Math.max(0, Math.min(260, Math.round(kmh)));
+            currentTelemetrySpeed = kmh;
+
+            // 1. Maksimal Sürət Rekordu
+            if (kmh > maxSessionSpeed) {
+                maxSessionSpeed = kmh;
+                const maxEl = document.getElementById('spidoMaxSpeed');
+                if (maxEl) maxEl.innerHTML = `${maxSessionSpeed} <small>KM/H</small>`;
+            }
+
+            // 2. Orta Sürət
+            if (kmh > 0) speedSamples.push(kmh);
+            if (speedSamples.length > 250) speedSamples.shift();
+            if (speedSamples.length > 0) {
+                const sum = speedSamples.reduce((a, b) => a + b, 0);
+                const avg = Math.round(sum / speedSamples.length);
+                const avgEl = document.getElementById('spidoAvgSpeed');
+                if (avgEl) avgEl.innerHTML = `${avg} <small>KM/H</small>`;
+            }
+
+            // 3. Status mətni
+            if (statusText) {
+                const gpsTextEl = document.getElementById('spidoGpsText');
+                if (gpsTextEl) gpsTextEl.innerText = statusText;
+            }
+
+            // 4. Güc və Ötürmə hesabatı
+            let gear = 'P';
+            let powerKw = 0;
+            let powerText = '0 kW';
+            let powerPercent = 5;
+
+            if (kmh === 0) {
+                gear = 'P';
+                powerKw = 0;
+                powerText = '0 kW';
+                powerPercent = 5;
+            } else {
+                gear = (currentDriveMode === 'SPORT') ? 'S' : 'D';
+                powerKw = Math.min(180, Math.round(kmh * 0.95 + 6));
+                powerText = `+${powerKw} kW`;
+                powerPercent = Math.min(95, Math.round((powerKw / 180) * 100));
+            }
+
+            // 5. Yan Panel Sürət Blokunun Yenilənməsi
+            const speedDisplay = document.getElementById('speedDisplay');
+            if (speedDisplay) speedDisplay.innerText = kmh;
+
+            const sidebarPowerText = document.getElementById('sidebarPowerText');
+            if (sidebarPowerText) sidebarPowerText.innerText = powerText;
+
+            const sidebarPowerFill = document.getElementById('sidebarPowerFill');
+            if (sidebarPowerFill) sidebarPowerFill.style.width = `${powerPercent}%`;
+
+            ['P', 'R', 'N', 'D'].forEach(g => {
+                const el = document.getElementById(`sidebarGear${g}`);
+                if (el) {
+                    if ((gear === 'P' && g === 'P') || ((gear === 'D' || gear === 'S') && g === 'D')) {
+                        el.classList.add('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                }
+            });
+
+            // 6. Waze naviqasiya tətbiqindəki sürət göstəricisi
+            document.querySelectorAll('.waze-cur-speed').forEach(el => el.innerText = kmh);
+
+            // 7. Spidometr Modalı Elementləri
+            const spidoBigValue = document.getElementById('spidoBigValue');
+            if (spidoBigValue) spidoBigValue.innerText = kmh;
+
+            const needle = document.getElementById('spidoNeedle');
+            if (needle) {
+                const needleAngle = -130 + (kmh / 260) * 260;
+                needle.style.transform = `rotate(${needleAngle}deg)`;
+            }
+
+            const fillArc = document.getElementById('spidoFillArc');
+            const glowArc = document.getElementById('spidoGlowArc');
+            if (fillArc && glowArc) {
+                const offset = 726 - (kmh / 260) * 726;
+                fillArc.style.strokeDashoffset = offset;
+                glowArc.style.strokeDashoffset = offset;
+            }
+
+            ['sgP', 'sgR', 'sgN', 'sgD', 'sgS'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const g = id.replace('sg', '');
+                    if (g === gear) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            });
+
+            const spidoPowerVal = document.getElementById('spidoPowerVal');
+            if (spidoPowerVal) {
+                spidoPowerVal.innerText = kmh > 0 ? `+${powerKw} kW Güc Çıxışı` : "0 kW (Dayanma)";
+            }
+            const spidoMiniFill = document.getElementById('spidoMiniFill');
+            if (spidoMiniFill) {
+                spidoMiniFill.style.width = `${powerPercent}%`;
+            }
+
+            // Slider sinxronizasiyası
+            const slider = document.getElementById('spidoThrottleSlider');
+            const label = document.getElementById('throttleValLabel');
+            if (slider && telemetrySource === 'demo' && !slider.matches(':active')) {
+                slider.value = kmh;
+                if (label) label.innerText = `${kmh} km/s`;
+            }
+
+            // 8. 0-100 Accel Test yoxlanışı
+            if (accelTestState.active) {
+                if (kmh >= 100) {
+                    const timeTaken = ((Date.now() - accelTestState.startTime) / 1000).toFixed(1);
+                    accelTestState.active = false;
+                    clearInterval(accelTestState.timerId);
+                    const timeEl = document.getElementById('spidoAccelTime');
+                    if (timeEl) timeEl.innerHTML = `${timeTaken} <small>SAN</small>`;
+                    const btn = document.getElementById('btnAccelTest');
+                    if (btn) btn.innerText = "▶ Yenidən";
+                    logEvent(`🏁 0-100 KM/S Sınaq Nəticəsi: ${timeTaken} saniyə!`);
+                    playAppleChime();
+                }
+            }
+
+            // 9. Sürət Həddi Bildirişi (> 120 km/s)
+            if (kmh > 120 && (Date.now() - lastSpeedWarningTime > 15000)) {
+                lastSpeedWarningTime = Date.now();
+                playAppleChime();
+                logEvent(`⚠️ Sürət Xəbərdarlığı: ${kmh} KM/H (120 km/s həddi aşıldı)`);
+            }
+        }
+
+        function initGpsSpeedometer() {
+            if (!('geolocation' in navigator)) {
+                setSpeedometerSource('demo');
+                return;
+            }
+
+            try {
+                gpsWatchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        const c = pos.coords;
+                        let rawSpeed = 0;
+                        if (c.speed !== null && c.speed !== undefined && !isNaN(c.speed) && c.speed > 0) {
+                            rawSpeed = Math.round(c.speed * 3.6);
+                        }
+
+                        if (lastGpsPosition && rawSpeed > 1) {
+                            const d = calculateHaversineDistance(lastGpsPosition.latitude, lastGpsPosition.longitude, c.latitude, c.longitude);
+                            if (d > 0.001 && d < 0.8) {
+                                totalTripDistanceMeters += d * 1000;
+                                const tripEl = document.getElementById('spidoTripDist');
+                                if (tripEl) tripEl.innerHTML = `${(totalTripDistanceMeters / 1000).toFixed(1)} <small>KM</small>`;
+                            }
+                        }
+                        lastGpsPosition = c;
+
+                        if (telemetrySource === 'gps') {
+                            const acc = Math.round(c.accuracy || 3);
+                            applySpeedUpdate(rawSpeed, `🛰️ GPS Aktiv (±${acc}m)`);
+                        }
+                    },
+                    (err) => {
+                        const statusEl = document.getElementById('spidoGpsText');
+                        if (statusEl && telemetrySource === 'gps') {
+                            statusEl.innerText = "🛰️ GPS Gözlənilir (Avtomobildə sınaq)";
+                        }
+                    },
+                    { enableHighAccuracy: true, maximumAge: 500, timeout: 10000 }
+                );
+            } catch(e) {}
+        }
+
+        function setSpeedometerSource(src) {
+            telemetrySource = src;
+            const btnGps = document.getElementById('btnSourceGps');
+            const btnDemo = document.getElementById('btnSourceDemo');
+            const statusText = document.getElementById('spidoGpsText');
+
+            if (src === 'demo') {
+                if (btnDemo) btnDemo.classList.add('active');
+                if (btnGps) btnGps.classList.remove('active');
+                if (statusText) statusText.innerText = "🏎️ SINAQ SÜRÜŞÜ (DEMO)";
+                startDemoDriveSimulation();
+            } else {
+                if (btnGps) btnGps.classList.add('active');
+                if (btnDemo) btnDemo.classList.remove('active');
+                if (statusText) statusText.innerText = "🛰️ CANLI GPS SÜRƏTİ";
+                stopDemoDriveSimulation();
+                if (gpsWatchId === null) initGpsSpeedometer();
+            }
+        }
+
+        function startDemoDriveSimulation() {
+            stopDemoDriveSimulation();
+            let simSpeed = currentTelemetrySpeed || 0;
+            let target = 85;
+            let direction = 1;
+
+            demoDriveInterval = setInterval(() => {
+                if (simSpeed < target) {
+                    simSpeed += Math.floor(Math.random() * 3) + 1;
+                } else if (simSpeed > target) {
+                    simSpeed -= Math.floor(Math.random() * 3) + 1;
+                } else {
+                    if (direction === 1) {
+                        target = Math.floor(Math.random() * 30) + 75;
+                        if (Math.random() > 0.7) { target = 118; direction = -1; }
+                    } else {
+                        target = Math.floor(Math.random() * 25) + 45;
+                        direction = 1;
+                    }
+                }
+                totalTripDistanceMeters += (simSpeed / 3.6) * 0.15;
+                const tripEl = document.getElementById('spidoTripDist');
+                if (tripEl) tripEl.innerHTML = `${(totalTripDistanceMeters / 1000).toFixed(1)} <small>KM</small>`;
+
+                applySpeedUpdate(simSpeed, "🏎️ SINAQ SÜRÜŞÜ (CANLI SİMULYASİYA)");
+            }, 150);
+        }
+
+        function stopDemoDriveSimulation() {
+            if (demoDriveInterval) {
+                clearInterval(demoDriveInterval);
+                demoDriveInterval = null;
+            }
+        }
+
+        function manualSetSpeed(val) {
+            const s = parseInt(val, 10);
+            const label = document.getElementById('throttleValLabel');
+            if (label) label.innerText = `${s} km/s`;
+            stopDemoDriveSimulation();
+            telemetrySource = 'demo';
+            const btnDemo = document.getElementById('btnSourceDemo');
+            const btnGps = document.getElementById('btnSourceGps');
+            if (btnDemo) btnDemo.classList.add('active');
+            if (btnGps) btnGps.classList.remove('active');
+            applySpeedUpdate(s, "🏎️ ƏLLƏ QAZ SƏVİYYƏSİ");
+        }
+
+        function triggerAccelTest() {
+            if (accelTestState.active) {
+                accelTestState.active = false;
+                clearInterval(accelTestState.timerId);
+                const btn = document.getElementById('btnAccelTest');
+                if (btn) btn.innerText = "▶ Sınaq Başlat";
+                return;
+            }
+
+            const btn = document.getElementById('btnAccelTest');
+            const timeEl = document.getElementById('spidoAccelTime');
+            if (btn) btn.innerText = "⏳ 3-2-1 QAZ!";
+            if (timeEl) timeEl.innerHTML = `0.0 <small>SAN</small>`;
+
+            applySpeedUpdate(0, "🚦 LAUNCH CONTROL: HAZIRLAŞIN...");
+            setDriveMode('SPORT');
+
+            setTimeout(() => {
+                if (btn) btn.innerText = "⚡ SINAQ GETDİ!";
+                accelTestState.active = true;
+                accelTestState.startTime = Date.now();
+
+                accelTestState.timerId = setInterval(() => {
+                    const elapsed = ((Date.now() - accelTestState.startTime) / 1000).toFixed(1);
+                    if (timeEl) timeEl.innerHTML = `${elapsed} <small>SAN</small>`;
+                }, 100);
+
+                if (telemetrySource === 'demo' || currentTelemetrySpeed < 5) {
+                    let s = 0;
+                    const sprintInterval = setInterval(() => {
+                        if (!accelTestState.active) {
+                            clearInterval(sprintInterval);
+                            return;
+                        }
+                        s += Math.floor(Math.random() * 5) + 4;
+                        applySpeedUpdate(s, "⚡ 0-100 SÜRƏTLƏNMƏ SINAĞI...");
+                        if (s >= 100) {
+                            clearInterval(sprintInterval);
+                        }
+                    }, 180);
+                }
+            }, 1200);
+        }
+
+        function openSpeedometerModal() {
+            isSpeedometerOpen = true;
+            const modal = document.getElementById('speedometerModal');
+            if (modal) modal.classList.add('active');
+            renderSpeedometerTicks();
+            applySpeedUpdate(currentTelemetrySpeed);
+            logEvent("🏎️ Spidometr Kokpit Paneli açıldı");
+        }
+
+        function closeSpeedometerModal() {
+            isSpeedometerOpen = false;
+            const modal = document.getElementById('speedometerModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function openVehicleProfileModal() {
+            const modal = document.getElementById('vehicleProfileModal');
+            if (modal) modal.classList.add('active');
+            document.querySelectorAll('.vehicle-grid-card').forEach(c => c.classList.remove('active'));
+            const activeCard = document.getElementById(`vcard_${currentBrandKey}`);
+            if (activeCard) activeCard.classList.add('active');
+            logEvent("🚘 Avtomobil Seçimi və Vəziyyət Paneli açıldı");
+        }
+
+        function closeVehicleProfileModal() {
+            const modal = document.getElementById('vehicleProfileModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function openBatteryTelemetryModal() {
+            const modal = document.getElementById('batteryTelemetryModal');
+            if (modal) modal.classList.add('active');
+            logEvent("⚡ Lüks EV Batareya və Enerji İdarəetməsi açıldı");
+        }
+
+        function closeBatteryTelemetryModal() {
+            const modal = document.getElementById('batteryTelemetryModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function selectBrandFromModal(brandKey) {
+            closeVehicleProfileModal();
+            triggerCommercialIntro(brandKey);
+            const spidoTitle = document.getElementById('spidoCarTitle');
+            if (spidoTitle && brandConfigs[brandKey]) {
+                spidoTitle.innerText = `${brandConfigs[brandKey].name} ${brandConfigs[brandKey].model}`;
+            }
+        }
+
+        function setDriveMode(mode, btn) {
+            currentDriveMode = mode;
+            document.querySelectorAll('.spido-mode-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            else {
+                const targetBtn = document.getElementById(`spidoMode${mode.charAt(0) + mode.slice(1).toLowerCase()}`);
+                if (targetBtn) targetBtn.classList.add('active');
+            }
+            logEvent(`🏁 Sürüş Rejimi: ${mode}`);
+            applySpeedUpdate(currentTelemetrySpeed);
         }
 
         let activeFullscreenApp = null;
@@ -4468,6 +5836,22 @@
                 initPassiveWakeWordListener();
             }
         }, 600);
+
+        // Escape düyməsi ilə açıq telemetriya və ya spidometr modallarını bağlamaq
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeSpeedometerModal();
+                closeVehicleProfileModal();
+                closeBatteryTelemetryModal();
+            }
+        });
+
+        // İlkin Telemetriya və GPS Mühərrikinin başladılması
+        setTimeout(() => {
+            renderSpeedometerTicks();
+            applySpeedUpdate(0, "🛰️ GPS Hazır (Hərəkət gözlənilir)");
+            initGpsSpeedometer();
+        }, 300);
     </script>
 </body>
 </html>
