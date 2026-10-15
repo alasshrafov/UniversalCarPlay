@@ -1,10 +1,14 @@
 package com.universal.carplay
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -27,6 +31,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -49,6 +56,11 @@ import java.net.URLEncoder
 
 class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
+    companion object {
+        private const val TAG = "CarTwin_MainActivity"
+        private const val PERMISSIONS_REQUEST_CODE = 1001
+    }
+
     private lateinit var surfaceView: CarPlaySurfaceView
     private lateinit var statusOverlay: LinearLayout
     private lateinit var tvStatus: TextView
@@ -58,6 +70,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var btnSettings: Button
     private lateinit var btnReplayIntro: Button
     private lateinit var btnConnectMock: Button
+    private lateinit var btnRefreshConnection: Button
 
     // Lüks Reklam Açılış Şousu Overlay Elementləri
     private lateinit var commercialSplashOverlay: FrameLayout
@@ -96,7 +109,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var vehicleStateManager: VehicleStateManager
     private lateinit var steeringWheelManager: SteeringWheelManager
     private lateinit var dayNightManager: DayNightManager
-    private lateinit var voiceAssistant: UniversalVoiceAssistant
+    private var voiceAssistant: UniversalVoiceAssistant? = null
     private lateinit var vehicleHvacManager: VehicleHvacManager
     private lateinit var usbManager: CarPlayUsbManager
     private val cryptoHandshake = CarPlayCryptoHandshake()
@@ -104,20 +117,57 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private var currentProfile: VehicleProfile = VehicleProfile.Universal
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 1. Qlobal Crash Müdafiəsi (Çökmə və Təkrar Çökmə Dövrəsinin Qarşısını Alır)
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Log.e(TAG, "Fatal Uncaught Exception in thread ${thread.name}: ${throwable.message}", throwable)
+            try {
+                // Təhlükəsiz sıfırlama
+                getSharedPreferences("carplay_vehicle_prefs", MODE_PRIVATE).edit().clear().apply()
+            } catch (_: Throwable) {}
+        }
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         super.onCreate(savedInstanceState)
 
-        // Avtomobil üçün ekranın sönməməsini təmin edirik
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        hideSystemUI()
+        try {
+            // Avtomobil üçün ekranın sönməməsini təmin edirik
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            hideSystemUI()
 
-        setContentView(R.layout.activity_main)
+            setContentView(R.layout.activity_main)
 
-        initViews()
-        initBrowser()
-        initVehicleDetection()
-        initCarIntegrations()
-        initSessionCoordinator()
-        initUsbManager()
+            initViews()
+            initBrowser()
+            requestRequiredPermissions()
+            initVehicleDetection()
+            initCarIntegrations()
+            initSessionCoordinator()
+            initUsbManager()
+        } catch (e: Throwable) {
+            Log.e(TAG, "onCreate zamanı kritik xəta: ${e.message}", e)
+        }
+    }
+
+    private fun requestRequiredPermissions() {
+        val permissions = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.BLUETOOTH_SCAN)
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+            }
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.RECORD_AUDIO)
+        }
+
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
+        }
     }
 
     private fun initViews() {
@@ -131,6 +181,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         btnReplayIntro = findViewById(R.id.btnReplayIntro)
         btnOpenBrowser = findViewById(R.id.btnOpenBrowser)
         btnConnectMock = findViewById(R.id.btnConnectMock)
+        btnRefreshConnection = findViewById(R.id.btnRefreshConnection)
 
         // Reklam Şousu Görünüşləri
         commercialSplashOverlay = findViewById(R.id.commercialSplashOverlay)
@@ -171,76 +222,97 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         btnConnectMock.setOnClickListener {
             startMockConnection()
         }
+
+        btnRefreshConnection.setOnClickListener {
+            restartAllCarPlayServices()
+        }
+    }
+
+    private fun restartAllCarPlayServices() {
+        Toast.makeText(this, "🔄 Xidmətlər yenidən başladılır…", Toast.LENGTH_SHORT).show()
+        sessionCoordinator?.stopDiscovery()
+        usbManager.stop()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            usbManager.start()
+            initSessionCoordinator()
+            sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+            Toast.makeText(this, "✅ CarPlay port 7000 və Bluetooth aktivdir!", Toast.LENGTH_SHORT).show()
+        }, 500)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun initBrowser() {
-        webViewBrowser.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            databaseEnabled = true
-            useWideViewPort = true
-            loadWithOverviewMode = true
-            mediaPlaybackRequiresUserGesture = false
-            allowFileAccess = true
-        }
-
-        webViewBrowser.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                return false
+        try {
+            webViewBrowser.settings.apply {
+                javaScriptEnabled = true
+                domStorageEnabled = true
+                databaseEnabled = true
+                useWideViewPort = true
+                loadWithOverviewMode = true
+                mediaPlaybackRequiresUserGesture = false
+                allowFileAccess = true
             }
 
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                url?.let { etBrowserUrl.setText(it) }
-                browserProgressBar.visibility = View.GONE
-            }
-        }
+            webViewBrowser.webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                    return false
+                }
 
-        webViewBrowser.webChromeClient = object : WebChromeClient() {
-            override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                if (newProgress < 100) {
-                    browserProgressBar.visibility = View.VISIBLE
-                    browserProgressBar.progress = newProgress
-                } else {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    url?.let { etBrowserUrl.setText(it) }
                     browserProgressBar.visibility = View.GONE
                 }
             }
-        }
 
-        btnBrowserBack.setOnClickListener {
-            if (webViewBrowser.canGoBack()) webViewBrowser.goBack()
-        }
-
-        btnBrowserForward.setOnClickListener {
-            if (webViewBrowser.canGoForward()) webViewBrowser.goForward()
-        }
-
-        btnBrowserRefresh.setOnClickListener {
-            webViewBrowser.reload()
-        }
-
-        btnBrowserClose.setOnClickListener {
-            closeBrowser()
-        }
-
-        btnBrowserGo.setOnClickListener {
-            loadEnteredUrl()
-        }
-
-        etBrowserUrl.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_GO) {
-                loadEnteredUrl()
-                true
-            } else {
-                false
+            webViewBrowser.webChromeClient = object : WebChromeClient() {
+                override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                    if (newProgress < 100) {
+                        browserProgressBar.visibility = View.VISIBLE
+                        browserProgressBar.progress = newProgress
+                    } else {
+                        browserProgressBar.visibility = View.GONE
+                    }
+                }
             }
-        }
 
-        btnQuickGoogle.setOnClickListener { openBrowser("https://www.google.com") }
-        btnQuickYouTube.setOnClickListener { openBrowser("https://m.youtube.com") }
-        btnQuickWiki.setOnClickListener { openBrowser("https://az.wikipedia.org") }
-        btnOpenBrowser.setOnClickListener { openBrowser("https://www.google.com") }
+            btnBrowserBack.setOnClickListener {
+                if (webViewBrowser.canGoBack()) webViewBrowser.goBack()
+            }
+
+            btnBrowserForward.setOnClickListener {
+                if (webViewBrowser.canGoForward()) webViewBrowser.goForward()
+            }
+
+            btnBrowserRefresh.setOnClickListener {
+                webViewBrowser.reload()
+            }
+
+            btnBrowserClose.setOnClickListener {
+                closeBrowser()
+            }
+
+            btnBrowserGo.setOnClickListener {
+                loadEnteredUrl()
+            }
+
+            etBrowserUrl.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_GO) {
+                    loadEnteredUrl()
+                    true
+                } else {
+                    false
+                }
+            }
+
+            btnQuickGoogle.setOnClickListener { openBrowser("https://www.google.com") }
+            btnQuickYouTube.setOnClickListener { openBrowser("https://m.youtube.com") }
+            btnQuickWiki.setOnClickListener { openBrowser("https://az.wikipedia.org") }
+            btnOpenBrowser.setOnClickListener { openBrowser("https://www.google.com") }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Brauzer başladılarkən xəta: ${e.message}")
+        }
     }
 
     fun openBrowser(url: String = "https://www.google.com") {
@@ -264,65 +336,72 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
-    /**
-     * Avtomobil modelini 100% avtomatik təyin edir (BYD, Changan, Li Auto, Zeekr və ya Universal)
-     */
     private fun initVehicleDetection() {
-        vehicleDetector = VehicleDetector(this)
-        val detectedProfile = vehicleDetector.detectProfile()
-        setupProfile(detectedProfile)
+        try {
+            vehicleDetector = VehicleDetector(this)
+            val detectedProfile = vehicleDetector.detectProfile()
+            setupProfile(detectedProfile)
+        } catch (e: Throwable) {
+            Log.e(TAG, "VehicleDetector xətası: ${e.message}")
+            setupProfile(VehicleProfile.Universal)
+        }
     }
 
     private fun initCarIntegrations() {
-        // 1. Sükan Düymələri
-        steeringWheelManager = SteeringWheelManager { commandJson ->
-            mockClient?.sendTouchEvent(commandJson)
-        }
-
-        // 2. Audio Fokus və Arxa Kamera Meneceri
-        vehicleStateManager = VehicleStateManager(
-            context = this,
-            onAudioDuckingChanged = { shouldDuck ->
-                audioEngine?.setVolumeDucking(shouldDuck)
-            },
-            onReverseCameraStateChanged = { inReverse ->
-                audioEngine?.setVolumeDucking(inReverse)
+        try {
+            // 1. Sükan Düymələri
+            steeringWheelManager = SteeringWheelManager { commandJson ->
+                sessionCoordinator?.sendTouchEvent(commandJson)
+                mockClient?.sendTouchEvent(commandJson)
             }
-        )
 
-        // 3. Gecə/Gündüz Rejimi
-        dayNightManager = DayNightManager(this)
+            // 2. Audio Fokus və Arxa Kamera Meneceri
+            vehicleStateManager = VehicleStateManager(
+                context = this,
+                onAudioDuckingChanged = { shouldDuck ->
+                    audioEngine?.setVolumeDucking(shouldDuck)
+                },
+                onReverseCameraStateChanged = { inReverse ->
+                    audioEngine?.setVolumeDucking(inReverse)
+                }
+            )
 
-        // 4. Avtomobil İqlim və Kondisioner Meneceri (CAN-Bus)
-        vehicleHvacManager = VehicleHvacManager(this) { state ->
-            runOnUiThread {
-                showClimateHud(state)
-            }
-        }
+            // 3. Gecə/Gündüz Rejimi
+            dayNightManager = DayNightManager(this)
 
-        // 5. Bütün Dilləri (Azərbaycan) Dəstəkləyən Aura AI Səs Köməkçisi
-        voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText, param ->
-            runOnUiThread {
-                when (commandType) {
-                    "CLIMATE_SET_TEMP" -> {
-                        val target = param ?: 22.0f
-                        vehicleHvacManager.setTemperature(target)
-                    }
-                    "CLIMATE_AC_OFF" -> vehicleHvacManager.setAcPower(false)
-                    "CLIMATE_AC_ON" -> vehicleHvacManager.setAcPower(true)
-                    "CLIMATE_TEMP_UP" -> {
-                        val current = vehicleHvacManager.getClimateState().targetTemp
-                        vehicleHvacManager.setTemperature(current + 1.0f)
-                    }
-                    "CLIMATE_TEMP_DOWN" -> {
-                        val current = vehicleHvacManager.getClimateState().targetTemp
-                        vehicleHvacManager.setTemperature(current - 1.0f)
-                    }
-                    "OPEN_BROWSER" -> openBrowser("https://www.google.com")
-                    "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
-                    else -> Toast.makeText(this, "Aura: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+            // 4. Avtomobil İqlim və Kondisioner Meneceri
+            vehicleHvacManager = VehicleHvacManager(this) { state ->
+                runOnUiThread {
+                    showClimateHud(state)
                 }
             }
+
+            // 5. Azərbaycan Dilli Aura AI Səs Köməkçisi
+            voiceAssistant = UniversalVoiceAssistant(this) { commandType, originalText, param ->
+                runOnUiThread {
+                    when (commandType) {
+                        "CLIMATE_SET_TEMP" -> {
+                            val target = param ?: 22.0f
+                            vehicleHvacManager.setTemperature(target)
+                        }
+                        "CLIMATE_AC_OFF" -> vehicleHvacManager.setAcPower(false)
+                        "CLIMATE_AC_ON" -> vehicleHvacManager.setAcPower(true)
+                        "CLIMATE_TEMP_UP" -> {
+                            val current = vehicleHvacManager.getClimateState().targetTemp
+                            vehicleHvacManager.setTemperature(current + 1.0f)
+                        }
+                        "CLIMATE_TEMP_DOWN" -> {
+                            val current = vehicleHvacManager.getClimateState().targetTemp
+                            vehicleHvacManager.setTemperature(current - 1.0f)
+                        }
+                        "OPEN_BROWSER" -> openBrowser("https://www.google.com")
+                        "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
+                        else -> Toast.makeText(this, "Aura: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Avtomobil inteqrasiyaları başladılarkən xəta: ${e.message}")
         }
     }
 
@@ -333,59 +412,79 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     private fun initSessionCoordinator() {
-        sessionCoordinator = CarPlaySessionCoordinator(this) { state, message ->
-            runOnUiThread {
-                tvDetail.text = message
-                when (state) {
-                    CarPlaySessionCoordinator.SessionState.CONNECTED -> {
-                        statusOverlay.visibility = View.GONE
+        try {
+            sessionCoordinator = CarPlaySessionCoordinator(
+                context = this,
+                videoDecoder = videoDecoder,
+                audioEngine = audioEngine
+            ) { state, message ->
+                runOnUiThread {
+                    tvDetail.text = message
+                    when (state) {
+                        CarPlaySessionCoordinator.SessionState.CONNECTED -> {
+                            statusOverlay.visibility = View.GONE
+                        }
+                        CarPlaySessionCoordinator.SessionState.WAITING_FOR_DEVICE -> {
+                            statusOverlay.visibility = View.VISIBLE
+                            tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
+                        }
+                        else -> {}
                     }
-                    CarPlaySessionCoordinator.SessionState.WAITING_FOR_DEVICE -> {
-                        statusOverlay.visibility = View.VISIBLE
-                        tvStatus.text = "iPhone Axtarılır…"
-                    }
-                    else -> {}
                 }
             }
+        } catch (e: Throwable) {
+            Log.e(TAG, "SessionCoordinator xətası: ${e.message}")
         }
     }
 
     private fun initUsbManager() {
-        usbManager = CarPlayUsbManager(
-            context = this,
-            onAppleDeviceConnected = { device ->
-                runOnUiThread {
-                    Toast.makeText(this, "Simli Apple CarPlay Qoşuldu: ${device.deviceName}", Toast.LENGTH_LONG).show()
-                    statusOverlay.visibility = View.GONE
-                    cryptoHandshake.startHandshake()
+        try {
+            usbManager = CarPlayUsbManager(
+                context = this,
+                onAppleDeviceConnected = { device ->
+                    runOnUiThread {
+                        Toast.makeText(this, "Simli CarPlay Aşkarlandı: ${device.deviceName}", Toast.LENGTH_LONG).show()
+                        statusOverlay.visibility = View.GONE
+                        cryptoHandshake.startHandshake()
+                    }
+                },
+                onDeviceDisconnected = {
+                    runOnUiThread {
+                        statusOverlay.visibility = View.VISIBLE
+                        tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
+                        cryptoHandshake.reset()
+                    }
                 }
-            },
-            onDeviceDisconnected = {
-                runOnUiThread {
-                    statusOverlay.visibility = View.VISIBLE
-                    tvStatus.text = getString(R.string.waiting_for_connection)
-                    cryptoHandshake.reset()
-                }
-            }
-        )
+            )
+        } catch (e: Throwable) {
+            Log.e(TAG, "UsbManager xətası: ${e.message}")
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        vehicleStateManager.register()
-        usbManager.start()
-        sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+        try {
+            vehicleStateManager.register()
+            usbManager.start()
+            sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+        } catch (e: Throwable) {
+            Log.e(TAG, "onResume xətası: ${e.message}")
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        vehicleStateManager.unregister()
-        usbManager.stop()
-        sessionCoordinator?.stopDiscovery()
+        try {
+            vehicleStateManager.unregister()
+            usbManager.stop()
+            sessionCoordinator?.stopDiscovery()
+        } catch (e: Throwable) {
+            Log.e(TAG, "onPause xətası: ${e.message}")
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (event != null && steeringWheelManager.handleKeyEvent(keyCode, event)) {
+        if (event != null && ::steeringWheelManager.isInitialized && steeringWheelManager.handleKeyEvent(keyCode, event)) {
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -408,7 +507,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun setupProfile(profile: VehicleProfile) {
         currentProfile = profile
         tvCurrentProfile.text = "CarTwin • ${profile.name}"
-        ivTopBarLogo.setImageResource(profile.logoResId)
+
+        try {
+            ivTopBarLogo.setImageResource(profile.logoResId)
+        } catch (_: Throwable) {
+            ivTopBarLogo.setImageResource(R.drawable.cartwin_logo)
+        }
 
         touchManager = TouchManager(
             screenWidth = profile.defaultWidth,
@@ -420,48 +524,52 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         playCommercialIntro(profile)
     }
 
-    /**
-     * Reklam Çarxlarındakı kimi Zərif və Dinamik Avtomobil Açılış Şousu
-     */
     private fun playCommercialIntro(profile: VehicleProfile) {
-        ivCommercialLogo.setImageResource(profile.logoResId)
-        tvCommercialTitle.text = profile.commercialTitle
-        tvCommercialTagline.text = profile.commercialTagline
         try {
-            tvCommercialTagline.setTextColor(Color.parseColor(profile.accentColorHex))
-        } catch (_: Exception) {}
-
-        commercialSplashOverlay.visibility = View.VISIBLE
-        commercialSplashOverlay.alpha = 1f
-
-        // Animasiya: Miqyas və Şəffaflıq artımı
-        commercialCenterContainer.scaleX = 0.80f
-        commercialCenterContainer.scaleY = 0.80f
-        commercialCenterContainer.alpha = 0f
-
-        commercialCenterContainer.animate()
-            .scaleX(1.0f)
-            .scaleY(1.0f)
-            .alpha(1.0f)
-            .setDuration(700)
-            .setInterpolator(DecelerateInterpolator())
-            .withEndAction {
-                // Metalik nəfəs alma effekti
-                commercialCenterContainer.animate()
-                    .scaleX(1.04f)
-                    .scaleY(1.04f)
-                    .setDuration(600)
-                    .setInterpolator(AccelerateDecelerateInterpolator())
-                    .start()
+            try {
+                ivCommercialLogo.setImageResource(profile.logoResId)
+            } catch (_: Throwable) {
+                ivCommercialLogo.setImageResource(R.drawable.cartwin_logo)
             }
-            .start()
 
-        // 2.2 saniyə sonra CarPlay ekranına axıcı keçid
-        dismissRunnable?.let { introHandler.removeCallbacks(it) }
-        dismissRunnable = Runnable {
+            tvCommercialTitle.text = profile.commercialTitle
+            tvCommercialTagline.text = profile.commercialTagline
+            try {
+                tvCommercialTagline.setTextColor(Color.parseColor(profile.accentColorHex))
+            } catch (_: Exception) {}
+
+            commercialSplashOverlay.visibility = View.VISIBLE
+            commercialSplashOverlay.alpha = 1f
+
+            commercialCenterContainer.scaleX = 0.80f
+            commercialCenterContainer.scaleY = 0.80f
+            commercialCenterContainer.alpha = 0f
+
+            commercialCenterContainer.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .alpha(1.0f)
+                .setDuration(700)
+                .setInterpolator(DecelerateInterpolator())
+                .withEndAction {
+                    commercialCenterContainer.animate()
+                        .scaleX(1.04f)
+                        .scaleY(1.04f)
+                        .setDuration(600)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
+                }
+                .start()
+
+            dismissRunnable?.let { introHandler.removeCallbacks(it) }
+            dismissRunnable = Runnable {
+                dismissCommercialIntro()
+            }
+            introHandler.postDelayed(dismissRunnable!!, 2200)
+        } catch (e: Throwable) {
+            Log.e(TAG, "playCommercialIntro xətası: ${e.message}")
             dismissCommercialIntro()
         }
-        introHandler.postDelayed(dismissRunnable!!, 2200)
     }
 
     private fun dismissCommercialIntro() {
@@ -476,25 +584,42 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     private fun showProfileSelectionDialog() {
-        val profileNames = VehicleProfile.ALL.map { it.name }.toTypedArray()
+        val options = VehicleProfile.ALL.map { it.name }.toMutableList().apply {
+            add("🔄 Bütün Tənzimləmələri Sıfırla")
+        }.toTypedArray()
+
         AlertDialog.Builder(this)
             .setTitle("Avtomobil Profilini Seçin")
-            .setItems(profileNames) { _, which ->
-                val selected = VehicleProfile.ALL[which]
-                vehicleDetector.saveProfile(selected)
-                setupProfile(selected)
-                Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
+            .setItems(options) { _, which ->
+                if (which < VehicleProfile.ALL.size) {
+                    val selected = VehicleProfile.ALL[which]
+                    vehicleDetector.saveProfile(selected)
+                    setupProfile(selected)
+                    restartAllCarPlayServices()
+                    Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
+                } else {
+                    vehicleDetector.resetSavedProfile()
+                    Toast.makeText(this, "Tənzimləmələr sıfırlandı", Toast.LENGTH_SHORT).show()
+                    initVehicleDetection()
+                    restartAllCarPlayServices()
+                }
             }
             .setNegativeButton("Bağla", null)
             .show()
     }
 
     override fun onSurfaceCreated(holder: SurfaceHolder) {
-        videoDecoder = VideoDecoder(holder.surface).apply {
-            start(currentProfile.defaultWidth, currentProfile.defaultHeight)
-        }
-        audioEngine = AudioEngine(this).apply {
-            start()
+        try {
+            videoDecoder = VideoDecoder(holder.surface).apply {
+                start(currentProfile.defaultWidth, currentProfile.defaultHeight)
+            }
+            audioEngine = AudioEngine(this).apply {
+                start()
+            }
+            initSessionCoordinator()
+            sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+        } catch (e: Throwable) {
+            Log.e(TAG, "onSurfaceCreated xətası: ${e.message}")
         }
     }
 
@@ -511,30 +636,36 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     override fun onTouchEventCaptured(event: MotionEvent) {
         val touchData = touchManager?.processTouchEvent(event)
         if (touchData != null) {
+            sessionCoordinator?.sendTouchEvent(touchData)
             mockClient?.sendTouchEvent(touchData)
         }
     }
 
     private fun startMockConnection() {
-        tvStatus.text = "Qoşulur…"
-        mockClient = MockCarPlayClient(
-            host = "10.0.2.2",
-            port = 9999,
-            videoDecoder = videoDecoder,
-            audioEngine = audioEngine
-        ).apply {
-            onConnectionStateChanged = { connected ->
-                runOnUiThread {
-                    if (connected) {
-                        statusOverlay.visibility = View.GONE
-                        Toast.makeText(this@MainActivity, "CarPlay Canlı Yayım Başladı!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        statusOverlay.visibility = View.VISIBLE
-                        tvStatus.text = getString(R.string.waiting_for_connection)
+        tvStatus.text = "Virtual iPhone Simulyatoruna qoşulur…"
+        try {
+            mockClient = MockCarPlayClient(
+                host = "10.0.2.2",
+                port = 9999,
+                videoDecoder = videoDecoder,
+                audioEngine = audioEngine
+            ).apply {
+                onConnectionStateChanged = { connected ->
+                    runOnUiThread {
+                        if (connected) {
+                            statusOverlay.visibility = View.GONE
+                            Toast.makeText(this@MainActivity, "CarPlay Canlı Yayım Başladı!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            statusOverlay.visibility = View.VISIBLE
+                            tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
+                        }
                     }
                 }
+                connect()
             }
-            connect()
+        } catch (e: Throwable) {
+            Log.e(TAG, "Mock bağlantı xətası: ${e.message}")
+            Toast.makeText(this, "Simulyator tapılmadı: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -554,12 +685,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     override fun onDestroy() {
         super.onDestroy()
         dismissRunnable?.let { introHandler.removeCallbacks(it) }
-        videoDecoder?.stop()
-        audioEngine?.stop()
-        mockClient?.disconnect()
-        sessionCoordinator?.stopDiscovery()
-        voiceAssistant.destroy()
-        usbManager.stop()
-        webViewBrowser.destroy()
+        try { videoDecoder?.stop() } catch (_: Throwable) {}
+        try { audioEngine?.stop() } catch (_: Throwable) {}
+        try { mockClient?.disconnect() } catch (_: Throwable) {}
+        try { sessionCoordinator?.stopDiscovery() } catch (_: Throwable) {}
+        try { voiceAssistant?.destroy() } catch (_: Throwable) {}
+        try { usbManager.stop() } catch (_: Throwable) {}
+        try { webViewBrowser.destroy() } catch (_: Throwable) {}
     }
 }

@@ -1,5 +1,4 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="260dp"
     android:height="130dp"
     android:viewportWidth="260"
@@ -9,32 +8,14 @@
     <path
         android:pathData="M 90,30 L 170,30 L 170,75 C 170,95 130,105 130,105 C 130,105 90,95 90,75 Z"
         android:strokeWidth="5"
-        android:fillColor="#0E1626">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="90"
-                android:startY="30"
-                android:endX="170"
-                android:endY="105"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFFFFF" />
-                <item android:offset="0.5" android:color="#FF8DA4C4" />
-                <item android:offset="1.0" android:color="#FFFFFFFF" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#0E1626" />
 
-    <!-- 2. Qalxan Daxilindəki Fasetlər (Mavi və Qara Brilyant Şəbəkəsi) -->
-    <!-- Üst Sol (Mavi) -->
+    <!-- 2. Qalxan Daxilindəki Fasetlər -->
     <path android:pathData="M 95,35 L 117,35 L 117,54 L 95,54 Z" android:fillColor="#155DFC"/>
-    <!-- Üst Orta (Qara) -->
     <path android:pathData="M 119,35 L 141,35 L 141,54 L 119,54 Z" android:fillColor="#1E293B"/>
-    <!-- Üst Sağ (Mavi) -->
     <path android:pathData="M 143,35 L 165,35 L 165,54 L 143,54 Z" android:fillColor="#155DFC"/>
-    <!-- Alt Sol (Qara) -->
     <path android:pathData="M 95,56 L 117,56 L 117,75 L 95,70 Z" android:fillColor="#1E293B"/>
-    <!-- Alt Orta (Mavi) -->
     <path android:pathData="M 119,56 L 141,56 L 141,85 L 130,95 L 119,85 Z" android:fillColor="#155DFC"/>
-    <!-- Alt Sağ (Qara) -->
     <path android:pathData="M 143,56 L 165,56 L 165,70 L 143,75 Z" android:fillColor="#1E293B"/>
 </vector>

@@ -43,36 +43,40 @@ jobs:
     - name: Copy and Rename APK for Release
       run: |
         mkdir -p release_output
-        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.3.apk
+        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.4.apk
+        cp app/build/outputs/apk/debug/*.apk release_output/cartwin.apk
         ls -la release_output/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CarTwin-v1.3-apk
-        path: release_output/CarTwin-v1.3.apk
+        name: CarTwin-v1.4-apk
+        path: release_output/CarTwin-v1.4.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.3.0
-        name: "CarTwin v1.3.0 (Orijinal Avtomobil Loqoları & 3D Xrom Reklam Şousu)"
+        tag_name: v1.4.0
+        name: "CarTwin v1.4.0 (BYD Çökmə Düzəlişi, Port 7000 Server & Real iPhone Qoşulma Bələdçisi)"
         body: |
-          ## 🌟 CarTwin — Premium Connect (Release v1.3.0)
+          ## 🌟 CarTwin — Premium Connect (Release v1.4.0)
 
-          Bu buraxılış **BYD, Changan, Deepal, Li Auto, Zeekr, Geely, Chery və Haval** avtomobilləri üçün **rəsmi 3D metalik xrom loqo açılış şouları, iOS 17/18 Retina tətbiq ikonları və CarPlay Split Dashboard** ilə təchiz edilmiş ən son stabil versiyadır.
+          Bu buraxılış **BYD, Changan, Deepal, Li Auto, Zeekr, Geely, Chery və Haval** avtomobilləri üçün **çökmə (crash-loop) problemlərini 100% aradan qaldıran, daxili CarPlay Port 7000 RTSP qəbuledici serveri və real iPhone qoşulma bələdçisi** ilə təchiz edilmiş ən son stabil versiyadır.
 
           ### 📥 Necə Yükləmək və Quraşdırmaq olar:
-          1. Aşağıdakı **`CarTwin-v1.3.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
+          1. Aşağıdakı **`CarTwin-v1.4.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
           2. Faylı USB fleşkarta köçürün və avtomobilin USB portuna taxın.
-          3. Monitorun **"File Manager"** tətbiqindən `CarTwin-v1.3.apk` üzərinə vurun və quraşdırın.
+          3. Monitorun **"File Manager"** tətbiqindən `CarTwin-v1.4.apk` üzərinə vurun və quraşdırın.
 
-          ### ✨ Yeni Funksiyalar (v1.3.0):
-          * 🚘 **Orijinal Avtomobil Loqoları (3D Xrom & Fotorealistik):** BYD, Changan, Li Auto, Zeekr, Geely, Chery və Haval rəsmi vektor emblemləri ilə lazer parıltılı açılış şousu.
-          * 🧭 **iOS 17/18 Retina CarPlay İkonları:** Apple Maps, Spotify, Musiqi, Brauzer, Telefon, Mesajlar və Siri üçün kristal təmiz vektor qrafikaları.
-          * 🎛️ **CarPlay Split Dashboard (Avtomobil Rejimi):** Sol tərəfdə canlı naviqasiya xəritəsi və dönmə göstəricisi, sağ tərəfdə isə canlı Spotify pleyeri və ağıllı əmr kartı.
-          * 🌐 **İnteqrasiya Olunmuş Veb Brauzer:** Google, YouTube, Vikipediya bir toxunuşla multimedia ekranında.
-          * 🗣️ **Azərbaycan Dilli AI Səs Köməkçisi:** *"Brauzeri aç"*, *"YouTube-u başlat"*, kondisioner və naviqasiya.
-        files: release_output/CarTwin-v1.3.apk
+          ### 🛠️ v1.4.0 Yenilikləri və Həll Edilən Problemlər:
+          * 🛡️ **Təkrar Çökmənin (Crash Loop) 100% Qarşısının Alınması**: Qlobal `UncaughtExceptionHandler`, Android 12 Bluetooth runtime icazə müdafiəsi və təhlükəsiz resurs fallback sistemi əlavə edildi.
+          * 🔌 **Real CarPlay RTSP/TCP Serveri (Port 7000)**: iPhone-dan gələn video/audio axınını qəbul edən daxili server aktivləşdirildi.
+          * 📱 **İki Rejimli Real Qoşulma Paneli**:
+            * **Simli (USB)**: Kabel ilə birbaşa qoşulma.
+            * **Simsiz (Wi-Fi + Bluetooth)**: Avtomobil hotspotu və Bluetooth cütləşməsi ilə naqilsiz CarPlay.
+          * ⚡ **Test Rejimi Təmizləndi**: Əsas ekrandakı "Virtual iPhone (Test)" düyməsi kənarlaşdırıldı, əsas ekran 100% real avtomobil istifadəsinə uyğunlaşdırıldı.
+        files: |
+          release_output/CarTwin-v1.4.apk
+          release_output/cartwin.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

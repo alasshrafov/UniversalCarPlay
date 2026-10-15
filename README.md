@@ -6,9 +6,26 @@ Heç bir xarici fiziki adapterə (dongle) ehtiyac olmadan həm simli (USB), həm
 
 ---
 
-## 📥 Hazır APK Yükləmə (Release v1.3.0)
-* 🚀 **Birbaşa APK Yüklə:** [CarTwin-v1.3.apk](https://github.com/alasshrafov/UniversalCarPlay/releases/download/v1.3.0/CarTwin-v1.3.apk)
+## 📥 Hazır APK Yükləmə (Release v1.4.0 — BYD & Real iPhone Fix)
+* 🚀 **Birbaşa APK Yüklə:** [CarTwin-v1.4.apk](https://github.com/alasshrafov/UniversalCarPlay/releases/download/v1.4.0/CarTwin-v1.4.apk)
 * 📦 **Bütün Buraxılışlar:** [GitHub Releases Səhifəsi](https://github.com/alasshrafov/UniversalCarPlay/releases)
+
+---
+
+## 📱 Real iPhone ilə Avtomobilə Qoşulma Qaydası:
+
+### 1. Simli Qoşulma (USB):
+1. Orijinal Lightning və ya Type-C kabelini avtomobilin multimedia USB portuna taxın.
+2. iPhone-u kabelə qoşun.
+3. iPhone ekranında **"CarPlay-ə İcazə Verilsin?"** bildirişi çıxacaq — **"İcazə Ver"** (Allow) seçin.
+4. CarTwin ekranında CarPlay avtomatik açılacaq.
+
+### 2. Simsiz Qoşulma (Wireless Wi-Fi & Bluetooth):
+1. Avtomobilin monitorunda Wi-Fi Hotspot-u yandırın və ya iPhone ilə avtomobili eyni Wi-Fi şəbəkəsinə qoşun.
+2. iPhone-da **Settings -> Bluetooth** bölməsinə daxil olun.
+3. Cihazlar siyahısından **`CarTwin-BYD`** (və ya avtomobilinizə uyğun profil adı) seçin və cütləşdirin (Pair).
+4. iPhone ekranında **"Use CarPlay with CarTwin?"** sorğusu gəldikdə **"Use CarPlay"** düyməsinə basın.
+5. Port 7000 daxili RTSP serveri vasitəsilə CarPlay tam ekran rejimində başlayacaq.
 
 ---
 

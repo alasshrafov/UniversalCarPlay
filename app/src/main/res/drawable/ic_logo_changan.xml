@@ -1,5 +1,4 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="260dp"
     android:height="130dp"
     android:viewportWidth="260"
@@ -10,80 +9,31 @@
         android:pathData="M 130,65 m -56,0 a 56,56 0 1,0 112,0 a 56,56 0 1,0 -112,0"
         android:fillColor="#150072FF" />
 
-    <!-- 2. Orijinal Xrom Dairəvi Çərçivə (Outer Bezel) -->
+    <!-- 2. Orijinal Xrom Dairəvi Çərçivə -->
     <path
         android:pathData="M 130,65 m -48,0 a 48,48 0 1,0 96,0 a 48,48 0 1,0 -96,0"
         android:strokeWidth="4"
-        android:fillColor="#0D1F3C">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="82"
-                android:startY="17"
-                android:endX="178"
-                android:endY="113"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFFFFF" />
-                <item android:offset="0.3" android:color="#FF8EB4E3" />
-                <item android:offset="0.7" android:color="#FFFFFFFF" />
-                <item android:offset="1.0" android:color="#FF416594" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#0D1F3C" />
 
     <!-- 3. Changan Safir Göy Qalxan Fonu -->
     <path
-        android:pathData="M 130,65 m -44,0 a 44,44 0 1,0 88,0 a 44,44 0 1,0 -88,0">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startX="130"
-                android:startY="21"
-                android:endX="130"
-                android:endY="109"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FF1A50A2" />
-                <item android:offset="0.6" android:color="#FF0D2E68" />
-                <item android:offset="1.0" android:color="#FF04122C" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:pathData="M 130,65 m -44,0 a 44,44 0 1,0 88,0 a 44,44 0 1,0 -88,0"
+        android:fillColor="#1A50A2" />
 
-    <!-- 4. Orijinal 3D Xrom V-Qanad (Sol Qanad Facet - İşıqlı) -->
+    <!-- 4. Orijinal 3D Xrom V-Qanad (Sol Qanad Facet) -->
     <path
-        android:pathData="M 130,96 L 98,42 L 112,42 L 130,76 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startX="98"
-                android:startY="42"
-                android:endX="130"
-                android:endY="96"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFFFFF" />
-                <item android:offset="0.5" android:color="#FFE8EEF5" />
-                <item android:offset="1.0" android:color="#FFB0C2D6" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:pathData="M 130,96 L 98,42 L 112,42 L 130,76 Z"
+        android:fillColor="#FFFFFF" />
 
-    <!-- 5. Orijinal 3D Xrom V-Qanad (Sağ Qanad Facet - Kölgəli) -->
+    <!-- 5. Orijinal 3D Xrom V-Qanad (Sağ Qanad Facet) -->
     <path
-        android:pathData="M 130,96 L 162,42 L 148,42 L 130,76 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startX="130"
-                android:startY="42"
-                android:endX="162"
-                android:endY="96"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFCBD5E1" />
-                <item android:offset="0.5" android:color="#FF94A3B8" />
-                <item android:offset="1.0" android:color="#FF475569" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:pathData="M 130,96 L 162,42 L 148,42 L 130,76 Z"
+        android:fillColor="#94A3B8" />
 
     <!-- 6. V-Qanadın Mərkəzi Parlaq Zirvə Xətti -->
     <path
         android:pathData="M 130,76 L 130,96"
         android:strokeWidth="1.5"
-        android:strokeColor="#FFFFFFFF" />
+        android:strokeColor="#FFFFFF" />
 </vector>

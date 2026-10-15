@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" />
 
-    <!-- 2. Gözləmə və Status Təbəqəsi (Bağlantı Olmayanda Görünür) -->
+    <!-- 2. Lüks Avtomobil Qoşulma Mərkəzi (Bağlantı Olmayanda Görünür) -->
     <LinearLayout
         android:id="@+id/statusOverlay"
         android:layout_width="wrap_content"
@@ -22,42 +22,130 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="28dp"
-        android:background="@drawable/bg_card">
+        android:background="@drawable/bg_card"
+        android:elevation="12dp">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:indeterminateTint="@color/car_accent" />
-
-        <TextView
-            android:id="@+id/tvStatus"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/waiting_for_connection"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center"
+            android:orientation="horizontal">
 
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="12dp"
+                android:indeterminateTint="@color/car_accent" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apple CarPlay Qoşulması Gözlənilir"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- İki Sütunlu Canlı Qoşulma Təlimatı (USB vs Simsiz) -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <!-- Metod 1: USB Kabel -->
+            <LinearLayout
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:background="#141B2D"
+                android:padding="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔌 1. Simli Qoşulma"
+                    android:textColor="#30D158"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="iPhone-u USB kabel ilə avtomobilin multimedia portuna qoşun. Telefonda 'CarPlay-ə İcazə Ver' düyməsini təsdiqləyin."
+                    android:textColor="@color/car_text_gray"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp" />
+            </LinearLayout>
+
+            <!-- Metod 2: Simsiz Bluetooth / Wi-Fi -->
+            <LinearLayout
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:background="#141B2D"
+                android:padding="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📡 2. Simsiz Qoşulma"
+                    android:textColor="#00F0FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="iPhone-da Bluetooth menyusundan avtomobil adını seçin və cütləşdirin. Wi-Fi üzərindən CarPlay avtomatik açılacaq."
+                    android:textColor="@color/car_text_gray"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Canlı Telemetriya Məlumatı -->
         <TextView
             android:id="@+id/tvDetail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Wi-Fi / Bluetooth və ya USB kabeli gözlənilir…"
+            android:layout_marginTop="16dp"
+            android:text="Bluetooth: CarTwin • Server: Port 7000 • USB: Gözlənilir"
             android:textColor="@color/car_text_gray"
-            android:textSize="14sp" />
+            android:textSize="13sp" />
 
-        <!-- Mock Host ilə birbaşa əlaqə düyməsi (Test Mühiti Üçün) -->
-        <Button
-            android:id="@+id/btnConnectMock"
+        <!-- Yeniləmə / Reset Düyməsi -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Virtual iPhone-a Qoşul (Test)"
-            android:backgroundTint="@color/car_accent"
-            android:textColor="@color/white" />
+            android:layout_marginTop="14dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnRefreshConnection"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔄 Xidmətləri Yenidən Başlat"
+                android:textColor="@color/car_accent"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnConnectMock"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="🧪 PC Simulyatoru"
+                android:textColor="#64748B"
+                android:textSize="11sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- 3. Avtomobil Profil və Tənzimləmə Paneli (Yuxarı Künc) -->

@@ -1,5 +1,4 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="260dp"
     android:height="130dp"
     android:viewportWidth="260"
@@ -9,30 +8,13 @@
     <path
         android:pathData="M 45,35 L 215,35 L 205,95 L 55,95 Z"
         android:strokeWidth="5"
-        android:fillColor="#8B0000">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="45"
-                android:startY="35"
-                android:endX="215"
-                android:endY="95"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFFFFFFF" />
-                <item android:offset="0.5" android:color="#FFCBD5E1" />
-                <item android:offset="1.0" android:color="#FF475569" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#8B0000" />
 
     <!-- 2. "HAVAL" Xrom Hərfləri -->
-    <!-- H -->
     <path android:pathData="M 68,48 L 76,48 L 76,60 L 86,60 L 86,48 L 94,48 L 94,82 L 86,82 L 86,68 L 76,68 L 76,82 L 68,82 Z" android:fillColor="#FFFFFF"/>
-    <!-- A -->
     <path android:pathData="M 100,82 L 108,48 L 118,48 L 126,82 L 118,82 L 116,73 L 110,73 L 108,82 Z M 111,66 L 115,66 L 113,56 Z" android:fillColor="#FFFFFF"/>
-    <!-- V -->
     <path android:pathData="M 130,48 L 138,48 L 144,72 L 150,48 L 158,48 L 148,82 L 140,82 Z" android:fillColor="#FFFFFF"/>
-    <!-- A -->
     <path android:pathData="M 162,82 L 170,48 L 180,48 L 188,82 L 180,82 L 178,73 L 172,73 L 170,82 Z M 173,66 L 177,66 L 175,56 Z" android:fillColor="#FFFFFF"/>
-    <!-- L -->
     <path android:pathData="M 192,48 L 200,48 L 200,74 L 210,74 L 210,82 L 192,82 Z" android:fillColor="#FFFFFF"/>
 </vector>

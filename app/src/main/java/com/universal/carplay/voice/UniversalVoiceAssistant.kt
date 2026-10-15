@@ -47,8 +47,16 @@ class UniversalVoiceAssistant(
         private set
 
     init {
-        initSpeechRecognizer()
-        textToSpeech = TextToSpeech(context, this)
+        try {
+            initSpeechRecognizer()
+        } catch (e: Throwable) {
+            Log.w(TAG, "SpeechRecognizer başlatmaq mümkün olmadı: ${e.message}")
+        }
+        try {
+            textToSpeech = TextToSpeech(context, this)
+        } catch (e: Throwable) {
+            Log.w(TAG, "TextToSpeech başlatmaq mümkün olmadı: ${e.message}")
+        }
     }
 
     private fun initSpeechRecognizer() {

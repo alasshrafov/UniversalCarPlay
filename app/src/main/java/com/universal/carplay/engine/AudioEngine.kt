@@ -16,23 +16,26 @@ class AudioEngine(private val context: Context) {
 
     private var musicTrack: AudioTrack? = null
     private var speechTrack: AudioTrack? = null
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val audioManager = try {
+        context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    } catch (_: Throwable) { null }
 
     private var isPlaying = false
 
     /**
-     * Səs kanallarını başladır
+     * Səs kanallarını başladır (100% Təhlükəsiz və Crash-Proof)
      */
     fun start() {
         if (isPlaying) return
 
         try {
             // 1. Musiqi Kanalı (48kHz Stereo 16-bit PCM)
-            val musicBufferSize = AudioTrack.getMinBufferSize(
+            var musicBufferSize = AudioTrack.getMinBufferSize(
                 48000,
                 AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT
             )
+            if (musicBufferSize <= 0) musicBufferSize = 8192
 
             val musicAttributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -45,19 +48,27 @@ class AudioEngine(private val context: Context) {
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                 .build()
 
-            musicTrack = AudioTrack.Builder()
-                .setAudioAttributes(musicAttributes)
-                .setAudioFormat(musicFormat)
-                .setBufferSizeInBytes(musicBufferSize * 2)
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .build()
+            try {
+                musicTrack = AudioTrack.Builder()
+                    .setAudioAttributes(musicAttributes)
+                    .setAudioFormat(musicFormat)
+                    .setBufferSizeInBytes(musicBufferSize * 2)
+                    .setTransferMode(AudioTrack.MODE_STREAM)
+                    .build()
+                if (musicTrack?.state == AudioTrack.STATE_INITIALIZED) {
+                    musicTrack?.play()
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Musiqi kanalı xətası: ${e.message}")
+            }
 
             // 2. Danışıq / Siri / Naviqasiya Kanalı (16kHz Mono 16-bit PCM)
-            val speechBufferSize = AudioTrack.getMinBufferSize(
+            var speechBufferSize = AudioTrack.getMinBufferSize(
                 16000,
                 AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT
             )
+            if (speechBufferSize <= 0) speechBufferSize = 4096
 
             val speechAttributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
@@ -70,62 +81,63 @@ class AudioEngine(private val context: Context) {
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                 .build()
 
-            speechTrack = AudioTrack.Builder()
-                .setAudioAttributes(speechAttributes)
-                .setAudioFormat(speechFormat)
-                .setBufferSizeInBytes(speechBufferSize * 2)
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .build()
+            try {
+                speechTrack = AudioTrack.Builder()
+                    .setAudioAttributes(speechAttributes)
+                    .setAudioFormat(speechFormat)
+                    .setBufferSizeInBytes(speechBufferSize * 2)
+                    .setTransferMode(AudioTrack.MODE_STREAM)
+                    .build()
+                if (speechTrack?.state == AudioTrack.STATE_INITIALIZED) {
+                    speechTrack?.play()
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Danışıq kanalı xətası: ${e.message}")
+            }
 
-            musicTrack?.play()
-            speechTrack?.play()
             isPlaying = true
-
-            Log.i(TAG, "Audio Engine aktivləşdirildi (Musiqi + Danışıq kanalları)")
-        } catch (e: Exception) {
+            Log.i(TAG, "Audio Engine aktivləşdirildi")
+        } catch (e: Throwable) {
             Log.e(TAG, "Audio kanalları başlarkən xəta: ${e.message}", e)
         }
     }
 
-    /**
-     * Musiqi paketlərini oxudur
-     */
     fun writeMusic(data: ByteArray, offset: Int, size: Int) {
         if (!isPlaying || musicTrack == null) return
-        musicTrack?.write(data, offset, size)
+        try {
+            if (musicTrack?.state == AudioTrack.STATE_INITIALIZED) {
+                musicTrack?.write(data, offset, size)
+            }
+        } catch (_: Throwable) {}
     }
 
-    /**
-     * Siri, Zəng və ya Naviqasiya səsini oxudur
-     */
     fun writeSpeech(data: ByteArray, offset: Int, size: Int) {
         if (!isPlaying || speechTrack == null) return
-        speechTrack?.write(data, offset, size)
+        try {
+            if (speechTrack?.state == AudioTrack.STATE_INITIALIZED) {
+                speechTrack?.write(data, offset, size)
+            }
+        } catch (_: Throwable) {}
     }
 
-    /**
-     * Parktronik və ya arxa kamera qoşulduqda səsin bir qədər azaldılması (Ducking)
-     */
     fun setVolumeDucking(duck: Boolean) {
-        val volume = if (duck) 0.3f else 1.0f
-        musicTrack?.setVolume(volume)
+        try {
+            val volume = if (duck) 0.3f else 1.0f
+            musicTrack?.setVolume(volume)
+        } catch (_: Throwable) {}
     }
 
-    /**
-     * Səs mühərrikini dayandırır
-     */
     fun stop() {
         isPlaying = false
         try {
             musicTrack?.stop()
             musicTrack?.release()
+        } catch (_: Throwable) {}
+        try {
             speechTrack?.stop()
             speechTrack?.release()
-        } catch (e: Exception) {
-            Log.e(TAG, "Audio dayandırılarkən xəta: ${e.message}")
-        } finally {
-            musicTrack = null
-            speechTrack = null
-        }
+        } catch (_: Throwable) {}
+        musicTrack = null
+        speechTrack = null
     }
 }
