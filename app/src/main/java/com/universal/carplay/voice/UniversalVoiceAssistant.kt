@@ -145,6 +145,20 @@ class UniversalVoiceAssistant(
         str = str.replace(Regex("""[.,/#!$%\^&*;:{}=\-_`~()?"'🇦🇿🎙️]"""), " ")
         str = str.replace(Regex("""\s+"""), " ").trim()
 
+        // 3.1 Bitişik sözlərin və Waze/Naviqasiya jarqonlarının ayrılması
+        str = str
+            .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:i|in|e)?(?:bagla|ort|kapat|kes)\b"""), "waze bagla")
+            .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:den|dan|e)?(?:cix|cixis)\b"""), "waze cix")
+            .replace(Regex("""\b(?:naviqasiya|navigasiya|xerite)(?:ni|in|den|dan)?(?:bagla|cix|kapat)\b"""), "waze bagla")
+            .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys)\b"""), "waze")
+            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:oxut|cal|baslat|qos)\b"""), "mahni oxut")
+            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:ac)\b"""), "mahni ac")
+            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:deyis|novbeti)\b"""), "mahni deyis")
+            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:dayandir|saxla|kes)\b"""), "mahni dayandir")
+            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:bagla)\b"""), "mahni dayandir")
+            .replace(Regex("""\b(?:kondi|kondisioner|klima)(?:i)?(?:ac|yandir|isesal)\b"""), "kondisioneri ac")
+            .replace(Regex("""\b(?:kondi|kondisioner|klima)(?:i)?(?:sondur|bagla|kapat)\b"""), "kondisioneri sondur")
+
         // 4. Şifahi yazılmış və ya şəkilçili rəqəmləri 16-32 ədədlərinə çeviririk
         val numberMap = listOf(
             Regex("""\b(?:iyirmi|yirmi|yigirmi)\s+(?:bir|bire)\b""") to "21",
@@ -261,7 +275,7 @@ class UniversalVoiceAssistant(
         }
 
         if (clean.contains("oxut") || clean.contains("davam et") || clean.contains("baslat") ||
-            clean.contains("play") || clean.contains("mahni oxut") || clean.contains("musiqi oxut")) {
+            clean.contains("play") || clean.contains("mahni") || clean.contains("musiqi")) {
             speak("Musiqi davam etdirilir")
             onCommandRecognized("MEDIA_PLAY", rawText, null)
             return
@@ -287,6 +301,18 @@ class UniversalVoiceAssistant(
             (clean.contains("mahni") && clean.contains("ac"))) {
             speak("Spotify açılır")
             onCommandRecognized("APP_SPOTIFY", rawText, null)
+            return
+        }
+
+        // 3. TƏTBİQLƏRİ BAĞLAMAQ / ÇIXMAQ / ANA EKRAN (PRIORİTET 1)
+        val isCloseAppIntent = clean.contains("waze bagla") || clean.contains("waze cix") || clean.contains("xerite bagla") ||
+                clean.contains("naviqasiyani bagla") || clean.contains("tetbiqi bagla") || clean.contains("tetbiqden cix") ||
+                clean.contains("ekrani bagla") || clean.contains("ana ekran") || clean.contains("esas ekran") ||
+                clean.contains("menyu") || clean.contains("cix") || clean.contains("bagla") || clean.contains("kapat") ||
+                clean.contains("cixis") || clean.contains("eve get") || clean.contains("home")
+        if (isCloseAppIntent) {
+            speak("Əsas ekrana qayıdıldı")
+            onCommandRecognized("GO_HOME", rawText, null)
             return
         }
 

@@ -5250,10 +5250,12 @@
             }, 4000);
         }
 
+        let liveSpeechPreviewTimer = null;
         function hideInAppAuraPill() {
             const pill = document.getElementById('inAppAuraPill');
             if (pill) pill.classList.remove('active');
             if (inAppAuraTimeout) clearTimeout(inAppAuraTimeout);
+            if (liveSpeechPreviewTimer) clearTimeout(liveSpeechPreviewTimer);
         }
 
         function launchApp(name) {
@@ -5582,28 +5584,10 @@
             }
         }
 
-        /* 🔔 Apple-Üslubunda Zərif Avtomobil Zəngi (Luxury Chime Ding) */
+        /* 🔔 Sürücünün xahişi ilə narahatedici dinq-dinq səsi tam ləğv edildi */
         function playAppleChime() {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                const ctx = new AudioContext();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                osc.type = 'sine';
-                // 1046Hz (C6) -> 1318Hz (E6) zərif şüşə zəng akkordu
-                osc.frequency.setValueAtTime(1046.50, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1318.51, ctx.currentTime + 0.08);
-
-                gain.gain.setValueAtTime(0.18, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.38);
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.38);
-            } catch(e) {}
+            // Sürücünü narahat etməməsi üçün dinq-dinq səsi tam səssizləşdirilib
+            return;
         }
 
         function adjustClimateTemp(delta) {
@@ -5617,7 +5601,7 @@
         /**
          * Səsli Cavab Funksiyası:
          * QƏTİYYƏN İNGİLİS DİLİNDƏ DANIŞMIR!
-         * 1. 'chime' rejimində: zərif zəng çalır və susur (Mükəmməl avtomobil təcrübəsi).
+         * 1. 'chime' rejimində: tam səssiz icra edir.
          * 2. 'az_only' rejimində: yalnız sistemdə orijinal Azərbaycan/Türk dili varsa danışır, ingiliscəyə heç vaxt keçmir!
          * 3. 'mute' rejimində: tam səssiz icra edir.
          */
@@ -5625,7 +5609,6 @@
             if (voiceResponseMode === 'mute') return;
 
             if (voiceResponseMode === 'chime') {
-                playAppleChime();
                 return;
             }
 
@@ -5688,6 +5671,20 @@
             // C) Durğu işarələrini təmizləyirik
             str = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'🇦🇿🎙️]/g, ' ');
             str = str.replace(/\s+/g, ' ').trim();
+
+            // C.1) Bitişik və ya STT tərəfindən birləşdirilmiş avtomobil əmrlərini ayırırıq
+            str = str
+                .replace(/\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:i|in|e)?(?:bagla|ort|kapat|kes)\b/g, 'waze bagla')
+                .replace(/\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:den|dan|e)?(?:cix|cixis)\b/g, 'waze cix')
+                .replace(/\b(?:naviqasiya|navigasiya|xerite)(?:ni|in|den|dan)?(?:bagla|cix|kapat)\b/g, 'waze bagla')
+                .replace(/\b(?:vest|ways|vays|veiz|veys|weys)\b/g, 'waze')
+                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:oxut|cal|baslat|qos)\b/g, 'mahni oxut')
+                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:ac)\b/g, 'mahni ac')
+                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:deyis|novbeti)\b/g, 'mahni deyis')
+                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:dayandir|saxla|kes)\b/g, 'mahni dayandir')
+                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:bagla)\b/g, 'mahni dayandir')
+                .replace(/\b(?:kondi|kondisioner|klima)(?:i)?(?:ac|yandir|isesal)\b/g, 'kondisioneri ac')
+                .replace(/\b(?:kondi|kondisioner|klima)(?:i)?(?:sondur|bagla|kapat)\b/g, 'kondisioneri sondur');
 
             // D) Şəkilçili və ya sözlə deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
             const numPhrases = [
@@ -5812,21 +5809,30 @@
             if (/\b(evvelki|tekrar|evvele|gayit|previous song|previous track|predidusc)\b/.test(normText)) {
                 return { type: 'MUSIC_PREV', desc: 'Əvvəlki Musiqi' };
             }
-            if (/\b(spotify|spotifay|musiqi ac|mahni ac|muziku|pesnyu|open spotify)\b/.test(normText)) {
+            if (/\b(spotify|spotifay|pleyer|open spotify)\b/.test(normText)) {
                 return { type: 'APP_SPOTIFY', desc: 'Spotify Pleyer Açılır' };
             }
+            if (/\b(mahni|musiqi|oxut|cal|davam et|baslat|play|mahni oxut|musiqi oxut|mahni ac|musiqi ac|mahni qos|musiqi qos|play music)\b/.test(normText)) {
+                return { type: 'MEDIA_PLAY', desc: 'Musiqi Davam Edir' };
+            }
 
-            // --- 3. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA (AZ/RU/EN/TR) ---
-            if (/\b(waze|vaze|veiz|naviqasiya|navigasiya|navigats|xerite|karta|kartu|map|maps|route|yol|marsrut|haradayam|eve get)\b/.test(normText)) {
+            // --- 3. TƏTBİQLƏRİ BAĞLAMAQ / ÇIXMAQ / ANA EKRAN (PRIORITET 1) ---
+            // Bu bölmə açma əmrlərindən YUXARIDA durur ki, "waze bagla" deyəndə Waze açılmasın!
+            if (/\b(waze bagla|waze cix|wazeden cix|xerite bagla|xeriteni bagla|naviqasiyani bagla|naviqasiya bagla|naviqasiyadan cix|tetbiqi bagla|tetbiqden cix|proqrami bagla|proqramdan cix|ekrani bagla|ana ekran|esas ekran|ana menyu|esas menyu|cix|bagla|kapat|qapat|cixis|eve qayit|eve don|domoy|glavniy|home|go home|close|exit)\b/.test(normText)) {
+                return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı (Tətbiq Bağlandı)' };
+            }
+
+            // --- 4. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA AÇMAQ (AZ/RU/EN/TR) ---
+            if (/\b(waze|vaze|veiz|ways|vest|naviqasiya|navigasiya|navigats|xerite|karta|kartu|map|maps|route|yol|marsrut|haradayam)\b/.test(normText)) {
                 return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
             }
 
-            // --- 4. TELEFON / ZƏNG ---
+            // --- 5. TELEFON / ZƏNG ---
             if (/\b(telefon|zeng|zeng et|nomre|yig|pozvonit|call|phone)\b/.test(normText)) {
                 return { type: 'APP_PHONE', desc: 'Telefon Açılır' };
             }
 
-            // --- 5. İNTERNET BRAUZERİ & YOUTUBE ---
+            // --- 6. İNTERNET BRAUZERİ & YOUTUBE ---
             if (/\b(brauzer|internet|google|sayt|browser|web)\b/.test(normText)) {
                 return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
             }
@@ -5834,7 +5840,7 @@
                 return { type: 'APP_YOUTUBE', desc: 'YouTube Park Rejimi Açılır' };
             }
 
-            // --- 6. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ ---
+            // --- 7. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ ---
             if (/\b(lyuk|luk|tavan)\b/.test(normText)) {
                 if (/\b(bagla|ort|kapat|close)\b/.test(normText)) {
                     return { type: 'VEHICLE_SUNROOF_CLOSE', desc: 'Lyuk Bağlanır' };
@@ -5848,15 +5854,12 @@
                 return { type: 'VEHICLE_WINDOWS_OPEN', desc: 'Pəncərələr Açılır' };
             }
 
-            // --- 7. SİSTEM GECƏ/GÜNDÜZ VƏ ANA EKRAN ---
+            // --- 8. SİSTEM GECƏ/GÜNDÜZ REJİMİ ---
             if (/\b(gece rejimi|garanlig rejim|dark mode|night mode)\b/.test(normText)) {
                 return { type: 'SYSTEM_NIGHT_MODE', desc: 'Gecə Rejimi Aktivdir' };
             }
             if (/\b(gunduz rejimi|isigli rejim|light mode|day mode)\b/.test(normText)) {
                 return { type: 'SYSTEM_DAY_MODE', desc: 'Gündüz Rejimi Aktivdir' };
-            }
-            if (/\b(ana ekran|esas ekran|ana menyu|esas menyu|eve get|cix|ekrani bagla|domoy|glavniy|home|go home)\b/.test(normText)) {
-                return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı' };
             }
 
             // --- 8. DİALOQ, SAAT VƏ STATUS SORĞULARI ---
@@ -6092,9 +6095,15 @@
                     break;
 
                 case 'GO_HOME':
-                    speakFeedback("Əsas ekrana qayıdıldı");
-                    showVoiceSuccessFeedback("✓ Əsas Ekran");
                     goHome();
+                    if (rawText && (rawText.toLowerCase().includes('mahni') || rawText.toLowerCase().includes('musiqi'))) {
+                        if (!isPlaying) togglePlayPause();
+                        showVoiceSuccessFeedback("✓ Tətbiq Bağlandı • Musiqi Başladı");
+                        speakFeedback("Tətbiq bağlandı, musiqi davam edir");
+                    } else {
+                        showVoiceSuccessFeedback("✓ Əsas Ekran (Tətbiq Bağlandı)");
+                        speakFeedback("Tətbiq bağlandı, əsas ekrana qayıdıldı");
+                    }
                     break;
 
                 case 'QUERY_TIME': {
@@ -6245,6 +6254,10 @@
                     textEl.innerText = `"${text}"`;
                     pill.classList.add('active');
                 }
+                if (liveSpeechPreviewTimer) clearTimeout(liveSpeechPreviewTimer);
+                liveSpeechPreviewTimer = setTimeout(() => {
+                    hideInAppAuraPill();
+                }, 3500);
             } else {
                 const output = document.getElementById('voiceOutputText');
                 if (output) output.innerText = `"${text}"`;
