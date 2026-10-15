@@ -30,6 +30,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import org.json.JSONObject
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -251,7 +252,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         ivTopBarLogo.setOnClickListener {
             voiceAssistant?.startListening()
-            Toast.makeText(this, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
         }
 
         btnSettings.setOnClickListener {
@@ -390,15 +391,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             // 1. Sükan Düymələri
             steeringWheelManager = SteeringWheelManager { commandJson ->
-                try {
-                    val obj = JSONObject(commandJson)
-                    if (obj.optString("command") == "TRIGGER_SIRI") {
-                        runOnUiThread {
-                            voiceAssistant?.startListening()
-                            Toast.makeText(this, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
-                        }
+                if (commandJson.contains("TRIGGER_SIRI")) {
+                    runOnUiThread {
+                        voiceAssistant?.startListening()
+                        Toast.makeText(this@MainActivity, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
                     }
-                } catch (_: Throwable) {}
+                }
                 sessionCoordinator?.sendTouchEvent(commandJson)
                 mockClient?.sendTouchEvent(commandJson)
             }
