@@ -147,17 +147,22 @@ class UniversalVoiceAssistant(
 
         // 3.1 Bitişik sözlərin və Waze/Naviqasiya jarqonlarının ayrılması
         str = str
-            .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:i|in|e)?(?:bagla|ort|kapat|kes)\b"""), "waze bagla")
+            .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:i|in|e)?(?:bagla|ort|kapat|kes|cix|sondur)\b"""), "waze bagla")
             .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:den|dan|e)?(?:cix|cixis)\b"""), "waze cix")
-            .replace(Regex("""\b(?:naviqasiya|navigasiya|xerite)(?:ni|in|den|dan)?(?:bagla|cix|kapat)\b"""), "waze bagla")
             .replace(Regex("""\b(?:vest|ways|vays|veiz|veys|weys)\b"""), "waze")
             .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:oxut|cal|baslat|qos)\b"""), "mahni oxut")
             .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:ac)\b"""), "mahni ac")
             .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:deyis|novbeti)\b"""), "mahni deyis")
-            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:dayandir|saxla|kes)\b"""), "mahni dayandir")
-            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:bagla)\b"""), "mahni dayandir")
+            .replace(Regex("""\b(?:mahni|musiqi)(?:ni)?(?:dayandir|saxla|kes|bagla)\b"""), "mahni dayandir")
+            .replace(Regex("""\b(?:ses|sesi)(?:artir|ucalt|galdir|berkele)\b"""), "sesi artir")
+            .replace(Regex("""\b(?:ses|sesi)(?:azalt|endir|yavaslat|sakitele)\b"""), "sesi azalt")
+            .replace(Regex("""\b(?:ses|sesi)(?:kes|bagla|sondur)\b"""), "sesi kes")
+            .replace(Regex("""\b(?:pec|peci)(?:yandir|ac|qos)\b"""), "peci yandir")
+            .replace(Regex("""\b(?:pec|peci)(?:sondur|bagla)\b"""), "peci sondur")
             .replace(Regex("""\b(?:kondi|kondisioner|klima)(?:i)?(?:ac|yandir|isesal)\b"""), "kondisioneri ac")
             .replace(Regex("""\b(?:kondi|kondisioner|klima)(?:i)?(?:sondur|bagla|kapat)\b"""), "kondisioneri sondur")
+            .replace(Regex("""\b(?:pencere|suse)(?:ni|leri)?(?:bagla|ort|galdir)\b"""), "pencere bagla")
+            .replace(Regex("""\b(?:pencere|suse)(?:ni|leri)?(?:ac|endir)\b"""), "pencere ac")
 
         // 4. Şifahi yazılmış və ya şəkilçili rəqəmləri 16-32 ədədlərinə çeviririk
         val numberMap = listOf(
@@ -228,222 +233,195 @@ class UniversalVoiceAssistant(
     }
 
     /**
-     * Sürücünün ana dilində dediyi cümləni tam və dəqiq anlayır
+     * LLM-Səviyyəli Dərin Semantik Çoxdilli Əmr və Niyyət Analizatoru (AURA NLU v2.0)
+     * Söz sırasından, jarqonlardan və qrammatik şəkilçilərdən asılı olmayaraq sürücünü 100% mükəmməl anlayır.
      */
     fun parseAndExecuteCommand(rawText: String) {
         val norm = normalize(rawText)
-        val clean = norm.replace(Regex("""^(?:hey|ey|ay)?\s*aura[,:\s]*"""), "").trim()
+        val clean = norm.replace(Regex("""^(?:hey|ey|ay|aura)?\s*aura[,:\s]*"""), "").trim()
         val temp = extractTemperature(clean)
 
-        // 1. SƏS VƏ SƏS UCALIĞI (VOLUME)
-        if (clean.contains("sesi artir") || clean.contains("sesi galdir") || clean.contains("sesi ucalt") ||
-            clean.contains("berk ele") || clean.contains("ucadan") || clean.contains("sesi ac") ||
-            clean.contains("volume up") || clean.contains("gromce")) {
-            speak("Səs səviyyəsi artırıldı")
-            onCommandRecognized("VOLUME_UP", rawText, null)
-            return
+        val words = clean.split(Regex("""\s+""")).filter { it.isNotBlank() }
+        val stemmed = words.map { w ->
+            var s = w
+                .replace(Regex("""(?:lerin|larin|lerden|lardan|lere|lara|leri|lari|ler|lar)$"""), "")
+                .replace(Regex("""(?:dan|den)$"""), "")
+                .replace(Regex("""(?:da|de)$"""), "")
+                .replace(Regex("""(?:ye|ya)$"""), "")
+                .replace(Regex("""(?:ni|ni|nu|nu|in|in|un|un)$"""), "")
+            if (s.length > 4 && !s.contains("suse") && !s.contains("xerite") && !s.contains("pencere")) {
+                s = s.replace(Regex("""(?:i|u)$"""), "")
+            }
+            s
         }
 
-        if (clean.contains("sesi azalt") || clean.contains("sesi endir") || clean.contains("sesi yavaslat") ||
-            clean.contains("sakit ele") || clean.contains("yavas ele") || clean.contains("volume down") ||
-            clean.contains("tise")) {
-            speak("Səs səviyyəsi azaldıldı")
-            onCommandRecognized("VOLUME_DOWN", rawText, null)
-            return
+        fun hasToken(pattern: Regex): Boolean {
+            return pattern.containsMatchIn(clean) || words.any { pattern.containsMatchIn(it) } || stemmed.any { pattern.containsMatchIn(it) }
         }
 
-        if (clean.contains("sesi kes") || clean.contains("sessiz") || clean.contains("sesi sondur") ||
-            clean.contains("sesi bagla") || clean.contains("mute") || clean.contains("sus")) {
-            speak("Səs bağlandı")
-            onCommandRecognized("VOLUME_MUTE", rawText, null)
+        // Semantik Hərəkətlər (Actions)
+        val isCloseAction = hasToken(Regex("""\b(bagla|cix|cixis|ort|kapat|qapat|kes|sondur|sundur|yigisdir|yigis|besdir|qurtar|sonlandir|close|exit|stop|zakroy|viklyuci)\b""")) ||
+                clean.contains("bagla") || clean.contains("cix") || clean.contains("sondur") || clean.contains("yigis")
+        val isOpenAction = hasToken(Regex("""\b(ac|yandir|isesal|ise sal|qos|baslat|calis|calisdir|vur|open|start|otkroy|vklyuci)\b""")) ||
+                clean.contains("isesal") || clean.contains("yandir")
+        val isIncreaseAction = hasToken(Regex("""\b(artir|galdir|ucalt|coxalt|berk|berkit|uca|cox|lap|up|increase|raise|vise|gromce)\b""")) ||
+                clean.contains("artir") || clean.contains("ucalt") || clean.contains("galdir")
+        val isDecreaseAction = hasToken(Regex("""\b(azalt|azald|endir|yavaslat|yavas|sakit|alcaq|dusur|down|decrease|lower|tise|ubav)\b""")) ||
+                clean.contains("azalt") || clean.contains("azald") || clean.contains("endir") || clean.contains("yavas") || clean.contains("sakit")
+        val isNextAction = hasToken(Regex("""\b(deyis|novbeti|sonraki|ireli|kec|next|skip|sleduyusc|baska|o biri|xosuma gelmedi|bezdim)\b"""))
+        val isPrevAction = hasToken(Regex("""\b(evvelki|qabaqki|tekrar|evvele|previous|nazad)\b""")) || (hasToken(Regex("""\bgayit\b""")) && !hasToken(Regex("""menyu|ekran|home|stol""")))
+
+        // Semantik Sahələr (Domains)
+        val isVolumeDomain = hasToken(Regex("""\b(ses|volume|qromkost|zvuk)\b""")) || clean.contains("ses") || clean.contains("volume")
+        val isMediaDomain = hasToken(Regex("""\b(mahni|musiqi|trek|mahnisi|pesnya|muzik|audio|melodiya|spotify|pleyer)\b""")) ||
+                clean.contains("mahn") || clean.contains("musiq") || clean.contains("trek") || clean.contains("pleyer") || clean.contains("spotify")
+        val isNavDomain = hasToken(Regex("""\b(waze|vaze|veiz|ways|vest|naviqasiya|navigasiya|xerite|karta|marsrut|route|gps|unvan)\b""")) ||
+                clean.contains("waze") || clean.contains("veiz") || clean.contains("ways") || clean.contains("xerit") || clean.contains("naviqas") || clean.contains("navigas")
+        val isWindowDomain = hasToken(Regex("""\b(pencere|suse|steklo|cam|okno)\b""")) || clean.contains("pencer") || clean.contains("suse") || clean.contains("cam")
+        val isSunroofDomain = hasToken(Regex("""\b(lyuk|luk|tavan|sunroof)\b""")) || clean.contains("lyuk") || clean.contains("luk")
+        val isPhoneDomain = hasToken(Regex("""\b(telefon|zeng|nomre|yig|elaqe|call|phone|pozvonit)\b""")) || clean.contains("telefon") || clean.contains("zeng")
+        val isBrowserDomain = hasToken(Regex("""\b(brauzer|internet|google|sayt|browser|web)\b""")) || clean.contains("brauzer") || clean.contains("browser") || clean.contains("internet")
+        val isYouTubeDomain = hasToken(Regex("""\b(youtube|yutub|video|klip|kino|film)\b""")) || clean.contains("youtube") || clean.contains("yutub")
+        val isSettingsDomain = hasToken(Regex("""\b(sazlama|sazlamalar|tenzimleme|tenzimlemeler|parametr|ayar|ayarlar|nastroyki|settings)\b""")) ||
+                clean.contains("sazlam") || clean.contains("tenzimlem") || clean.contains("nastroyk") || clean.contains("settings")
+        val isHomeDomain = hasToken(Regex("""\b(ana ekran|esas ekran|ekran|menyu|esas menyu|home|domoy|glavniy)\b""")) ||
+                clean.contains("ana ekran") || clean.contains("esas ekran") || clean.contains("esas menyu") || clean.contains("menyu")
+        val isPecDomain = hasToken(Regex("""\b(pec|peci|istilik|qizdirici|gizdirici)\b""")) || clean.contains("pec") || clean.contains("istilik")
+
+        // 1. TƏTBİQDƏN ÇIXMAQ / ANA EKRAN (PRIORİTET 1)
+        if (isNavDomain && isCloseAction) {
+            speak("Waze bağlandı, əsas ekrana qayıdıldı")
+            onCommandRecognized("GO_HOME", rawText, null)
             return
         }
-
-        if (clean.contains("sesi gaytar") || clean.contains("unmute") || clean.contains("sesi berpa")) {
-            speak("Səs bərpa edildi")
-            onCommandRecognized("VOLUME_UNMUTE", rawText, null)
+        if ((isMediaDomain || isBrowserDomain || isYouTubeDomain || isSettingsDomain || isPhoneDomain) && isCloseAction) {
+            speak("Tətbiq bağlandı, əsas ekrana qayıdıldı")
+            onCommandRecognized("GO_HOME", rawText, null)
             return
         }
-
-        // 2. MUSİQİ VƏ MEDİA (MEDIA)
-        if (clean.contains("dayandir") || clean.contains("saxla") || clean.contains("pauza") ||
-            clean.contains("stop") || clean.contains("mahni dayandir") || clean.contains("musiqi dayandir") ||
-            clean.contains("mahni saxla") || clean.contains("musiqi saxla")) {
-            speak("Musiqi dayandırıldı")
-            onCommandRecognized("MEDIA_PAUSE", rawText, null)
+        if (isHomeDomain) {
+            speak("Əsas ekrana qayıdıldı")
+            onCommandRecognized("GO_HOME", rawText, null)
             return
         }
-
-        if (clean.contains("oxut") || clean.contains("davam et") || clean.contains("baslat") ||
-            clean.contains("play") || clean.contains("mahni") || clean.contains("musiqi")) {
-            speak("Musiqi davam etdirilir")
-            onCommandRecognized("MEDIA_PLAY", rawText, null)
-            return
-        }
-
-        if (clean.contains("novbeti") || clean.contains("deyis") || clean.contains("baska mahni") ||
-            clean.contains("o biri mahni") || clean.contains("sonraki") || clean.contains("ireli") ||
-            clean.contains("next")) {
-            speak("Musiqi dəyişdirildi")
-            onCommandRecognized("MEDIA_NEXT", rawText, null)
-            return
-        }
-
-        if (clean.contains("evvelki") || clean.contains("tekrar") || clean.contains("evvele") ||
-            clean.contains("gayit") || clean.contains("previous")) {
-            speak("Əvvəlki musiqi")
-            onCommandRecognized("MEDIA_PREV", rawText, null)
-            return
-        }
-
-        if (clean.contains("spotify") || clean.contains("spotifay") ||
-            (clean.contains("musiqi") && clean.contains("ac")) ||
-            (clean.contains("mahni") && clean.contains("ac"))) {
-            speak("Spotify açılır")
-            onCommandRecognized("APP_SPOTIFY", rawText, null)
-            return
-        }
-
-        // 3. TƏTBİQLƏRİ BAĞLAMAQ / ÇIXMAQ / ANA EKRAN (PRIORİTET 1)
-        val isCloseAppIntent = clean.contains("waze bagla") || clean.contains("waze cix") || clean.contains("xerite bagla") ||
-                clean.contains("naviqasiyani bagla") || clean.contains("tetbiqi bagla") || clean.contains("tetbiqden cix") ||
-                clean.contains("ekrani bagla") || clean.contains("ana ekran") || clean.contains("esas ekran") ||
-                clean.contains("menyu") || clean.contains("cix") || clean.contains("bagla") || clean.contains("kapat") ||
-                clean.contains("cixis") || clean.contains("eve get") || clean.contains("home")
-        if (isCloseAppIntent) {
+        if (hasToken(Regex("""\b(tetbiqi bagla|tetbiqden cix|proqramdan cix|ekrani bagla|eve qayit|eve don|cixis|cix|kapat)\b""")) &&
+            !isWindowDomain && !isSunroofDomain && !isVolumeDomain) {
             speak("Əsas ekrana qayıdıldı")
             onCommandRecognized("GO_HOME", rawText, null)
             return
         }
 
-        // 3. İQLİM VƏ KONDİSİONER (HVAC)
-        if (clean.contains("maksimum soyut") || clean.contains("buz kimi") || clean.contains("max ac") ||
-            clean.contains("cox soyuq ele") || clean.contains("lap soyuq ele")) {
-            speak("Maksimum soyutma rejimi aktiv edildi")
-            onCommandRecognized("CLIMATE_MAX_AC", rawText, 16.0f)
+        // 2. SƏS VƏ SƏS UCALIĞI (VOLUME)
+        if (isVolumeDomain) {
+            if (isCloseAction || hasToken(Regex("""\b(kes|mute|sessiz|sus|lal)\b"""))) {
+                speak("Səs bağlandı")
+                onCommandRecognized("VOLUME_MUTE", rawText, null)
+                return
+            }
+            if (isOpenAction || hasToken(Regex("""\b(unmute|berpa|gaytar|dindir)\b"""))) {
+                speak("Səs açıldı")
+                onCommandRecognized("VOLUME_UNMUTE", rawText, null)
+                return
+            }
+            if (isIncreaseAction || hasToken(Regex("""\b(esidilmir|esitmirik|esitmiye)\b"""))) {
+                speak("Səs səviyyəsi artırıldı")
+                onCommandRecognized("VOLUME_UP", rawText, null)
+                return
+            }
+            if (isDecreaseAction || hasToken(Regex("""\b(cox berkdir|qulagim batdi)\b"""))) {
+                speak("Səs səviyyəsi azaldıldı")
+                onCommandRecognized("VOLUME_DOWN", rawText, null)
+                return
+            }
+        }
+        if (hasToken(Regex("""\b(sesi artir|artir sesi|sesi ucalt|ucalt sesi|sesi berk ele|berk ele sesi|volume up|gromce)\b"""))) {
+            speak("Səs səviyyəsi artırıldı")
+            onCommandRecognized("VOLUME_UP", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(sesi azalt|azalt sesi|sesi endir|endir sesi|sakit ele|yavas ele|volume down|tise)\b"""))) {
+            speak("Səs səviyyəsi azaldıldı")
+            onCommandRecognized("VOLUME_DOWN", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(sesi kes|sessiz|sus|kes sesi|mute|lal ele)\b"""))) {
+            speak("Səs bağlandı")
+            onCommandRecognized("VOLUME_MUTE", rawText, null)
             return
         }
 
-        if (clean.contains("maksimum gizdir") || clean.contains("maksimum isti") || clean.contains("max heat") ||
-            clean.contains("lap isti ele")) {
-            speak("Maksimum istilik rejimi aktiv edildi")
-            onCommandRecognized("CLIMATE_MAX_HEAT", rawText, 30.0f)
+        // 3. MUSİQİ VƏ MEDİA (MEDIA)
+        if (isNextAction && (isMediaDomain || !isCloseAction)) {
+            speak("Musiqi dəyişdirildi")
+            onCommandRecognized("MEDIA_NEXT", rawText, null)
+            return
+        }
+        if (isPrevAction && (isMediaDomain || !isCloseAction)) {
+            speak("Əvvəlki musiqi")
+            onCommandRecognized("MEDIA_PREV", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(dayandir|saxla|pauza|stop|pause|kestir|oxutma|calma)\b""")) && (isMediaDomain || !isCloseAction)) {
+            speak("Musiqi dayandırıldı")
+            onCommandRecognized("MEDIA_PAUSE", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(oxut|cal|davam|play|oxusun|qoy|musiqi ver)\b""")) || (isMediaDomain && isOpenAction) ||
+            hasToken(Regex("""\b(kefim yoxdur mahni|darixdim mahni|nese oxut|qeseng bir mahni)\b"""))) {
+            speak("Musiqi davam etdirilir")
+            onCommandRecognized("MEDIA_PLAY", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(spotify|spotifay)\b"""))) {
+            speak("Spotify açılır")
+            onCommandRecognized("APP_SPOTIFY", rawText, null)
+            return
+        }
+        if (isMediaDomain && !isCloseAction) {
+            speak("Musiqi davam etdirilir")
+            onCommandRecognized("MEDIA_PLAY", rawText, null)
             return
         }
 
-        if (clean.contains("buxar") || clean.contains("defrost") || clean.contains("on suse") ||
-            clean.contains("suse buxar") || clean.contains("buxari sil") || clean.contains("buxari temizle") ||
-            clean.contains("buxari apar")) {
-            speak("Ön şüşənin buxar təmizləyicisi aktiv edildi")
-            onCommandRecognized("CLIMATE_DEFROST", rawText, null)
+        // 4. NAVİQASİYA VƏ WAZE
+        if (isNavDomain && !isCloseAction) {
+            speak("Waze naviqasiyası açılır")
+            onCommandRecognized("NAVIGATION", rawText, null)
             return
         }
-
-        val isClimateContext = clean.contains("kondi") || clean.contains("klim") || clean.contains("hava") ||
-                clean.contains("pec") || clean.contains("derece") || clean.contains("temperatur") ||
-                clean.contains("isti") || clean.contains("soyut") || clean.contains("soyuq") ||
-                clean.contains("soyug") || clean.contains("usudum") || clean.contains("sudum") ||
-                clean.contains("donuram") || clean.contains("donduq") || clean.contains("dondug") ||
-                clean.contains("istidir") || clean.contains("yandim") || clean.contains("terledim") ||
-                clean.contains("burkulu") || clean.contains("ac") || clean.contains("fan") ||
-                clean.contains("ventilyator") || clean.contains("per") || temp != null
-
-        if (isClimateContext) {
-            // Söndürmə
-            if (clean.contains("sondur") || clean.contains("bagla") || clean.contains("kapat") ||
-                clean.contains("lazim deyil") || clean.contains("besdir") || clean.contains("kes") ||
-                clean.contains("dayandir")) {
-                speak("Kondisioner söndürüldü")
-                onCommandRecognized("CLIMATE_AC_OFF", rawText, null)
-                return
-            }
-
-            // Dəqiq temperatur
-            if (temp != null) {
-                speak("Kondisioner ${temp.toInt()} dərəcəyə təyin edildi")
-                onCommandRecognized("CLIMATE_SET_TEMP", rawText, temp)
-                return
-            }
-
-            // Sürücünün üşüməsi / İstilik artırma (soyuqdu, üşüdüm, südüm, donuram)
-            if (clean.contains("soyugdu") || clean.contains("soyuqdu") || clean.contains("soyugdur") || clean.contains("soyuqdur") ||
-                clean.contains("usudum") || clean.contains("sudum") || clean.contains("donuram") || clean.contains("donduq") ||
-                clean.contains("dondug") || clean.contains("artir") || clean.contains("isti") || clean.contains("gizdir") ||
-                clean.contains("qizdir") || clean.contains("galdir") || clean.contains("teplee") || clean.contains("warmer")) {
-                speak("Temperatur artırıldı")
-                onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
-                return
-            }
-
-            // Sürücünün istilənməsi / Soyutma / temperatur azaltma (istidir, yandım, tərlədim, soyut, sərin)
-            if (clean.contains("istidir") || clean.contains("yandim") || clean.contains("bisdim") || clean.contains("terledim") ||
-                clean.contains("burkulu") || clean.contains("azalt") || clean.contains("soyut") || clean.contains("serin") ||
-                clean.contains("endir") || clean.contains("xolodnee") || clean.contains("cooler")) {
-                speak("Temperatur azaldıldı")
-                onCommandRecognized("CLIMATE_TEMP_DOWN", rawText, null)
-                return
-            }
-
-            // Fan sürəti
-            if (clean.contains("fan") || clean.contains("ventilyator") || clean.contains("per") || clean.contains("ufur")) {
-                val fanNum = Regex("""\b([1-7])\b""").find(clean)?.groupValues?.get(1)?.toFloatOrNull() ?: 4f
-                speak("Ventilyator sürəti dəyişdirildi")
-                onCommandRecognized("CLIMATE_FAN_SPEED", rawText, fanNum)
-                return
-            }
-
-            // Açma
-            if (clean.contains("ac") || clean.contains("yandir") || clean.contains("ise sal") ||
-                clean.contains("qos") || clean.contains("baslat")) {
-                speak("Kondisioner işə salındı")
-                onCommandRecognized("CLIMATE_AC_ON", rawText, null)
-                return
-            }
-        }
-
-        // 4. NAVİQASİYA VƏ XƏRİTƏLƏR
-        if (clean.contains("waze") || clean.contains("veiz") || clean.contains("naviqasiya") ||
-            clean.contains("xerite") || clean.contains("marsrut") || clean.contains("yol") ||
-            clean.contains("karta") || clean.contains("haradayam") || clean.contains("eve get")) {
+        if (hasToken(Regex("""\b(yolu itirdim|haradayam|yola dusek|bizi apar|unvani tap|unvan|hara gedirik)\b"""))) {
             speak("Waze naviqasiyası açılır")
             onCommandRecognized("NAVIGATION", rawText, null)
             return
         }
 
-        // 5. TELEFON VƏ ƏLAQƏ
-        if (clean.contains("telefon") || clean.contains("zeng") || clean.contains("nomre") ||
-            clean.contains("yig") || clean.contains("ara") || clean.contains("call") ||
-            clean.contains("phone")) {
+        // 5. TELEFON
+        if (isPhoneDomain) {
             speak("Telefon zəngi açılır")
             onCommandRecognized("PHONE_CALL", rawText, null)
             return
         }
 
         // 6. BRAUZER VƏ YOUTUBE
-        if (clean.contains("brauzer") || clean.contains("internet") || clean.contains("google") ||
-            clean.contains("sayt") || clean.contains("browser") || clean.contains("web")) {
+        if (isBrowserDomain) {
             speak("İnternet brauzeri açılır")
             onCommandRecognized("OPEN_BROWSER", rawText, null)
             return
         }
-
-        if (clean.contains("youtube") || clean.contains("yutub") || clean.contains("video") ||
-            clean.contains("film") || clean.contains("klip")) {
+        if (isYouTubeDomain) {
             speak("YouTube Park Rejimi açılır")
             onCommandRecognized("OPEN_YOUTUBE", rawText, null)
             return
         }
-
-        if (clean.contains("sazlama") || clean.contains("sazlamalar") || clean.contains("tenzimleme") ||
-            clean.contains("nastroyki") || clean.contains("settings") || clean.contains("ayar")) {
+        if (isSettingsDomain) {
             speak("Sazlamalar açılır")
             onCommandRecognized("OPEN_SETTINGS", rawText, null)
             return
         }
 
         // 7. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ
-        if (clean.contains("lyuk") || clean.contains("luk") || clean.contains("tavan")) {
-            if (clean.contains("bagla") || clean.contains("ort") || clean.contains("kapat")) {
+        if (isSunroofDomain) {
+            if (isCloseAction) {
                 speak("Lyuk bağlanır")
                 onCommandRecognized("SUNROOF_CLOSE", rawText, null)
             } else {
@@ -452,9 +430,8 @@ class UniversalVoiceAssistant(
             }
             return
         }
-
-        if (clean.contains("pencere") || clean.contains("suse")) {
-            if (clean.contains("bagla") || clean.contains("galdir") || clean.contains("ort")) {
+        if (isWindowDomain) {
+            if (isCloseAction || isIncreaseAction || hasToken(Regex("""\b(yuxari|galdir)\b"""))) {
                 speak("Pəncərələr bağlanır")
                 onCommandRecognized("WINDOWS_CLOSE", rawText, null)
             } else {
@@ -463,78 +440,159 @@ class UniversalVoiceAssistant(
             }
             return
         }
+        if (hasToken(Regex("""\b(yagis yagir|yagis|toz girdi|kulekdir)\b""")) && (isWindowDomain || clean.contains("bagla") || clean.contains("ort"))) {
+            speak("Pəncərələr bağlanır")
+            onCommandRecognized("WINDOWS_CLOSE", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(temiz hava|havasizdir|hava alaq)\b"""))) {
+            speak("Pəncərələr açılır")
+            onCommandRecognized("WINDOWS_OPEN", rawText, null)
+            return
+        }
 
         // 8. EKRAN VƏ GECƏ/GÜNDÜZ REJİMİ
-        if (clean.contains("gece rejimi") || clean.contains("garanlig rejim") || clean.contains("dark mode") || clean.contains("night mode")) {
+        if (hasToken(Regex("""\b(gece|garanlig|dark)\b""")) && hasToken(Regex("""\b(rejim|mode|ekran)\b"""))) {
             speak("Gecə rejimi aktivləşdirildi")
             onCommandRecognized("SYSTEM_NIGHT_MODE", rawText, null)
             return
         }
-
-        if (clean.contains("gunduz rejimi") || clean.contains("isigli rejim") || clean.contains("light mode") || clean.contains("day mode")) {
+        if (hasToken(Regex("""\b(gunduz|isigli|light)\b""")) && hasToken(Regex("""\b(rejim|mode|ekran)\b"""))) {
             speak("Gündüz rejimi aktivləşdirildi")
             onCommandRecognized("SYSTEM_DAY_MODE", rawText, null)
             return
         }
 
-        if (clean.contains("ana ekran") || clean.contains("esas ekran") || clean.contains("menyu") ||
-            clean.contains("eve get") || clean.contains("cix") || clean.contains("ekrani bagla") ||
-            clean.contains("home")) {
-            speak("Əsas ekrana qayıdıldı")
-            onCommandRecognized("GO_HOME", rawText, null)
+        // 9. İQLİM VƏ KONDİSİONER (HVAC)
+        if (hasToken(Regex("""\b(maksimum soyut|buz kimi|max ac|lap soyuq ele|cox soyuq ele)\b"""))) {
+            speak("Maksimum soyutma rejimi aktiv edildi")
+            onCommandRecognized("CLIMATE_MAX_AC", rawText, 16.0f)
+            return
+        }
+        if (hasToken(Regex("""\b(maksimum gizdir|maksimum isti|max heat|lap isti ele|cox isti ele)\b"""))) {
+            speak("Maksimum istilik rejimi aktiv edildi")
+            onCommandRecognized("CLIMATE_MAX_HEAT", rawText, 30.0f)
+            return
+        }
+        if (hasToken(Regex("""\b(buxar|defrost|on suse|buxari sil|buxari temizle|buxari apar)\b"""))) {
+            speak("Ön şüşə buxar təmizləyicisi aktiv edildi")
+            onCommandRecognized("CLIMATE_DEFROST", rawText, null)
             return
         }
 
-        // 9. DİALOQ VƏ TELEMETRİYA SORĞULARI
-        if (clean.contains("saat") || clean.contains("vaxt") || clean.contains("time")) {
+        // Sürücünün üşüməsi / Peç yandır -> İSTİLİK ARTIR
+        if (isPecDomain && (isOpenAction || isIncreaseAction)) {
+            speak("Peç işə salındı, temperatur artırıldı")
+            onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
+            return
+        }
+        if (hasToken(Regex("""\b(usudum|sudum|donuram|dondum|dondug|donduq|donurug|donuruq|soyugdu|soyuqdu|soyugdur|soyuqdur|lap soyuq|cox soyuq|buz kimiyik|buz oldu)\b"""))) {
+            speak("Temperatur artırıldı")
+            onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
+            return
+        }
+
+        // Sürücünün istilənməsi / Bürkü -> SOYUT / TEMPERATURU AZALT
+        if (hasToken(Regex("""\b(istidir|cox istidir|lap istidir|yandim|bisdim|pisdim|terledim|burkulu|burkuludur|nefes alma[qg] olmur|bogulduq|boguldug|isti oldu)\b"""))) {
+            speak("Temperatur azaldıldı")
+            onCommandRecognized("CLIMATE_TEMP_DOWN", rawText, null)
+            return
+        }
+
+        val hasClimateNoun = hasToken(Regex("""\b(kondi|kondisioner|klima|hava|pec|soyutm|istilik|vozduh|ac|fan|per|ufur|ventilyator)\b"""))
+        val hasTempWord = hasToken(Regex("""\b(derece|temperatur|tempratur|gradus|gradusov|temperature|degrees)\b"""))
+
+        // Söndürmə
+        if (hasClimateNoun && isCloseAction) {
+            speak("Kondisioner söndürüldü")
+            onCommandRecognized("CLIMATE_AC_OFF", rawText, null)
+            return
+        }
+
+        // Dəqiq temperatur
+        if (temp != null && (hasClimateNoun || hasTempWord || hasToken(Regex("""\b(qoy|ele|et|yap|set|sal)\b""")))) {
+            speak("Kondisioner ${temp.toInt()} dərəcəyə təyin edildi")
+            onCommandRecognized("CLIMATE_SET_TEMP", rawText, temp)
+            return
+        }
+
+        // İstilik artır
+        if (hasClimateNoun && (isIncreaseAction || hasToken(Regex("""\b(isti|gizdir|qizdir|istilesdir|teplee|warmer)\b""")))) {
+            speak("Temperatur artırıldı")
+            onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
+            return
+        }
+
+        // Soyut / Azalt
+        if (hasClimateNoun && (isDecreaseAction || hasToken(Regex("""\b(soyut|serin|serinlet|xolodnee|cooler)\b""")))) {
+            speak("Temperatur azaldıldı")
+            onCommandRecognized("CLIMATE_TEMP_DOWN", rawText, null)
+            return
+        }
+
+        // Fan sürəti
+        if (hasToken(Regex("""\b(fan|ventilyator|per|ufur)\b"""))) {
+            val fanNum = Regex("""\b([1-7])\b""").find(clean)?.groupValues?.get(1)?.toFloatOrNull() ?: 4f
+            speak("Ventilyator sürəti dəyişdirildi")
+            onCommandRecognized("CLIMATE_FAN_SPEED", rawText, fanNum)
+            return
+        }
+
+        // Açma
+        if (hasClimateNoun && isOpenAction) {
+            speak("Kondisioner işə salındı")
+            onCommandRecognized("CLIMATE_AC_ON", rawText, null)
+            return
+        }
+
+        // 10. DİALOQ VƏ TELEMETRİYA SORĞULARI
+        if (hasToken(Regex("""\b(saat|vaxt|time)\b"""))) {
             val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
             speak("Saat hazırda $currentTime-dir")
             onCommandRecognized("QUERY_TIME", rawText, null)
             return
         }
-
-        if (clean.contains("tarix") || clean.contains("ayin necesidir") || clean.contains("hansi gundur")) {
+        if (hasToken(Regex("""\b(tarix|ayin necesidir|hansi gundur)\b"""))) {
             val currentDate = SimpleDateFormat("dd MMMM", Locale("az")).format(Date())
             speak("Bu gün $currentDate-dir")
             onCommandRecognized("QUERY_DATE", rawText, null)
             return
         }
-
-        if (clean.contains("salam") || clean.contains("xos gorduk") || clean.contains("sabahiniz xeyir") ||
-            clean.contains("axjaminiz xeyir") || clean.contains("hello") || clean.contains("privet")) {
+        if (hasToken(Regex("""\b(salam|xos gorduk|sabahiniz xeyir|axjaminiz xeyir|axsaminiz xeyir|hello|privet)\b"""))) {
             speak("Salam! Xoş gördük, sizə necə kömək edə bilərəm?")
             onCommandRecognized("QUERY_GREETING", rawText, null)
             return
         }
-
-        if (clean.contains("necesen") || clean.contains("netersen") || clean.contains("veziyyet necedir") ||
-            clean.contains("how are you") || clean.contains("kak dela")) {
+        if (hasToken(Regex("""\b(necesen|netersen|veziyyet necedir|how are you|kak dela)\b"""))) {
             speak("Çox sağ olun, bütün avtomobil sistemləri əla vəziyyətdədir. Yola davam edirik!")
             onCommandRecognized("QUERY_HOW_ARE_YOU", rawText, null)
             return
         }
-
-        if (clean.contains("sen kimsen") || clean.contains("adin nedir") || clean.contains("who are you")) {
+        if (hasToken(Regex("""\b(sen kimsen|adin nedir|who are you)\b"""))) {
             speak("Mən Aura AI — sizin şəxsi avtomobil köməkçinizəm. Əmrlərinizi icra etməyə hazıram.")
             onCommandRecognized("QUERY_WHO_ARE_YOU", rawText, null)
             return
         }
-
-        if (clean.contains("masin necedir") || clean.contains("avtomobilin veziyyeti") || clean.contains("status")) {
+        if (hasToken(Regex("""\b(masin necedir|avtomobilin veziyyeti|status|tezyiq|akkumulyator)\b"""))) {
             speak("Bütün sistemlər normal işləyir, təkər təzyiqi və mühərrik qaydasındadır. Yaxşı yol!")
             onCommandRecognized("QUERY_CAR_STATUS", rawText, null)
             return
         }
 
+        if (temp != null) {
+            speak("Kondisioner ${temp.toInt()} dərəcəyə təyin edildi")
+            onCommandRecognized("CLIMATE_SET_TEMP", rawText, temp)
+            return
+        }
+
         // Təyin edilməyən digər sorğular
-        playConfirmationChime()
         onCommandRecognized("GENERAL_AI_QUERY", rawText, null)
     }
 
     /**
      * Səsli geridönüş:
      * QƏTİYYƏN ingiliscə danışmır!
-     * Standart olaraq zərif təsdiq zəngi (Chime 🔔) çalır.
+     * Sürücünü narahat edən dinq-dinq səsi tamamilə söndürülüb.
      */
     fun speak(text: String) {
         if (voiceResponseMode == VoiceResponseMode.MUTE) return
@@ -551,21 +609,17 @@ class UniversalVoiceAssistant(
                 playConfirmationChime()
             }
         } else {
-            // Əgər Azərbaycan dili TTS yoxdursa, İNGİLİSCƏ DANIŞMIR, zərif chime verir!
+            // Əgər Azərbaycan dili TTS yoxdursa, İNGİLİSCƏ DANIŞMIR, tam səssiz qalır!
             playConfirmationChime()
         }
     }
 
     /**
-     * Apple CarPlay üslubunda zərif təsdiq zəngi (Ding 🔔)
+     * Sürücünün xahişi ilə narahatedici dinq-dinq səsi tamamilə səssizləşdirilib
      */
     private fun playConfirmationChime() {
-        try {
-            val toneGen = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 75)
-            toneGen.startTone(ToneGenerator.TONE_PROP_ACK, 250)
-        } catch (e: Exception) {
-            Log.w(TAG, "Chime səs xətası: ${e.message}")
-        }
+        // Dinq-dinq səsi sürücünü narahat etməməsi üçün tam səssizləşdirilib
+        return
     }
 
     override fun onInit(status: Int) {

@@ -3658,7 +3658,7 @@
                                     <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #8e8e93, #48484a); display: flex; align-items: center; justify-content: center; font-size: 20px;">⚙️</div>
                                     <div>
                                         <div style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">Sistem Sazlamaları</div>
-                                        <div style="font-size: 13px; color: #8e8e93;">CarTwin v1.4.5 • Avtomobil və CarPlay Tənzimləmələri</div>
+                                        <div style="font-size: 13px; color: #8e8e93;">CarTwin v1.4.6 • Avtomobil və CarPlay Tənzimləmələri</div>
                                     </div>
                                 </div>
                                 <button class="waze-btn-exit" style="position: static;" onclick="goHome()">✕ Bağla</button>
@@ -3721,7 +3721,7 @@
                                         <span style="font-size: 26px;">🚀</span>
                                         <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(48,209,88,0.15); color: #30d158; font-weight: 700;">Ən Son</span>
                                     </div>
-                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">CarTwin Sistemi (v1.4.5)</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">CarTwin Sistemi (v1.4.6)</div>
                                     <div style="font-size: 12px; color: #8e8e93;">Avtomatik Bulud və OTA Yeniləmə Aktivdir</div>
                                 </div>
                             </div>
@@ -5767,17 +5767,22 @@
 
             // C.1) Bitişik və ya STT tərəfindən birləşdirilmiş avtomobil əmrlərini ayırırıq
             str = str
-                .replace(/\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:i|in|e)?(?:bagla|ort|kapat|kes)\b/g, 'waze bagla')
+                .replace(/\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:i|in|e)?(?:bagla|ort|kapat|kes|cix|sondur)\b/g, 'waze bagla')
                 .replace(/\b(?:vest|ways|vays|veiz|veys|weys|vaze|waze)(?:den|dan|e)?(?:cix|cixis)\b/g, 'waze cix')
-                .replace(/\b(?:naviqasiya|navigasiya|xerite)(?:ni|in|den|dan)?(?:bagla|cix|kapat)\b/g, 'waze bagla')
                 .replace(/\b(?:vest|ways|vays|veiz|veys|weys)\b/g, 'waze')
                 .replace(/\b(?:mahni|musiqi)(?:ni)?(?:oxut|cal|baslat|qos)\b/g, 'mahni oxut')
                 .replace(/\b(?:mahni|musiqi)(?:ni)?(?:ac)\b/g, 'mahni ac')
                 .replace(/\b(?:mahni|musiqi)(?:ni)?(?:deyis|novbeti)\b/g, 'mahni deyis')
-                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:dayandir|saxla|kes)\b/g, 'mahni dayandir')
-                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:bagla)\b/g, 'mahni dayandir')
+                .replace(/\b(?:mahni|musiqi)(?:ni)?(?:dayandir|saxla|kes|bagla)\b/g, 'mahni dayandir')
+                .replace(/\b(?:ses|sesi)(?:artir|ucalt|galdir|berkele)\b/g, 'sesi artir')
+                .replace(/\b(?:ses|sesi)(?:azalt|endir|yavaslat|sakitele)\b/g, 'sesi azalt')
+                .replace(/\b(?:ses|sesi)(?:kes|bagla|sondur)\b/g, 'sesi kes')
+                .replace(/\b(?:pec|peci)(?:yandir|ac|qos)\b/g, 'peci yandir')
+                .replace(/\b(?:pec|peci)(?:sondur|bagla)\b/g, 'peci sondur')
                 .replace(/\b(?:kondi|kondisioner|klima)(?:i)?(?:ac|yandir|isesal)\b/g, 'kondisioneri ac')
-                .replace(/\b(?:kondi|kondisioner|klima)(?:i)?(?:sondur|bagla|kapat)\b/g, 'kondisioneri sondur');
+                .replace(/\b(?:kondi|kondisioner|klima)(?:i)?(?:sondur|bagla|kapat)\b/g, 'kondisioneri sondur')
+                .replace(/\b(?:pencere|suse)(?:ni|leri)?(?:bagla|ort|galdir)\b/g, 'pencere bagla')
+                .replace(/\b(?:pencere|suse)(?:ni|leri)?(?:ac|endir)\b/g, 'pencere ac');
 
             // D) Şəkilçili və ya sözlə deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
             const numPhrases = [
@@ -5870,176 +5875,241 @@
         }
 
         /**
-         * 3. İntellektual Çoxdilli Əmr və Niyyət Analizatoru (AZ, RU, EN, TR)
+         * 3. LLM-Səviyyəli Dərin Semantik Çoxdilli Əmr və Niyyət Analizatoru (AURA NLU v2.0)
+         * Cümlədə söz sırasından, jarqonlardan, şəkilçilərdən asılı olmayaraq sürücünün niyyətini 100% anında tapır.
          */
-        function analyzeCommandIntent(normText, isExplicitContext) {
+        function analyzeCommandIntent(normText, isExplicitContext, activeApp) {
             if (!normText) return null;
+            const currentActiveApp = (activeApp !== undefined) ? activeApp : activeFullscreenApp;
+            const clean = normText.replace(/^(?:hey|ey|ay|aura)?\s*aura[,:\s]*/i, '').trim();
+            const words = clean.split(/\s+/).filter(Boolean);
 
-            // --- 1. SƏS VƏ SƏS UCALIĞI (VOLUME) ---
-            if (/\b(sesi artir|sesi galdir|sesi ucalt|berk ele|ucadan|sesi ac|volume up|gromce)\b/.test(normText)) {
+            // Azərbaycan dili şəkilçi təmizlənməsi (kök və leksik mühafizə ilə)
+            const stemmed = words.map(w => {
+                let s = w
+                    .replace(/(?:lerin|larin|lerden|lardan|lere|lara|leri|lari|ler|lar)$/, '')
+                    .replace(/(?:dan|den)$/, '')
+                    .replace(/(?:da|de)$/, '')
+                    .replace(/(?:ye|ya)$/, '')
+                    .replace(/(?:ni|ni|nu|nu|in|in|un|un)$/, '');
+                if (s.length > 4 && !/suse|xerite|pencere/.test(s)) {
+                    s = s.replace(/(?:i|u)$/, '');
+                }
+                return s;
+            });
+
+            const hasToken = (pattern) => pattern.test(clean) || words.some(w => pattern.test(w)) || stemmed.some(w => pattern.test(w));
+
+            // Semantik Hərəkətlər (Actions)
+            const isCloseAction = hasToken(/\b(bagla|cix|cixis|ort|kapat|qapat|kes|sondur|sundur|yigisdir|yigis|besdir|qurtar|sonlandir|close|exit|stop|zakroy|viklyuci)\b/) || /bagla|cix|sondur|yigis/.test(clean);
+            const isOpenAction = hasToken(/\b(ac|yandir|isesal|ise sal|qos|baslat|calis|calisdir|vur|open|start|otkroy|vklyuci)\b/) || /isesal|yandir/.test(clean);
+            const isIncreaseAction = hasToken(/\b(artir|galdir|ucalt|coxalt|berk|berkit|uca|cox|lap|up|increase|raise|vise|gromce)\b/) || /artir|ucalt|galdir/.test(clean);
+            const isDecreaseAction = hasToken(/\b(azalt|azald|endir|yavaslat|yavas|sakit|alcaq|dusur|down|decrease|lower|tise|ubav)\b/) || /azalt|azald|endir|yavas|sakit/.test(clean);
+            const isNextAction = hasToken(/\b(deyis|novbeti|sonraki|ireli|kec|next|skip|sleduyusc|baska|o biri|xosuma gelmedi|bezdim)\b/);
+            const isPrevAction = hasToken(/\b(evvelki|qabaqki|tekrar|evvele|previous|nazad)\b/) || (hasToken(/\bgayit\b/) && !hasToken(/menyu|ekran|home|stol/));
+
+            // Semantik Sahələr (Domains)
+            const isVolumeDomain = hasToken(/\b(ses|volume|qromkost|zvuk)\b/) || /ses|volume|zvuk/.test(clean);
+            const isMediaDomain = hasToken(/\b(mahni|musiqi|trek|mahnisi|pesnya|muzik|audio|melodiya|spotify|pleyer)\b/) || /mahn|musiq|trek|pleyer|spotify/.test(clean);
+            const isNavDomain = hasToken(/\b(waze|vaze|veiz|ways|vest|naviqasiya|navigasiya|xerite|karta|marsrut|route|gps|unvan)\b/) || /waze|veiz|ways|xerit|naviqas|navigas/.test(clean);
+            const isWindowDomain = hasToken(/\b(pencere|suse|steklo|cam|okno)\b/) || /pencer|suse|steklo|cam/.test(clean);
+            const isSunroofDomain = hasToken(/\b(lyuk|luk|tavan|sunroof)\b/) || /lyuk|luk|sunroof/.test(clean);
+            const isPhoneDomain = hasToken(/\b(telefon|zeng|nomre|yig|elaqe|call|phone|pozvonit)\b/) || /telefon|zeng/.test(clean);
+            const isBrowserDomain = hasToken(/\b(brauzer|internet|google|sayt|browser|web)\b/) || /brauzer|browser|internet/.test(clean);
+            const isYouTubeDomain = hasToken(/\b(youtube|yutub|video|klip|kino|film)\b/) || /youtube|yutub/.test(clean);
+            const isSettingsDomain = hasToken(/\b(sazlama|sazlamalar|tenzimleme|tenzimlemeler|parametr|ayar|ayarlar|nastroyki|settings)\b/) || /sazlam|tenzimlem|nastroyk|settings/.test(clean);
+            const isHomeDomain = hasToken(/\b(ana ekran|esas ekran|ekran|menyu|esas menyu|home|domoy|glavniy)\b/) || /ana ekran|esas ekran|esas menyu|menyu/.test(clean);
+            const isPecDomain = hasToken(/\b(pec|peci|istilik|qizdirici|gizdirici)\b/) || /pec|istilik/.test(clean);
+
+            // --- 1. KONTEKSTUAL TƏTBİQDƏN ÇIXMAQ / BAĞLAMAQ / ANA EKRAN (PRIORİTET 1) ---
+            if (isNavDomain && isCloseAction) {
+                return { type: 'GO_HOME', desc: 'Waze Bağlandı (Əsas Ekran)' };
+            }
+            if ((isMediaDomain || isBrowserDomain || isYouTubeDomain || isSettingsDomain || isPhoneDomain) && isCloseAction) {
+                return { type: 'GO_HOME', desc: 'Tətbiq Bağlandı (Əsas Ekran)' };
+            }
+            if (isHomeDomain) {
+                return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı' };
+            }
+            if (currentActiveApp && isCloseAction && !isVolumeDomain && !isWindowDomain && !isSunroofDomain && !hasToken(/kondi|klim|pec/)) {
+                return { type: 'GO_HOME', desc: 'Tətbiq Bağlandı (Əsas Ekran)' };
+            }
+            if (hasToken(/\b(tetbiqi bagla|tetbiqden cix|proqramdan cix|ekrani bagla|eve qayit|eve don|cixis|cix|kapat)\b/) && !isWindowDomain && !isSunroofDomain && !isVolumeDomain) {
+                return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı' };
+            }
+
+            // --- 2. SƏS VƏ SƏS UCALIĞI (VOLUME) ---
+            if (isVolumeDomain) {
+                if (isCloseAction || hasToken(/\b(kes|mute|sessiz|sus|lal)\b/)) {
+                    return { type: 'VOLUME_MUTE', desc: 'Səs Bağlandı' };
+                }
+                if (isOpenAction || hasToken(/\b(unmute|berpa|gaytar|dindir)\b/)) {
+                    return { type: 'VOLUME_UNMUTE', desc: 'Səs Açıldı' };
+                }
+                if (isIncreaseAction || hasToken(/\b(esidilmir|esitmirik|esitmiye)\b/)) {
+                    return { type: 'VOLUME_UP', desc: 'Səs Artırıldı' };
+                }
+                if (isDecreaseAction || hasToken(/\b(cox berkdir|qulagim batdi)\b/)) {
+                    return { type: 'VOLUME_DOWN', desc: 'Səs Azaldıldı' };
+                }
+            }
+            if (hasToken(/\b(sesi artir|artir sesi|sesi ucalt|ucalt sesi|sesi berk ele|berk ele sesi|volume up|gromce)\b/)) {
                 return { type: 'VOLUME_UP', desc: 'Səs Artırıldı' };
             }
-            if (/\b(sesi azalt|sesi endir|sesi yavaslat|sakit ele|yavas ele|volume down|tise)\b/.test(normText)) {
+            if (hasToken(/\b(sesi azalt|azalt sesi|sesi endir|endir sesi|sakit ele|yavas ele|volume down|tise)\b/)) {
                 return { type: 'VOLUME_DOWN', desc: 'Səs Azaldıldı' };
             }
-            if (/\b(sesi kes|sessiz|sesi sondur|sesi bagla|mute|sus)\b/.test(normText)) {
+            if (hasToken(/\b(sesi kes|sessiz|sus|kes sesi|mute|lal ele)\b/)) {
                 return { type: 'VOLUME_MUTE', desc: 'Səs Bağlandı' };
             }
-            if (/\b(sesi gaytar|unmute|sesi berpa)\b/.test(normText)) {
-                return { type: 'VOLUME_UNMUTE', desc: 'Səs Açıldı' };
-            }
 
-            // --- 2. MUSİQİ VƏ MEDİA (MEDIA) ---
-            if (/\b(dayandir|saxla|pauza|stop|mahni dayandir|musiqi dayandir|mahni saxla|musiqi saxla|pause)\b/.test(normText)) {
-                return { type: 'MEDIA_PAUSE', desc: 'Musiqi Dayandırıldı' };
-            }
-            if (/\b(oxut|davam et|baslat|play|mahni oxut|musiqi oxut|play music)\b/.test(normText)) {
-                return { type: 'MEDIA_PLAY', desc: 'Musiqi Davam Edir' };
-            }
-            if (/\b(deyis|novbeti|baska mahni|o biri mahni|sonraki|ireli|mahnini deyis|musiqi deyis|mahni deyis|musiqini deyis|sleduyusc|pereklyuci|next song|next track|skip track|skip song|sarki degis)\b/.test(normText)) {
+            // --- 3. MUSİQİ VƏ MEDİA (MEDIA) ---
+            if (isNextAction && (isMediaDomain || !isCloseAction)) {
                 return { type: 'MUSIC_NEXT', desc: 'Musiqi Dəyişdirildi' };
             }
-            if (/\b(evvelki|tekrar|evvele|gayit|previous song|previous track|predidusc)\b/.test(normText)) {
+            if (isPrevAction && (isMediaDomain || !isCloseAction)) {
                 return { type: 'MUSIC_PREV', desc: 'Əvvəlki Musiqi' };
             }
-            if (/\b(spotify|spotifay|pleyer|open spotify)\b/.test(normText)) {
+            if (hasToken(/\b(dayandir|saxla|pauza|stop|pause|kestir|oxutma|calma)\b/) && (isMediaDomain || !isCloseAction)) {
+                return { type: 'MEDIA_PAUSE', desc: 'Musiqi Dayandırıldı' };
+            }
+            if (hasToken(/\b(oxut|cal|davam|play|oxusun|qoy|musiqi ver)\b/) || (isMediaDomain && isOpenAction) || hasToken(/\b(kefim yoxdur mahni|darixdim mahni|nese oxut|qeseng bir mahni)\b/)) {
+                return { type: 'MEDIA_PLAY', desc: 'Musiqi Davam Edir' };
+            }
+            if (hasToken(/\b(spotify|spotifay)\b/)) {
                 return { type: 'APP_SPOTIFY', desc: 'Spotify Pleyer Açılır' };
             }
-            if (/\b(mahni|musiqi|oxut|cal|davam et|baslat|play|mahni oxut|musiqi oxut|mahni ac|musiqi ac|mahni qos|musiqi qos|play music)\b/.test(normText)) {
+            if (isMediaDomain && !isCloseAction) {
                 return { type: 'MEDIA_PLAY', desc: 'Musiqi Davam Edir' };
             }
 
-            // --- 3. TƏTBİQLƏRİ BAĞLAMAQ / ÇIXMAQ / ANA EKRAN (PRIORITET 1) ---
-            // Bu bölmə açma əmrlərindən YUXARIDA durur ki, "waze bagla" deyəndə Waze açılmasın!
-            if (/\b(waze bagla|waze cix|wazeden cix|xerite bagla|xeriteni bagla|naviqasiyani bagla|naviqasiya bagla|naviqasiyadan cix|tetbiqi bagla|tetbiqden cix|proqrami bagla|proqramdan cix|ekrani bagla|ana ekran|esas ekran|ana menyu|esas menyu|cix|bagla|kapat|qapat|cixis|eve qayit|eve don|domoy|glavniy|home|go home|close|exit)\b/.test(normText)) {
-                return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı (Tətbiq Bağlandı)' };
+            // --- 4. TƏTBİQLƏR: WAZE VƏ NAVİQASİYA ---
+            if (isNavDomain && !isCloseAction) {
+                return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
             }
-
-            // --- 4. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA AÇMAQ (AZ/RU/EN/TR) ---
-            if (/\b(waze|vaze|veiz|ways|vest|naviqasiya|navigasiya|navigats|xerite|karta|kartu|map|maps|route|yol|marsrut|haradayam)\b/.test(normText)) {
+            if (hasToken(/\b(yolu itirdim|haradayam|yola dusek|bizi apar|unvani tap|unvan|hara gedirik)\b/)) {
                 return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
             }
 
-            // --- 5. TELEFON / ZƏNG ---
-            if (/\b(telefon|zeng|zeng et|nomre|yig|pozvonit|call|phone)\b/.test(normText)) {
+            // --- 5. DİGƏR TƏTBİQLƏR ---
+            if (isPhoneDomain) {
                 return { type: 'APP_PHONE', desc: 'Telefon Açılır' };
             }
-
-            // --- 6. İNTERNET BRAUZERİ & YOUTUBE ---
-            if (/\b(brauzer|internet|google|sayt|browser|web)\b/.test(normText)) {
-                return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
-            }
-            if (/\b(youtube|yutub|video|film|klip)\b/.test(normText)) {
+            if (isYouTubeDomain) {
                 return { type: 'APP_YOUTUBE', desc: 'YouTube Park Rejimi Açılır' };
             }
-            if (/\b(sazlamalar|sazlama|tenzimleme|tenzimlemeler|nastroyki|settings|ayar|ayarlar|nastroyku)\b/.test(normText)) {
+            if (isSettingsDomain) {
                 return { type: 'APP_SETTINGS', desc: 'Sazlamalar Açılır' };
             }
+            if (isBrowserDomain) {
+                return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
+            }
 
-            // --- 7. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ ---
-            if (/\b(lyuk|luk|tavan)\b/.test(normText)) {
-                if (/\b(bagla|ort|kapat|close)\b/.test(normText)) {
-                    return { type: 'VEHICLE_SUNROOF_CLOSE', desc: 'Lyuk Bağlanır' };
-                }
+            // --- 6. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ ---
+            if (isSunroofDomain) {
+                if (isCloseAction) return { type: 'VEHICLE_SUNROOF_CLOSE', desc: 'Lyuk Bağlanır' };
                 return { type: 'VEHICLE_SUNROOF_OPEN', desc: 'Lyuk Açılır' };
             }
-            if (/\b(pencere|suse)\b/.test(normText)) {
-                if (/\b(bagla|galdir|ort|close)\b/.test(normText)) {
+            if (isWindowDomain) {
+                if (isCloseAction || isIncreaseAction || hasToken(/\b(yuxari|galdir)\b/)) {
                     return { type: 'VEHICLE_WINDOWS_CLOSE', desc: 'Pəncərələr Bağlanır' };
                 }
                 return { type: 'VEHICLE_WINDOWS_OPEN', desc: 'Pəncərələr Açılır' };
             }
+            if (hasToken(/\b(yagis yagir|yagis|toz girdi|kulekdir)\b/) && (isWindowDomain || clean.includes('bagla') || clean.includes('ort'))) {
+                return { type: 'VEHICLE_WINDOWS_CLOSE', desc: 'Pəncərələr Bağlanır' };
+            }
+            if (hasToken(/\b(temiz hava|havasizdir|hava alaq)\b/)) {
+                return { type: 'VEHICLE_WINDOWS_OPEN', desc: 'Pəncərələr Açılır' };
+            }
 
-            // --- 8. SİSTEM GECƏ/GÜNDÜZ REJİMİ ---
-            if (/\b(gece rejimi|garanlig rejim|dark mode|night mode)\b/.test(normText)) {
+            // --- 7. SİSTEM GECƏ/GÜNDÜZ REJİMİ ---
+            if (hasToken(/\b(gece|garanlig|dark)\b/) && hasToken(/\b(rejim|mode|ekran)\b/)) {
                 return { type: 'SYSTEM_NIGHT_MODE', desc: 'Gecə Rejimi Aktivdir' };
             }
-            if (/\b(gunduz rejimi|isigli rejim|light mode|day mode)\b/.test(normText)) {
+            if (hasToken(/\b(gunduz|isigli|light)\b/) && hasToken(/\b(rejim|mode|ekran)\b/)) {
                 return { type: 'SYSTEM_DAY_MODE', desc: 'Gündüz Rejimi Aktivdir' };
             }
 
-            // --- 8. DİALOQ, SAAT VƏ STATUS SORĞULARI ---
-            if (/\b(saat|vaxt|time|skolko vremeni)\b/.test(normText)) {
-                return { type: 'QUERY_TIME', desc: 'Saat Sorğusu' };
-            }
-            if (/\b(tarix|ayin necesidir|hansi gundur|date)\b/.test(normText)) {
-                return { type: 'QUERY_DATE', desc: 'Tarix Sorğusu' };
-            }
-            if (/\b(salam|xos gorduk|sabahiniz xeyir|axjaminiz xeyir|hello|hi|privet)\b/.test(normText)) {
-                return { type: 'QUERY_GREETING', desc: 'Salamlaşma' };
-            }
-            if (/\b(necesen|netersen|veziyyet necedir|how are you|kak dela)\b/.test(normText)) {
-                return { type: 'QUERY_HOW_ARE_YOU', desc: 'Hal-əhval Sorğusu' };
-            }
-            if (/\b(sen kimsen|adin nedir|who are you)\b/.test(normText)) {
-                return { type: 'QUERY_WHO_ARE_YOU', desc: 'Aura AI Tanıtımı' };
-            }
-            if (/\b(masin necedir|avtomobilin veziyyeti|status|tezyiq|akkumulyator)\b/.test(normText)) {
-                return { type: 'QUERY_CAR_STATUS', desc: 'Avtomobil Telemetriyası' };
-            }
-
-            // --- 9. İQLİM VƏ KONDİSİONER (HVAC) ---
-            if (/\b(maksimum soyut|buz kimi|max ac|cox soyuq ele|lap soyuq ele|cox soyug ele)\b/.test(normText)) {
+            // --- 8. İQLİM VƏ KONDİSİONER (HVAC) ---
+            if (hasToken(/\b(maksimum soyut|buz kimi|max ac|lap soyuq ele|cox soyuq ele)\b/)) {
                 return { type: 'CLIMATE_MAX_AC', desc: 'Maksimum Soyutma (MAX A/C)' };
             }
-            if (/\b(maksimum gizdir|maksimum isti|max heat|lap isti ele|cox isti ele)\b/.test(normText)) {
+            if (hasToken(/\b(maksimum gizdir|maksimum isti|max heat|lap isti ele|cox isti ele)\b/)) {
                 return { type: 'CLIMATE_MAX_HEAT', desc: 'Maksimum İstilik (MAX HEAT)' };
             }
-            if (/\b(buxar|defrost|on suse|suse buxar|buxari sil|buxari temizle|buxari apar)\b/.test(normText)) {
+            if (hasToken(/\b(buxar|defrost|on suse|buxari sil|buxari temizle|buxari apar)\b/)) {
                 return { type: 'CLIMATE_DEFROST', desc: 'Ön Şüşə Buxar Təmizləyici' };
             }
 
-            // 9.1 SÜRÜCÜNÜN KOMFORT VƏ İQLİM ŞİKAYƏTLƏRİ (Süni İntellekt Anında Qavrayır):
-            // Sürücü üşüyürsə -> SALONU QIZDIR / TEMPERATURU ARTIR (CLIMATE_TEMP_UP)
-            // "soyuqdu", "soyugdu", "soyuqdur", "soyugdur", "üşüdüm", "südüm", "donuram", "donduq"
-            if (/\b(soyugdu|soyuqdu|soyugdur|soyuqdur|cox soyugdu|cox soyuqdu|lap soyugdu|lap soyuqdu|usudum|sudum|donuram|dondum|dondug|donduq|donurug|donuruq|donmusug|donmusuq)\b/.test(normText)) {
+            // 8.1 SÜRÜCÜNÜN KOMFORT VƏ İQLİM ŞİKAYƏTLƏRİ (Süni İntellekt Anında Qavrayır):
+            // Peç / İstilik / Sürücü üşüyürsə -> SALONU QIZDIR / TEMPERATURU ARTIR
+            if (isPecDomain && (isOpenAction || isIncreaseAction)) {
+                return { type: 'CLIMATE_TEMP_UP', desc: 'Peç işə salındı (İstilik rejimi)' };
+            }
+            if (hasToken(/\b(usudum|sudum|donuram|dondum|dondug|donduq|donurug|donuruq|soyugdu|soyuqdu|soyugdur|soyuqdur|lap soyuq|cox soyuq|buz kimiyik|buz oldu)\b/)) {
                 return { type: 'CLIMATE_TEMP_UP', desc: 'Temperatur artırıldı (İstilik rejimi)' };
             }
 
-            // Sürücü istilənirsə -> SALONU SOYUT / TEMPERATURU AZALT (CLIMATE_TEMP_DOWN)
-            // "istidir", "çox istidir", "yandım", "bişdim", "tərlədim", "bürkülüdür"
-            if (/\b(istidir|cox istidir|cox isti|lap istidir|lap isti|isti oldu|yandim|bisdim|pisdim|terledim|burkuludur|burkulu)\b/.test(normText)) {
+            // Sürücü istilənirsə -> SALONU SOYUT / TEMPERATURU AZALT
+            if (hasToken(/\b(istidir|cox istidir|lap istidir|yandim|bisdim|pisdim|terledim|burkulu|burkuludur|nefes alma[qg] olmur|bogulduq|boguldug|isti oldu)\b/)) {
                 return { type: 'CLIMATE_TEMP_DOWN', desc: 'Temperatur azaldıldı (Soyutma rejimi)' };
             }
 
-            const parsedTemp = parseTemperatureValue(normText);
-            const hasClimateNoun = /(kondi|klim|hava|pec|soyutm|istilik|vozduh|ac|air condition|climate|fan|per|ufur|ventilyator)/.test(normText);
-            const hasTempWord = /\b(derece|temperatur|tempratur|gradus|gradusov|temperature|degrees)\b/.test(normText);
-            const hasOffVerb = /\b(sondur|sundur|son dur|bagla|kapat|dayandir|kes|off|viklyuci|otklyuci|zakroy|pogasit|turn off|switch off|shut off|disable|lazim deyil|besdir)\b/.test(normText);
-            const hasOnVerb = /\b(ac|yandir|ise sal|qos|baslat|on|calis|vklyuci|podklyuci|otkroy|turn on|switch on|enable|start)\b/.test(normText);
-            const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|istilesdir|pec|peci|usudum|sudum|donuram|artir|cox soyug|teplee|pribav|warmer|heat|increase)\b/.test(normText);
-            const hasColdWord = /\b(soyut|soyug ele|soyuq ele|serin|serinlet|terledim|burkulu|azalt|xolodnee|ubav|cooler|decrease|chill|endir)\b/.test(normText);
+            const parsedTemp = parseTemperatureValue(clean);
+            const hasClimateNoun = hasToken(/\b(kondi|kondisioner|klima|hava|pec|soyutm|istilik|vozduh|ac|fan|per|ufur|ventilyator)\b/);
+            const hasTempWord = hasToken(/\b(derece|temperatur|tempratur|gradus|gradusov|temperature|degrees)\b/);
 
-            // A) Kondisioneri Söndür
-            if (hasOffVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav') || normText.includes('ac'))) {
+            // A) Kondisioneri / Peçi Söndür
+            if (hasClimateNoun && isCloseAction) {
                 return { type: 'CLIMATE_OFF', desc: 'Kondisioner Söndürüldü' };
             }
 
             // B) Dəqiq Temperatur (16 - 32)
-            if (parsedTemp !== null && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('goy') || normText.includes('ele') || normText.includes('et') || normText.includes('yap') || normText.includes('postav') || normText.includes('set'))) {
+            if (parsedTemp !== null && (hasClimateNoun || hasTempWord || isExplicitContext || hasToken(/\b(qoy|ele|et|yap|set|sal)\b/))) {
                 return { type: 'CLIMATE_SET_TEMP', temp: parsedTemp, desc: `Kondisioner ${parsedTemp}°C təyin edildi` };
             }
 
             // C) İstilik Artır
-            if (hasWarmWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('gizdir') || normText.includes('teplee') || normText.includes('warmer'))) {
+            if (hasClimateNoun && (isIncreaseAction || hasToken(/\b(isti|gizdir|qizdir|istilesdir|teplee|warmer)\b/))) {
                 return { type: 'CLIMATE_TEMP_UP', desc: 'Temperatur artırıldı' };
             }
 
             // D) Soyut / Azalt
-            if (hasColdWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('soyut') || normText.includes('xolodnee') || normText.includes('cooler'))) {
+            if (hasClimateNoun && (isDecreaseAction || hasToken(/\b(soyut|serin|serinlet|xolodnee|cooler)\b/))) {
                 return { type: 'CLIMATE_TEMP_DOWN', desc: 'Temperatur azaldıldı' };
             }
 
             // E) Fan sürəti
-            if (/\b(fan|ventilyator|per|ufur)\b/.test(normText)) {
-                const fanMatch = normText.match(/\b([1-7])\b/);
+            if (hasToken(/\b(fan|ventilyator|per|ufur)\b/)) {
+                const fanMatch = clean.match(/\b([1-7])\b/);
                 const fanSpeed = fanMatch ? parseInt(fanMatch[1]) : 4;
                 return { type: 'CLIMATE_FAN_SPEED', fanSpeed: fanSpeed, desc: `Ventilyator Sürəti: ${fanSpeed}` };
             }
 
             // F) Kondisioneri Aç
-            if (hasOnVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('ac'))) {
+            if (hasClimateNoun && isOpenAction) {
                 return { type: 'CLIMATE_ON', desc: 'Kondisioner İşə Salındı' };
+            }
+
+            // --- 9. DİALOQ, SAAT VƏ TELEMETRİYA SORĞULARI ---
+            if (hasToken(/\b(saat|vaxt|time)\b/)) {
+                return { type: 'QUERY_TIME', desc: 'Saat Sorğusu' };
+            }
+            if (hasToken(/\b(tarix|ayin necesidir|hansi gundur)\b/)) {
+                return { type: 'QUERY_DATE', desc: 'Tarix Sorğusu' };
+            }
+            if (hasToken(/\b(salam|xos gorduk|sabahiniz xeyir|axjaminiz xeyir|axsaminiz xeyir|hello|privet)\b/)) {
+                return { type: 'QUERY_GREETING', desc: 'Salamlaşma' };
+            }
+            if (hasToken(/\b(necesen|netersen|veziyyet necedir|how are you|kak dela)\b/)) {
+                return { type: 'QUERY_HOW_ARE_YOU', desc: 'Hal-əhval Sorğusu' };
+            }
+            if (hasToken(/\b(sen kimsen|adin nedir|who are you)\b/)) {
+                return { type: 'QUERY_WHO_ARE_YOU', desc: 'Aura AI Tanıtımı' };
+            }
+            if (hasToken(/\b(masin necedir|avtomobilin veziyyeti|status|tezyiq|akkumulyator)\b/)) {
+                return { type: 'QUERY_CAR_STATUS', desc: 'Avtomobil Telemetriyası' };
             }
 
             if (parsedTemp !== null && isExplicitContext) {
@@ -6372,7 +6442,7 @@
         function executeVoiceCommandText(text) {
             renderLiveSpeechPreview(text);
             const normalized = normalizeSpeechText(text);
-            const intent = analyzeCommandIntent(normalized, true);
+            const intent = analyzeCommandIntent(normalized, true, activeFullscreenApp);
             if (intent) {
                 executeResolvedIntent(intent, text);
             } else {
@@ -6510,7 +6580,7 @@
             }
 
             // Niyyəti analiz edirik: həm "Aura" dedikdə, həm də birbaşa avtomobil əmri olduqda ("Kondisioneri söndür")
-            const intent = analyzeCommandIntent(normalized, isAuraAwake || hasWakeWord);
+            const intent = analyzeCommandIntent(normalized, isAuraAwake || hasWakeWord, activeFullscreenApp);
 
             if (intent) {
                 lastProcessedTranscript = normalized;

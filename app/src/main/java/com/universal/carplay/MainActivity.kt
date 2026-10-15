@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
-                currentVersionName = "1.4.5"
+                currentVersionName = "1.4.6"
             ) { hasUpdate, newVersion, _ ->
                 if (hasUpdate) {
                     btnCheckUpdate.text = "🚀 v$newVersion Yenilə!"
@@ -493,7 +493,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Spotify"}""")
                             Toast.makeText(this, "🎵 Spotify Açılır", Toast.LENGTH_SHORT).show()
                         }
-                        "NAVIGATION" -> {
+                        "NAVIGATION", "APP_WAZE" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Waze"}""")
                             Toast.makeText(this, "🧭 Waze Naviqasiyası Açılır", Toast.LENGTH_SHORT).show()
                         }
