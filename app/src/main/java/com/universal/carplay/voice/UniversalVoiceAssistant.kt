@@ -96,13 +96,21 @@ class UniversalVoiceAssistant(
 
     fun startListening(language: String = currentLanguage) {
         currentLanguage = language
+        try {
+            speechRecognizer?.cancel()
+        } catch (_: Throwable) {}
+
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, language)
             putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, language)
         }
-        speechRecognizer?.startListening(intent)
+        try {
+            speechRecognizer?.startListening(intent)
+        } catch (e: Throwable) {
+            Log.w(TAG, "startListening xətası: ${e.message}")
+        }
     }
 
     fun stopListening() {

@@ -154,9 +154,13 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun initOtaUpdates() {
         try {
+            val currentVer = try {
+                packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4.7"
+            } catch (_: Throwable) { "1.4.7" }
+
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
-                currentVersionName = "1.4.6"
+                currentVersionName = currentVer
             ) { hasUpdate, newVersion, _ ->
                 if (hasUpdate) {
                     btnCheckUpdate.text = "🚀 v$newVersion Yenilə!"
@@ -244,6 +248,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
 
         surfaceView.setSurfaceListener(this)
+
+        ivTopBarLogo.setOnClickListener {
+            voiceAssistant?.startListening()
+            Toast.makeText(this, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
+        }
 
         btnSettings.setOnClickListener {
             showProfileSelectionDialog()
@@ -381,6 +390,15 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             // 1. Sükan Düymələri
             steeringWheelManager = SteeringWheelManager { commandJson ->
+                try {
+                    val obj = JSONObject(commandJson)
+                    if (obj.optString("command") == "TRIGGER_SIRI") {
+                        runOnUiThread {
+                            voiceAssistant?.startListening()
+                            Toast.makeText(this, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (_: Throwable) {}
                 sessionCoordinator?.sendTouchEvent(commandJson)
                 mockClient?.sendTouchEvent(commandJson)
             }
