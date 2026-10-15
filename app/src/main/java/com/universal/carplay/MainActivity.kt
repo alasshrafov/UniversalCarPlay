@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -155,7 +156,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
-                currentVersionName = "1.4.2"
+                currentVersionName = "1.4.3"
             ) { hasUpdate, newVersion, _ ->
                 if (hasUpdate) {
                     btnCheckUpdate.text = "🚀 v$newVersion Yenilə!"
@@ -415,6 +416,25 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         }
                         "CLIMATE_AC_OFF" -> vehicleHvacManager.setAcPower(false)
                         "CLIMATE_AC_ON" -> vehicleHvacManager.setAcPower(true)
+                        "CLIMATE_MAX_AC" -> {
+                            vehicleHvacManager.setTemperature(16.0f)
+                            vehicleHvacManager.setFanSpeed(7)
+                            vehicleHvacManager.setAcPower(true)
+                        }
+                        "CLIMATE_MAX_HEAT" -> {
+                            vehicleHvacManager.setTemperature(30.0f)
+                            vehicleHvacManager.setFanSpeed(7)
+                            vehicleHvacManager.setAcPower(true)
+                        }
+                        "CLIMATE_DEFROST" -> {
+                            vehicleHvacManager.setAcPower(true)
+                            vehicleHvacManager.setFanSpeed(7)
+                            Toast.makeText(this, "🌬️ Ön Şüşə Buxar Təmizləyicisi Aktivdir", Toast.LENGTH_SHORT).show()
+                        }
+                        "CLIMATE_FAN_SPEED" -> {
+                            val speed = param?.toInt() ?: 4
+                            vehicleHvacManager.setFanSpeed(speed)
+                        }
                         "CLIMATE_TEMP_UP" -> {
                             val current = vehicleHvacManager.getClimateState().targetTemp
                             vehicleHvacManager.setTemperature(current + 1.0f)
@@ -423,9 +443,91 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             val current = vehicleHvacManager.getClimateState().targetTemp
                             vehicleHvacManager.setTemperature(current - 1.0f)
                         }
+                        "VOLUME_UP" -> {
+                            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
+                        }
+                        "VOLUME_DOWN" -> {
+                            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
+                        }
+                        "VOLUME_MUTE" -> {
+                            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, AudioManager.FLAG_SHOW_UI)
+                            } else {
+                                @Suppress("DEPRECATION")
+                                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true)
+                            }
+                        }
+                        "VOLUME_UNMUTE" -> {
+                            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, AudioManager.FLAG_SHOW_UI)
+                            } else {
+                                @Suppress("DEPRECATION")
+                                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false)
+                            }
+                        }
+                        "MEDIA_NEXT" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_NEXT","keyCode":87}""")
+                            mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_NEXT","keyCode":87}""")
+                            Toast.makeText(this, "⏭ Növbəti Mahnı", Toast.LENGTH_SHORT).show()
+                        }
+                        "MEDIA_PREV" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PREV","keyCode":88}""")
+                            mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PREV","keyCode":88}""")
+                            Toast.makeText(this, "⏮ Əvvəlki Mahnı", Toast.LENGTH_SHORT).show()
+                        }
+                        "MEDIA_PLAY" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PLAY","keyCode":126}""")
+                            mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PLAY","keyCode":126}""")
+                            Toast.makeText(this, "▶ Musiqi Davam Edir", Toast.LENGTH_SHORT).show()
+                        }
+                        "MEDIA_PAUSE" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PAUSE","keyCode":127}""")
+                            mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PAUSE","keyCode":127}""")
+                            Toast.makeText(this, "⏸ Musiqi Dayandırıldı", Toast.LENGTH_SHORT).show()
+                        }
+                        "APP_SPOTIFY" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Spotify"}""")
+                            Toast.makeText(this, "🎵 Spotify Açılır", Toast.LENGTH_SHORT).show()
+                        }
+                        "NAVIGATION" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Waze"}""")
+                            Toast.makeText(this, "🧭 Waze Naviqasiyası Açılır", Toast.LENGTH_SHORT).show()
+                        }
+                        "PHONE_CALL" -> {
+                            sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Phone"}""")
+                            Toast.makeText(this, "📞 Telefon Açılır", Toast.LENGTH_SHORT).show()
+                        }
                         "OPEN_BROWSER" -> openBrowser("https://www.google.com")
                         "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
-                        else -> Toast.makeText(this, "Aura: $commandType (\"$originalText\")", Toast.LENGTH_SHORT).show()
+                        "GO_HOME" -> {
+                            if (browserOverlay.visibility == View.VISIBLE) {
+                                closeBrowser()
+                            }
+                            Toast.makeText(this, "🏠 Əsas Ekran", Toast.LENGTH_SHORT).show()
+                        }
+                        "SYSTEM_NIGHT_MODE" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                            Toast.makeText(this, "🌙 Gecə Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                        }
+                        "SYSTEM_DAY_MODE" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                            Toast.makeText(this, "☀️ Gündüz Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                        }
+                        "SUNROOF_OPEN" -> Toast.makeText(this, "🚗 Lyuk Açılır", Toast.LENGTH_SHORT).show()
+                        "SUNROOF_CLOSE" -> Toast.makeText(this, "🚗 Lyuk Bağlanır", Toast.LENGTH_SHORT).show()
+                        "WINDOWS_OPEN" -> Toast.makeText(this, "🚗 Pəncərələr Açılır", Toast.LENGTH_SHORT).show()
+                        "WINDOWS_CLOSE" -> Toast.makeText(this, "🚗 Pəncərələr Bağlanır", Toast.LENGTH_SHORT).show()
+                        "QUERY_TIME", "QUERY_DATE", "QUERY_GREETING", "QUERY_HOW_ARE_YOU", "QUERY_WHO_ARE_YOU", "QUERY_CAR_STATUS" -> {
+                            // Səsli cavab artıq UniversalVoiceAssistant tərəfindən deyildi
+                            Toast.makeText(this, "🔮 Aura: $originalText", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            Toast.makeText(this, "Aura: $originalText", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

@@ -5685,46 +5685,69 @@
                 .replace(/[w]/g, 'v')
                 .replace(/[q]/g, 'g');
 
-            // C) Durğu işarələrini və lazımsız simvolları təmizləyirik
+            // C) Durğu işarələrini təmizləyirik
             str = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'🇦🇿🎙️]/g, ' ');
             str = str.replace(/\s+/g, ' ').trim();
 
-            // D) Çoxdilli (Azərbaycan, Rus, İngilis, Türk) deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
-            const numWords = [
-                // Azərbaycan & Türk
-                { w: 'iyirmi bir', n: '21' }, { w: 'yirmi bir', n: '21' },
-                { w: 'iyirmi iki', n: '22' }, { w: 'yirmi iki', n: '22' },
-                { w: 'iyirmi uc', n: '23' }, { w: 'yirmi uc', n: '23' },
-                { w: 'iyirmi dord', n: '24' }, { w: 'yirmi dord', n: '24' },
-                { w: 'iyirmi bes', n: '25' }, { w: 'yirmi bes', n: '25' },
-                { w: 'iyirmi alti', n: '26' }, { w: 'yirmi alti', n: '26' },
-                { w: 'iyirmi yeddi', n: '27' }, { w: 'yirmi yeddi', n: '27' },
-                { w: 'iyirmi sekkiz', n: '28' }, { w: 'yirmi sekkiz', n: '28' },
-                { w: 'iyirmi doqquz', n: '29' }, { w: 'yirmi doqquz', n: '29' },
-                { w: 'iyirmi', n: '20' }, { w: 'yirmi', n: '20' }, { w: 'yigirmi', n: '20' },
-                { w: 'on alti', n: '16' }, { w: 'on yeddi', n: '17' }, { w: 'on sekkiz', n: '18' },
-                { w: 'on doqquz', n: '19' }, { w: 'otuz', n: '30' },
-                // Rus (Translit cyrMap sonrasi: двадцать -> dvadtsat)
-                { w: 'dvadtsat odin', n: '21' }, { w: 'dvadtsat dva', n: '22' },
-                { w: 'dvadtsat tri', n: '23' }, { w: 'dvadtsat cetire', n: '24' },
-                { w: 'dvadtsat pyat', n: '25' }, { w: 'dvadtsat sest', n: '26' },
-                { w: 'dvadtsat sem', n: '27' }, { w: 'dvadtsat vosem', n: '28' },
-                { w: 'dvadtsat devyat', n: '29' }, { w: 'dvadtsat', n: '20' },
-                { w: 'sestnadtsat', n: '16' }, { w: 'semnadtsat', n: '17' },
-                { w: 'vosemnadtsat', n: '18' }, { w: 'devyatnadtsat', n: '19' },
-                { w: 'tridtsat', n: '30' },
+            // D) Şəkilçili və ya sözlə deyilmiş rəqəmləri rəqəmə çeviririk (16 - 32)
+            const numPhrases = [
+                // İki sözlü Azərbaycan & Türk rəqəmləri (şəkilçilərlə)
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:bir|bire)\b/g, n: '21' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:iki|ikiye)\b/g, n: '22' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:uc|uce)\b/g, n: '23' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:dord|dorde)\b/g, n: '24' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:bes|bese)\b/g, n: '25' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:alti|altiya)\b/g, n: '26' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:yeddi|yeddiye)\b/g, n: '27' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:sekkiz|sekkize)\b/g, n: '28' },
+                { p: /\b(?:iyirmi|yirmi|yigirmi)\s+(?:doqquz|doqquza)\b/g, n: '29' },
+                { p: /\b(?:on)\s+(?:alti|altiya)\b/g, n: '16' },
+                { p: /\b(?:on)\s+(?:yeddi|yeddiye)\b/g, n: '17' },
+                { p: /\b(?:on)\s+(?:sekkiz|sekkize)\b/g, n: '18' },
+                { p: /\b(?:on)\s+(?:doqquz|doqquza)\b/g, n: '19' },
+                { p: /\b(?:otuz)\s+(?:bir|bire)\b/g, n: '31' },
+                { p: /\b(?:otuz)\s+(?:iki|ikiye)\b/g, n: '32' },
+                // Tək sözlü rəqəmlər
+                { p: /\b(?:iyirmi|yirmi|yigirmi|iyirmiye|yirmiye)\b/g, n: '20' },
+                { p: /\b(?:otuz|otuza)\b/g, n: '30' },
+                // Rəqəmlə deyilənlər və şəkilçiləri (22ye, 22-ye, 20ye, 25e, 24e)
+                { p: /\b(1[6-9]|2[0-9]|3[0-2])(?:ye|ya|e|a|deki|den|de)\b/g, n: '$1' },
+                // Rus
+                { p: /\b(?:dvadtsat)\s+(?:odin)\b/g, n: '21' },
+                { p: /\b(?:dvadtsat)\s+(?:dva)\b/g, n: '22' },
+                { p: /\b(?:dvadtsat)\s+(?:tri)\b/g, n: '23' },
+                { p: /\b(?:dvadtsat)\s+(?:cetire)\b/g, n: '24' },
+                { p: /\b(?:dvadtsat)\s+(?:pyat)\b/g, n: '25' },
+                { p: /\b(?:dvadtsat)\s+(?:sest)\b/g, n: '26' },
+                { p: /\b(?:dvadtsat)\s+(?:sem)\b/g, n: '27' },
+                { p: /\b(?:dvadtsat)\s+(?:vosem)\b/g, n: '28' },
+                { p: /\b(?:dvadtsat)\s+(?:devyat)\b/g, n: '29' },
+                { p: /\b(?:dvadtsat)\b/g, n: '20' },
+                { p: /\b(?:sestnadtsat)\b/g, n: '16' },
+                { p: /\b(?:semnadtsat)\b/g, n: '17' },
+                { p: /\b(?:vosemnadtsat)\b/g, n: '18' },
+                { p: /\b(?:devyatnadtsat)\b/g, n: '19' },
+                { p: /\b(?:tridtsat)\b/g, n: '30' },
                 // İngilis
-                { w: 'twenty one', n: '21' }, { w: 'twenty two', n: '22' },
-                { w: 'twenty three', n: '23' }, { w: 'twenty four', n: '24' },
-                { w: 'twenty five', n: '25' }, { w: 'twenty six', n: '26' },
-                { w: 'twenty seven', n: '27' }, { w: 'twenty eight', n: '28' },
-                { w: 'twenty nine', n: '29' }, { w: 'twenty', n: '20' },
-                { w: 'sixteen', n: '16' }, { w: 'seventeen', n: '17' },
-                { w: 'eighteen', n: '18' }, { w: 'nineteen', n: '19' },
-                { w: 'thirty', n: '30' }
+                { p: /\b(?:twenty)\s+(?:one)\b/g, n: '21' },
+                { p: /\b(?:twenty)\s+(?:two)\b/g, n: '22' },
+                { p: /\b(?:twenty)\s+(?:three)\b/g, n: '23' },
+                { p: /\b(?:twenty)\s+(?:four)\b/g, n: '24' },
+                { p: /\b(?:twenty)\s+(?:five)\b/g, n: '25' },
+                { p: /\b(?:twenty)\s+(?:six)\b/g, n: '26' },
+                { p: /\b(?:twenty)\s+(?:seven)\b/g, n: '27' },
+                { p: /\b(?:twenty)\s+(?:eight)\b/g, n: '28' },
+                { p: /\b(?:twenty)\s+(?:nine)\b/g, n: '29' },
+                { p: /\b(?:twenty)\b/g, n: '20' },
+                { p: /\b(?:sixteen)\b/g, n: '16' },
+                { p: /\b(?:seventeen)\b/g, n: '17' },
+                { p: /\b(?:eighteen)\b/g, n: '18' },
+                { p: /\b(?:nineteen)\b/g, n: '19' },
+                { p: /\b(?:thirty)\b/g, n: '30' }
             ];
-            for (const item of numWords) {
-                str = str.replace(new RegExp('\\b' + item.w + '\\b', 'g'), item.n);
+
+            for (const item of numPhrases) {
+                str = str.replace(item.p, item.n);
             }
 
             return str;
@@ -5734,7 +5757,7 @@
          * 2. Temperatur Dəyərinin Tapılması (16°C - 32°C)
          */
         function parseTemperatureValue(str) {
-            const match = str.match(/\b(1[6-9]|2[0-9]|3[0-2])\b/);
+            const match = str.match(/(?:^|\D)(1[6-9]|2[0-9]|3[0-2])(?:\D|$)/);
             if (match) return parseFloat(match[1]);
             return null;
         }
@@ -5762,78 +5785,147 @@
         function analyzeCommandIntent(normText, isExplicitContext) {
             if (!normText) return null;
 
-            // --- 1. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA (AZ/RU/EN/TR) ---
-            if (/\b(waze|vaze|veiz|naviqasiya|navigasiya|navigats|xerite|karta|kartu|map|maps|route|yol|marsrut)\b/.test(normText)) {
-                return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
+            // --- 1. SƏS VƏ SƏS UCALIĞI (VOLUME) ---
+            if (/\b(sesi artir|sesi galdir|sesi ucalt|berk ele|ucadan|sesi ac|volume up|gromce)\b/.test(normText)) {
+                return { type: 'VOLUME_UP', desc: 'Səs Artırıldı' };
+            }
+            if (/\b(sesi azalt|sesi endir|sesi yavaslat|sakit ele|yavas ele|volume down|tise)\b/.test(normText)) {
+                return { type: 'VOLUME_DOWN', desc: 'Səs Azaldıldı' };
+            }
+            if (/\b(sesi kes|sessiz|sesi sondur|sesi bagla|mute|sus)\b/.test(normText)) {
+                return { type: 'VOLUME_MUTE', desc: 'Səs Bağlandı' };
+            }
+            if (/\b(sesi gaytar|unmute|sesi berpa)\b/.test(normText)) {
+                return { type: 'VOLUME_UNMUTE', desc: 'Səs Açıldı' };
             }
 
-            // --- 2. MUSİQİ: NÖVBƏTİ MAHNINI DƏYİŞ (AZ/RU/EN/TR) ---
-            if (/\b(deyis|novbeti|baska mahni|sonraki|mahnini deyis|musiqi deyis|mahni deyis|musiqini deyis|sleduyusc|pereklyuci|next song|next track|skip track|skip song|sarki degis)\b/.test(normText)) {
+            // --- 2. MUSİQİ VƏ MEDİA (MEDIA) ---
+            if (/\b(dayandir|saxla|pauza|stop|mahni dayandir|musiqi dayandir|mahni saxla|musiqi saxla|pause)\b/.test(normText)) {
+                return { type: 'MEDIA_PAUSE', desc: 'Musiqi Dayandırıldı' };
+            }
+            if (/\b(oxut|davam et|baslat|play|mahni oxut|musiqi oxut|play music)\b/.test(normText)) {
+                return { type: 'MEDIA_PLAY', desc: 'Musiqi Davam Edir' };
+            }
+            if (/\b(deyis|novbeti|baska mahni|o biri mahni|sonraki|ireli|mahnini deyis|musiqi deyis|mahni deyis|musiqini deyis|sleduyusc|pereklyuci|next song|next track|skip track|skip song|sarki degis)\b/.test(normText)) {
                 return { type: 'MUSIC_NEXT', desc: 'Musiqi Dəyişdirildi' };
             }
-
-            // --- 3. MUSİQİ: SPOTİFY / MAHNINI AÇ ---
-            if (/\b(spotify|spotifay|musiqi ac|mahni ac|muziku|pesnyu|play music|open spotify)\b/.test(normText)) {
+            if (/\b(evvelki|tekrar|evvele|gayit|previous song|previous track|predidusc)\b/.test(normText)) {
+                return { type: 'MUSIC_PREV', desc: 'Əvvəlki Musiqi' };
+            }
+            if (/\b(spotify|spotifay|musiqi ac|mahni ac|muziku|pesnyu|open spotify)\b/.test(normText)) {
                 return { type: 'APP_SPOTIFY', desc: 'Spotify Pleyer Açılır' };
             }
 
+            // --- 3. TƏTBİQLƏR: WAZE VƏ YA NAVİQASİYA (AZ/RU/EN/TR) ---
+            if (/\b(waze|vaze|veiz|naviqasiya|navigasiya|navigats|xerite|karta|kartu|map|maps|route|yol|marsrut|haradayam|eve get)\b/.test(normText)) {
+                return { type: 'APP_WAZE', desc: 'Waze Naviqasiyası Açılır' };
+            }
+
             // --- 4. TELEFON / ZƏNG ---
-            if (/\b(telefon|zeng|zeng et|nomre|pozvonit|call|phone)\b/.test(normText)) {
+            if (/\b(telefon|zeng|zeng et|nomre|yig|pozvonit|call|phone)\b/.test(normText)) {
                 return { type: 'APP_PHONE', desc: 'Telefon Açılır' };
             }
 
-            // --- 5. ƏSAS EKRAN / EVƏ GET ---
+            // --- 5. İNTERNET BRAUZERİ & YOUTUBE ---
+            if (/\b(brauzer|internet|google|sayt|browser|web)\b/.test(normText)) {
+                return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
+            }
+            if (/\b(youtube|yutub|video|film|klip)\b/.test(normText)) {
+                return { type: 'APP_YOUTUBE', desc: 'YouTube Park Rejimi Açılır' };
+            }
+
+            // --- 6. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ ---
+            if (/\b(lyuk|luk|tavan)\b/.test(normText)) {
+                if (/\b(bagla|ort|kapat|close)\b/.test(normText)) {
+                    return { type: 'VEHICLE_SUNROOF_CLOSE', desc: 'Lyuk Bağlanır' };
+                }
+                return { type: 'VEHICLE_SUNROOF_OPEN', desc: 'Lyuk Açılır' };
+            }
+            if (/\b(pencere|suse)\b/.test(normText)) {
+                if (/\b(bagla|galdir|ort|close)\b/.test(normText)) {
+                    return { type: 'VEHICLE_WINDOWS_CLOSE', desc: 'Pəncərələr Bağlanır' };
+                }
+                return { type: 'VEHICLE_WINDOWS_OPEN', desc: 'Pəncərələr Açılır' };
+            }
+
+            // --- 7. SİSTEM GECƏ/GÜNDÜZ VƏ ANA EKRAN ---
+            if (/\b(gece rejimi|garanlig rejim|dark mode|night mode)\b/.test(normText)) {
+                return { type: 'SYSTEM_NIGHT_MODE', desc: 'Gecə Rejimi Aktivdir' };
+            }
+            if (/\b(gunduz rejimi|isigli rejim|light mode|day mode)\b/.test(normText)) {
+                return { type: 'SYSTEM_DAY_MODE', desc: 'Gündüz Rejimi Aktivdir' };
+            }
             if (/\b(ana ekran|esas ekran|ana menyu|esas menyu|eve get|cix|ekrani bagla|domoy|glavniy|home|go home)\b/.test(normText)) {
                 return { type: 'GO_HOME', desc: 'Əsas Ekrana Qayıdıldı' };
             }
 
-            // --- 6. İNTERNET BRAUZERİ ---
-            if (/\b(brauzer|internet|google|sayt|browser|web)\b/.test(normText)) {
-                return { type: 'APP_BROWSER', desc: 'İnternet Brauzeri Açılır' };
+            // --- 8. DİALOQ, SAAT VƏ STATUS SORĞULARI ---
+            if (/\b(saat|vaxt|time|skolko vremeni)\b/.test(normText)) {
+                return { type: 'QUERY_TIME', desc: 'Saat Sorğusu' };
+            }
+            if (/\b(tarix|ayin necesidir|hansi gundur|date)\b/.test(normText)) {
+                return { type: 'QUERY_DATE', desc: 'Tarix Sorğusu' };
+            }
+            if (/\b(salam|xos gorduk|sabahiniz xeyir|axjaminiz xeyir|hello|hi|privet)\b/.test(normText)) {
+                return { type: 'QUERY_GREETING', desc: 'Salamlaşma' };
+            }
+            if (/\b(necesen|netersen|veziyyet necedir|how are you|kak dela)\b/.test(normText)) {
+                return { type: 'QUERY_HOW_ARE_YOU', desc: 'Hal-əhval Sorğusu' };
+            }
+            if (/\b(sen kimsen|adin nedir|who are you)\b/.test(normText)) {
+                return { type: 'QUERY_WHO_ARE_YOU', desc: 'Aura AI Tanıtımı' };
+            }
+            if (/\b(masin necedir|avtomobilin veziyyeti|status|tezyiq|akkumulyator)\b/.test(normText)) {
+                return { type: 'QUERY_CAR_STATUS', desc: 'Avtomobil Telemetriyası' };
             }
 
-            // --- 7. YOUTUBE ---
-            if (/\b(youtube|video|klip)\b/.test(normText)) {
-                return { type: 'APP_YOUTUBE', desc: 'YouTube Park Rejimi Açılır' };
+            // --- 9. İQLİM VƏ KONDİSİONER (HVAC) ---
+            if (/\b(maksimum soyut|buz kimi|max ac|cox soyuq ele|lap soyuq ele)\b/.test(normText)) {
+                return { type: 'CLIMATE_MAX_AC', desc: 'Maksimum Soyutma (MAX A/C)' };
+            }
+            if (/\b(maksimum gizdir|maksimum isti|max heat|lap isti ele)\b/.test(normText)) {
+                return { type: 'CLIMATE_MAX_HEAT', desc: 'Maksimum İstilik (MAX HEAT)' };
+            }
+            if (/\b(buxar|defrost|on suse|suse buxar|buxari sil|buxari temizle|buxari apar)\b/.test(normText)) {
+                return { type: 'CLIMATE_DEFROST', desc: 'Ön Şüşə Buxar Təmizləyici' };
             }
 
             const parsedTemp = parseTemperatureValue(normText);
-
-            // İqlim açar sözləri (AZ / RU / EN / TR)
-            const hasClimateNoun = /(kondi|klim|hava|pec|soyutm|istilik|vozduh|ac|air condition|climate|fan)/.test(normText);
+            const hasClimateNoun = /(kondi|klim|hava|pec|soyutm|istilik|vozduh|ac|air condition|climate|fan|per|ufur|ventilyator)/.test(normText);
             const hasTempWord = /\b(derece|temperatur|tempratur|gradus|gradusov|temperature|degrees)\b/.test(normText);
-
-            // Söndürmə felləri (AZ / RU / EN / TR)
-            const hasOffVerb = /\b(sondur|sundur|son dur|bagla|kapat|dayandir|kes|off|viklyuci|otklyuci|zakroy|pogasit|turn off|switch off|shut off|disable)\b/.test(normText);
-            
-            // İşə salma / yandırma felləri (AZ / RU / EN / TR)
+            const hasOffVerb = /\b(sondur|sundur|son dur|bagla|kapat|dayandir|kes|off|viklyuci|otklyuci|zakroy|pogasit|turn off|switch off|shut off|disable|lazim deyil|besdir)\b/.test(normText);
             const hasOnVerb = /\b(ac|yandir|ise sal|qos|baslat|on|calis|vklyuci|podklyuci|otkroy|turn on|switch on|enable|start)\b/.test(normText);
-
-            // Temperatur artırma / azaltma
             const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|usudum|donuram|artir|cox soyug|teplee|pribav|warmer|heat|increase)\b/.test(normText);
-            const hasColdWord = /\b(soyuq|soyug|soyut|serin|terledim|azalt|xolodnee|ubav|cooler|decrease|chill)\b/.test(normText);
+            const hasColdWord = /\b(soyuq|soyug|soyut|serin|terledim|burkulu|azalt|xolodnee|ubav|cooler|decrease|chill|endir)\b/.test(normText);
 
-            // --- A) İQLİM: KONDİSİONERİ SÖNDÜR / ВЫКЛЮЧИ / TURN OFF ---
+            // A) Kondisioneri Söndür
             if (hasOffVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav') || normText.includes('ac'))) {
                 return { type: 'CLIMATE_OFF', desc: 'Kondisioner Söndürüldü' };
             }
 
-            // --- B) İQLİM: DƏQİQ TEMPERATUR TƏYİNİ (Məsələn: 20 dərəcə, 20 градусов, 20 degrees, 20 derece) ---
+            // B) Dəqiq Temperatur (16 - 32)
             if (parsedTemp !== null && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('goy') || normText.includes('ele') || normText.includes('et') || normText.includes('yap') || normText.includes('postav') || normText.includes('set'))) {
                 return { type: 'CLIMATE_SET_TEMP', temp: parsedTemp, desc: `Kondisioner ${parsedTemp}°C təyin edildi` };
             }
 
-            // --- C) İQLİM: İSTİLİK ARTIR / QIZDIR / ТЕПЛЕЕ ---
+            // C) İstilik Artır
             if (hasWarmWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('gizdir') || normText.includes('teplee') || normText.includes('warmer'))) {
                 return { type: 'CLIMATE_TEMP_UP', desc: 'Temperatur artırıldı' };
             }
 
-            // --- D) İQLİM: SOYUT / AZALT / ХОЛОДНЕЕ ---
+            // D) Soyut / Azalt
             if (hasColdWord && (hasClimateNoun || hasTempWord || isExplicitContext || normText.includes('soyut') || normText.includes('xolodnee') || normText.includes('cooler'))) {
                 return { type: 'CLIMATE_TEMP_DOWN', desc: 'Temperatur azaldıldı' };
             }
 
-            // --- E) İQLİM: KONDİSİONERİ AÇ / ВКЛЮЧИ / TURN ON ---
+            // E) Fan sürəti
+            if (/\b(fan|ventilyator|per|ufur)\b/.test(normText)) {
+                const fanMatch = normText.match(/\b([1-7])\b/);
+                const fanSpeed = fanMatch ? parseInt(fanMatch[1]) : 4;
+                return { type: 'CLIMATE_FAN_SPEED', fanSpeed: fanSpeed, desc: `Ventilyator Sürəti: ${fanSpeed}` };
+            }
+
+            // F) Kondisioneri Aç
             if (hasOnVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('ac'))) {
                 return { type: 'CLIMATE_ON', desc: 'Kondisioner İşə Salındı' };
             }
@@ -5865,6 +5957,168 @@
             let speechVoiceText = "";
 
             switch (intent.type) {
+                case 'VOLUME_UP':
+                    sendWheelKey('VOLUME_UP', 24);
+                    showVoiceSuccessFeedback("🔊 Səs Səviyyəsi Artırıldı");
+                    speakFeedback("Səs artırıldı");
+                    break;
+
+                case 'VOLUME_DOWN':
+                    sendWheelKey('VOLUME_DOWN', 25);
+                    showVoiceSuccessFeedback("🔉 Səs Səviyyəsi Azaldıldı");
+                    speakFeedback("Səs azaldıldı");
+                    break;
+
+                case 'VOLUME_MUTE':
+                    sendWheelKey('VOLUME_MUTE', 164);
+                    showVoiceSuccessFeedback("🔇 Səs Bağlandı");
+                    speakFeedback("Səs bağlandı");
+                    break;
+
+                case 'VOLUME_UNMUTE':
+                    sendWheelKey('VOLUME_UNMUTE', 164);
+                    showVoiceSuccessFeedback("🔊 Səs Bərpa Edildi");
+                    speakFeedback("Səs açıldı");
+                    break;
+
+                case 'MEDIA_PAUSE':
+                    if (isPlaying) togglePlayPause();
+                    showVoiceSuccessFeedback("⏸ Musiqi Dayandırıldı");
+                    speakFeedback("Musiqi dayandırıldı");
+                    break;
+
+                case 'MEDIA_PLAY':
+                    if (!isPlaying) togglePlayPause();
+                    showVoiceSuccessFeedback("▶ Musiqi Davam Edir");
+                    speakFeedback("Musiqi davam etdirilir");
+                    break;
+
+                case 'MUSIC_PREV':
+                    prevSong();
+                    showVoiceSuccessFeedback(`⏮ ${playlist[currentTrackIdx].title}`);
+                    speakFeedback("Əvvəlki musiqi");
+                    break;
+
+                case 'MUSIC_NEXT':
+                    nextSong();
+                    feedbackText = (lang === 'ru') ? "✓ Следующий трек" :
+                                   (lang === 'en') ? "✓ Next track playing" :
+                                   (lang === 'tr') ? "✓ Sonraki parça" : "✓ Musiqi Dəyişdirildi";
+                    speechVoiceText = (lang === 'ru') ? "Следующая песня" :
+                                      (lang === 'en') ? "Next song" :
+                                      (lang === 'tr') ? "Müzik değiştirildi" : "Musiqi dəyişdirildi";
+                    speakFeedback(speechVoiceText);
+                    showVoiceSuccessFeedback(`🎵 ${playlist[currentTrackIdx].title}`);
+                    break;
+
+                case 'APP_SPOTIFY':
+                    speakFeedback("Spotify açılır");
+                    showVoiceSuccessFeedback("✓ Spotify Açılır");
+                    launchApp('Spotify');
+                    break;
+
+                case 'APP_WAZE':
+                    feedbackText = (lang === 'ru') ? "✓ Открываю Waze навигацию" :
+                                   (lang === 'en') ? "✓ Opening Waze navigation" :
+                                   (lang === 'tr') ? "✓ Waze açılıyor" : "✓ Waze Açılır";
+                    speechVoiceText = (lang === 'ru') ? "Открываю Waze" :
+                                      (lang === 'en') ? "Opening Waze navigation" :
+                                      (lang === 'tr') ? "Waze açılıyor" : "Waze naviqasiyası açılır";
+                    speakFeedback(speechVoiceText);
+                    showVoiceSuccessFeedback(feedbackText);
+                    launchApp('Waze');
+                    break;
+
+                case 'APP_PHONE':
+                    speakFeedback("Telefon açılır");
+                    showVoiceSuccessFeedback("✓ Telefon Açılır");
+                    launchApp('Telefon');
+                    break;
+
+                case 'APP_BROWSER':
+                    speakFeedback("İnternet brauzeri açılır");
+                    showVoiceSuccessFeedback("✓ Brauzer Açılır");
+                    openInCarBrowser();
+                    break;
+
+                case 'APP_YOUTUBE':
+                    speakFeedback("YouTube açılır");
+                    showVoiceSuccessFeedback("✓ YouTube Açılır");
+                    openInCarBrowser('https://m.youtube.com');
+                    break;
+
+                case 'VEHICLE_SUNROOF_OPEN':
+                    showVoiceSuccessFeedback("🚗 Lyuk Açılır");
+                    speakFeedback("Lyuk açılır");
+                    break;
+
+                case 'VEHICLE_SUNROOF_CLOSE':
+                    showVoiceSuccessFeedback("🚗 Lyuk Bağlanır");
+                    speakFeedback("Lyuk bağlanır");
+                    break;
+
+                case 'VEHICLE_WINDOWS_OPEN':
+                    showVoiceSuccessFeedback("🚗 Pəncərələr Açılır");
+                    speakFeedback("Pəncərələr açılır");
+                    break;
+
+                case 'VEHICLE_WINDOWS_CLOSE':
+                    showVoiceSuccessFeedback("🚗 Pəncərələr Bağlanır");
+                    speakFeedback("Pəncərələr bağlanır");
+                    break;
+
+                case 'SYSTEM_NIGHT_MODE':
+                    showVoiceSuccessFeedback("🌙 Gecə Rejimi Aktivdir");
+                    speakFeedback("Gecə rejimi aktivləşdirildi");
+                    break;
+
+                case 'SYSTEM_DAY_MODE':
+                    showVoiceSuccessFeedback("☀️ Gündüz Rejimi Aktivdir");
+                    speakFeedback("Gündüz rejimi aktivləşdirildi");
+                    break;
+
+                case 'GO_HOME':
+                    speakFeedback("Əsas ekrana qayıdıldı");
+                    showVoiceSuccessFeedback("✓ Əsas Ekran");
+                    goHome();
+                    break;
+
+                case 'QUERY_TIME': {
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
+                    showVoiceSuccessFeedback(`🕒 Saat: ${timeStr}`);
+                    speakFeedback(`Saat hazırda ${timeStr}-dir`);
+                    break;
+                }
+
+                case 'QUERY_DATE': {
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString('az-AZ', { day: 'numeric', month: 'long' });
+                    showVoiceSuccessFeedback(`📅 Tarix: ${dateStr}`);
+                    speakFeedback(`Bu gün ${dateStr}-dir`);
+                    break;
+                }
+
+                case 'QUERY_GREETING':
+                    showVoiceSuccessFeedback("👋 Salam! Xoş gördük!");
+                    speakFeedback("Salam! Xoş gördük, sizə necə kömək edə bilərəm?");
+                    break;
+
+                case 'QUERY_HOW_ARE_YOU':
+                    showVoiceSuccessFeedback("✨ Bütün sistemlər əla vəziyyətdədir");
+                    speakFeedback("Çox sağ olun, bütün avtomobil sistemləri əla vəziyyətdədir. Yola davam edirik!");
+                    break;
+
+                case 'QUERY_WHO_ARE_YOU':
+                    showVoiceSuccessFeedback("🔮 Aura AI Avtomobil Köməkçisi");
+                    speakFeedback("Mən Aura AI — sizin şəxsi avtomobil köməkçinizəm. Əmrlərinizi yerinə yetirməyə hazıram!");
+                    break;
+
+                case 'QUERY_CAR_STATUS':
+                    showVoiceSuccessFeedback("🚗 Status: Mühərrik, Batareya və Şinlər Əla");
+                    speakFeedback("Bütün sistemlər normal işləyir, təkər təzyiqi və mühərrik qaydasındadır. Yaxşı yol!");
+                    break;
+
                 case 'CLIMATE_OFF':
                     climateState.ac = false;
                     feedbackText = (lang === 'ru') ? "✓ Кондиционер выключен" :
@@ -5891,6 +6145,39 @@
                     showVoiceSuccessFeedback(feedbackText);
                     break;
 
+                case 'CLIMATE_MAX_AC':
+                    climateState.temp = 16.0;
+                    climateState.ac = true;
+                    climateState.fan = 7;
+                    showClimateHud("Maksimum Soyutma (MAX A/C)");
+                    speakFeedback("Maksimum soyutma rejimi aktiv edildi");
+                    showVoiceSuccessFeedback("❄️ MAX A/C (16°C)");
+                    break;
+
+                case 'CLIMATE_MAX_HEAT':
+                    climateState.temp = 30.0;
+                    climateState.ac = true;
+                    climateState.fan = 7;
+                    showClimateHud("Maksimum İstilik (MAX HEAT)");
+                    speakFeedback("Maksimum istilik rejimi aktiv edildi");
+                    showVoiceSuccessFeedback("🔥 MAX HEAT (30°C)");
+                    break;
+
+                case 'CLIMATE_DEFROST':
+                    climateState.fan = 7;
+                    climateState.ac = true;
+                    showClimateHud("Ön Şüşə Buxar Təmizləyici");
+                    speakFeedback("Ön şüşə buxar təmizləyicisi aktiv edildi");
+                    showVoiceSuccessFeedback("🌬️ Ön Şüşə Buxar Təmizləyici");
+                    break;
+
+                case 'CLIMATE_FAN_SPEED':
+                    climateState.fan = intent.fanSpeed || 4;
+                    showClimateHud(`Fan Sürəti: ${climateState.fan}`);
+                    speakFeedback("Ventilyator sürəti dəyişdirildi");
+                    showVoiceSuccessFeedback(`💨 Fan Sürəti: ${climateState.fan}`);
+                    break;
+
                 case 'CLIMATE_SET_TEMP':
                     climateState.temp = intent.temp;
                     climateState.ac = true;
@@ -5913,60 +6200,6 @@
                 case 'CLIMATE_TEMP_DOWN':
                     adjustClimateTemp(-1);
                     showVoiceSuccessFeedback(`✓ Temperatur: ${climateState.temp.toFixed(1)}°C`);
-                    break;
-
-                case 'APP_WAZE':
-                    feedbackText = (lang === 'ru') ? "✓ Открываю Waze навигацию" :
-                                   (lang === 'en') ? "✓ Opening Waze navigation" :
-                                   (lang === 'tr') ? "✓ Waze açılıyor" : "✓ Waze Açılır";
-                    speechVoiceText = (lang === 'ru') ? "Открываю Waze" :
-                                      (lang === 'en') ? "Opening Waze navigation" :
-                                      (lang === 'tr') ? "Waze açılıyor" : "Waze naviqasiyası açılır";
-                    speakFeedback(speechVoiceText);
-                    showVoiceSuccessFeedback(feedbackText);
-                    launchApp('Waze');
-                    break;
-
-                case 'APP_SPOTIFY':
-                    speakFeedback("Spotify açılır");
-                    showVoiceSuccessFeedback("✓ Spotify Açılır");
-                    launchApp('Spotify');
-                    break;
-
-                case 'APP_PHONE':
-                    speakFeedback("Telefon açılır");
-                    showVoiceSuccessFeedback("✓ Telefon Açılır");
-                    launchApp('Telefon');
-                    break;
-
-                case 'GO_HOME':
-                    speakFeedback("Əsas ekrana qayıdıldı");
-                    showVoiceSuccessFeedback("✓ Əsas Ekran");
-                    goHome();
-                    break;
-
-                case 'APP_BROWSER':
-                    speakFeedback("İnternet brauzeri açılır");
-                    showVoiceSuccessFeedback("✓ Brauzer Açılır");
-                    openInCarBrowser();
-                    break;
-
-                case 'APP_YOUTUBE':
-                    speakFeedback("YouTube açılır");
-                    showVoiceSuccessFeedback("✓ YouTube Açılır");
-                    openInCarBrowser('https://m.youtube.com');
-                    break;
-
-                case 'MUSIC_NEXT':
-                    nextSong();
-                    feedbackText = (lang === 'ru') ? "✓ Следующий трек" :
-                                   (lang === 'en') ? "✓ Next track playing" :
-                                   (lang === 'tr') ? "✓ Sonraki parça" : "✓ Musiqi Dəyişdirildi";
-                    speechVoiceText = (lang === 'ru') ? "Следующая песня" :
-                                      (lang === 'en') ? "Next song" :
-                                      (lang === 'tr') ? "Müzik değiştirildi" : "Musiqi dəyişdirildi";
-                    speakFeedback(speechVoiceText);
-                    showVoiceSuccessFeedback(`🎵 ${playlist[currentTrackIdx].title}`);
                     break;
             }
         }
