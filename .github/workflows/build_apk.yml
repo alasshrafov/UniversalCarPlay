@@ -40,10 +40,19 @@ jobs:
         name: gradle-build-log
         path: build.log
 
+    - name: Get Version from Gradle
+      id: get_version
+      run: |
+        VERSION_NAME=$(grep 'versionName =' app/build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "version=v$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "raw_version=$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "Detected version: v$VERSION_NAME"
+
     - name: Copy and Rename APK for Release
       run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
         mkdir -p release_output
-        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.4.1.apk
+        cp app/build/outputs/apk/debug/*.apk "release_output/CarTwin-${VERSION}.apk"
         cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.4.apk
         cp app/build/outputs/apk/debug/*.apk release_output/cartwin.apk
         ls -la release_output/
@@ -51,26 +60,29 @@ jobs:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CarTwin-v1.4.1-apk
-        path: release_output/CarTwin-v1.4.1.apk
+        name: CarTwin-v1.4.6-apk
+        path: release_output/CarTwin-v1.4.6.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.4.1
-        name: "CarTwin v1.4.1 (Avtomatik Simsiz OTA Yenilənmə Mühərriki & Port 7000 Server)"
+        tag_name: ${{ steps.get_version.outputs.version }}
+        name: "CarTwin ${{ steps.get_version.outputs.version }} (Aura AI LLM Səs Mühərriki & Dərin Semantik NLU)"
         body: |
-          ## 🌟 CarTwin — Premium Connect (Release v1.4.1)
+          ## 🌟 CarTwin — Premium Connect (${{ steps.get_version.outputs.version }})
 
-          Bu buraxılış bütün müştəri avtomobilləri üçün **Simsiz Avtomatik Yenilənmə (OTA - Over-The-Air Auto-Update Engine)** mühərrikini təqdim edir!
+          Bu buraxılışda **Aura AI Səs Köməkçisi** tamamilə yeniləndi və LLM-səviyyəli dərin semantik Azərbaycan dili NLU (Natural Language Understanding) mühərriki ilə təchiz edildi!
 
-          ### 🚀 Bu Yenilənmənin Əhəmiyyəti:
-          * **Birdəfəlik Quraşdırma**: Artıq avtomobillərə bir dəfə quraşdırdıqdan sonra hər dəfə USB fleşkart və ya əl ilə yükləməyə **qətiyyən ehtiyac yoxdur**.
-          * **Avtomatik Yoxlama**: Avtomobil işə düşəndə və Wi-Fi/LTE şəbəkəsinə qoşulan kimi CarTwin arxa planda yeni versiyaları avtomatik yoxlayır.
-          * **1 Kliklə Yenilənmə**: Yeni yenilənmə çıxan kimi ekranda **"🚀 vX.X Yenilə"** bildirişi və dəyişiklik siyahısı açılır, 1 kliklə yüklənib dərhal yenilənir.
+          ### 🚀 Əsas Yeniliklər:
+          * **Sərbəst Söz Sırası**: "artır səsi", "səsi artır", "bir az ucalt səsi", "azaldarsan səsi" və s. hər cür sərbəst cümləni mükəmməl anlayır.
+          * **Sürücü Hissiyyatı**: "Üşüdüm", "Donuruq", "Peçi yandır" dedikdə salonu qızdırır; "İstidir", "Yandım", "Nəfəs almaq olmur" dedikdə soyudur.
+          * **Waze & Naviqasiya**: "Yolu itirdim", "Haradayam", "Yola düşək" dedikdə Waze açır; "Waze bağla" və ya "Xəritədən çıx" dedikdə tətbiqi bağlayır.
+          * **Dinq-dinq Səsi**: Sürücünü narahat edən siqnal səsi tam ləğv edildi.
+          * **Simsiz OTA Yenilənmə**: Avtomobil internetə qoşulan kimi avtomatik aşkarlanır və 1 toxunuşla quraşdırılır.
         files: |
-          release_output/CarTwin-v1.4.1.apk
+          release_output/CarTwin-${{ steps.get_version.outputs.version }}.apk
           release_output/CarTwin-v1.4.apk
           release_output/cartwin.apk
+        make_latest: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
