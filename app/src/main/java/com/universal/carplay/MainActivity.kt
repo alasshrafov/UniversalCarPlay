@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
-                currentVersionName = "1.4.3"
+                currentVersionName = "1.4.4"
             ) { hasUpdate, newVersion, _ ->
                 if (hasUpdate) {
                     btnCheckUpdate.text = "🚀 v$newVersion Yenilə!"

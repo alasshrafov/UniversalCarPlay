@@ -316,10 +316,11 @@ class UniversalVoiceAssistant(
         val isClimateContext = clean.contains("kondi") || clean.contains("klim") || clean.contains("hava") ||
                 clean.contains("pec") || clean.contains("derece") || clean.contains("temperatur") ||
                 clean.contains("isti") || clean.contains("soyut") || clean.contains("soyuq") ||
-                clean.contains("usudum") || clean.contains("donuram") || clean.contains("yandim") ||
-                clean.contains("terledim") || clean.contains("burkulu") || clean.contains("ac") ||
-                clean.contains("fan") || clean.contains("ventilyator") || clean.contains("per") ||
-                temp != null
+                clean.contains("soyug") || clean.contains("usudum") || clean.contains("sudum") ||
+                clean.contains("donuram") || clean.contains("donduq") || clean.contains("dondug") ||
+                clean.contains("istidir") || clean.contains("yandim") || clean.contains("terledim") ||
+                clean.contains("burkulu") || clean.contains("ac") || clean.contains("fan") ||
+                clean.contains("ventilyator") || clean.contains("per") || temp != null
 
         if (isClimateContext) {
             // Söndürmə
@@ -338,20 +339,20 @@ class UniversalVoiceAssistant(
                 return
             }
 
-            // İstilik artırma
-            if (clean.contains("artir") || clean.contains("isti") || clean.contains("usudum") ||
-                clean.contains("donuram") || clean.contains("gizdir") || clean.contains("galdir") ||
-                clean.contains("teplee") || clean.contains("warmer")) {
+            // Sürücünün üşüməsi / İstilik artırma (soyuqdu, üşüdüm, südüm, donuram)
+            if (clean.contains("soyugdu") || clean.contains("soyuqdu") || clean.contains("soyugdur") || clean.contains("soyuqdur") ||
+                clean.contains("usudum") || clean.contains("sudum") || clean.contains("donuram") || clean.contains("donduq") ||
+                clean.contains("dondug") || clean.contains("artir") || clean.contains("isti") || clean.contains("gizdir") ||
+                clean.contains("qizdir") || clean.contains("galdir") || clean.contains("teplee") || clean.contains("warmer")) {
                 speak("Temperatur artırıldı")
                 onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
                 return
             }
 
-            // Soyutma / temperatur azaltma
-            if (clean.contains("azalt") || clean.contains("soyut") || clean.contains("soyuq") ||
-                clean.contains("serin") || clean.contains("istidir") || clean.contains("yandim") ||
-                clean.contains("terledim") || clean.contains("burkulu") || clean.contains("endir") ||
-                clean.contains("xolodnee") || clean.contains("cooler")) {
+            // Sürücünün istilənməsi / Soyutma / temperatur azaltma (istidir, yandım, tərlədim, soyut, sərin)
+            if (clean.contains("istidir") || clean.contains("yandim") || clean.contains("bisdim") || clean.contains("terledim") ||
+                clean.contains("burkulu") || clean.contains("azalt") || clean.contains("soyut") || clean.contains("serin") ||
+                clean.contains("endir") || clean.contains("xolodnee") || clean.contains("cooler")) {
                 speak("Temperatur azaldıldı")
                 onCommandRecognized("CLIMATE_TEMP_DOWN", rawText, null)
                 return

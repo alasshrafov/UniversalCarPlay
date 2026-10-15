@@ -5880,14 +5880,27 @@
             }
 
             // --- 9. İQLİM VƏ KONDİSİONER (HVAC) ---
-            if (/\b(maksimum soyut|buz kimi|max ac|cox soyuq ele|lap soyuq ele)\b/.test(normText)) {
+            if (/\b(maksimum soyut|buz kimi|max ac|cox soyuq ele|lap soyuq ele|cox soyug ele)\b/.test(normText)) {
                 return { type: 'CLIMATE_MAX_AC', desc: 'Maksimum Soyutma (MAX A/C)' };
             }
-            if (/\b(maksimum gizdir|maksimum isti|max heat|lap isti ele)\b/.test(normText)) {
+            if (/\b(maksimum gizdir|maksimum isti|max heat|lap isti ele|cox isti ele)\b/.test(normText)) {
                 return { type: 'CLIMATE_MAX_HEAT', desc: 'Maksimum İstilik (MAX HEAT)' };
             }
             if (/\b(buxar|defrost|on suse|suse buxar|buxari sil|buxari temizle|buxari apar)\b/.test(normText)) {
                 return { type: 'CLIMATE_DEFROST', desc: 'Ön Şüşə Buxar Təmizləyici' };
+            }
+
+            // 9.1 SÜRÜCÜNÜN KOMFORT VƏ İQLİM ŞİKAYƏTLƏRİ (Süni İntellekt Anında Qavrayır):
+            // Sürücü üşüyürsə -> SALONU QIZDIR / TEMPERATURU ARTIR (CLIMATE_TEMP_UP)
+            // "soyuqdu", "soyugdu", "soyuqdur", "soyugdur", "üşüdüm", "südüm", "donuram", "donduq"
+            if (/\b(soyugdu|soyuqdu|soyugdur|soyuqdur|cox soyugdu|cox soyuqdu|lap soyugdu|lap soyuqdu|usudum|sudum|donuram|dondum|dondug|donduq|donurug|donuruq|donmusug|donmusuq)\b/.test(normText)) {
+                return { type: 'CLIMATE_TEMP_UP', desc: 'Temperatur artırıldı (İstilik rejimi)' };
+            }
+
+            // Sürücü istilənirsə -> SALONU SOYUT / TEMPERATURU AZALT (CLIMATE_TEMP_DOWN)
+            // "istidir", "çox istidir", "yandım", "bişdim", "tərlədim", "bürkülüdür"
+            if (/\b(istidir|cox istidir|cox isti|lap istidir|lap isti|isti oldu|yandim|bisdim|pisdim|terledim|burkuludur|burkulu)\b/.test(normText)) {
+                return { type: 'CLIMATE_TEMP_DOWN', desc: 'Temperatur azaldıldı (Soyutma rejimi)' };
             }
 
             const parsedTemp = parseTemperatureValue(normText);
@@ -5895,8 +5908,8 @@
             const hasTempWord = /\b(derece|temperatur|tempratur|gradus|gradusov|temperature|degrees)\b/.test(normText);
             const hasOffVerb = /\b(sondur|sundur|son dur|bagla|kapat|dayandir|kes|off|viklyuci|otklyuci|zakroy|pogasit|turn off|switch off|shut off|disable|lazim deyil|besdir)\b/.test(normText);
             const hasOnVerb = /\b(ac|yandir|ise sal|qos|baslat|on|calis|vklyuci|podklyuci|otkroy|turn on|switch on|enable|start)\b/.test(normText);
-            const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|usudum|donuram|artir|cox soyug|teplee|pribav|warmer|heat|increase)\b/.test(normText);
-            const hasColdWord = /\b(soyuq|soyug|soyut|serin|terledim|burkulu|azalt|xolodnee|ubav|cooler|decrease|chill|endir)\b/.test(normText);
+            const hasWarmWord = /\b(isti|istilik|gizdir|qizdir|istilesdir|pec|peci|usudum|sudum|donuram|artir|cox soyug|teplee|pribav|warmer|heat|increase)\b/.test(normText);
+            const hasColdWord = /\b(soyut|soyug ele|soyuq ele|serin|serinlet|terledim|burkulu|azalt|xolodnee|ubav|cooler|decrease|chill|endir)\b/.test(normText);
 
             // A) Kondisioneri Söndür
             if (hasOffVerb && (hasClimateNoun || isExplicitContext || normText.includes('klim') || normText.includes('kond') || normText.includes('hav') || normText.includes('ac'))) {
@@ -5951,7 +5964,8 @@
             }
 
             logEvent(`⚡ Aura Əmri İcra Edir [${lang.toUpperCase()}]: ${intent.desc} (Eşidildi: "${rawText}")`);
-            resetAuraAwakeState();
+            isAuraAwake = false;
+            if (auraAwakeTimer) clearTimeout(auraAwakeTimer);
 
             let feedbackText = "";
             let speechVoiceText = "";
@@ -6194,12 +6208,12 @@
 
                 case 'CLIMATE_TEMP_UP':
                     adjustClimateTemp(1);
-                    showVoiceSuccessFeedback(`✓ Temperatur: ${climateState.temp.toFixed(1)}°C`);
+                    showVoiceSuccessFeedback(`🔥 Temperatur Artırıldı: ${climateState.temp.toFixed(1)}°C`);
                     break;
 
                 case 'CLIMATE_TEMP_DOWN':
                     adjustClimateTemp(-1);
-                    showVoiceSuccessFeedback(`✓ Temperatur: ${climateState.temp.toFixed(1)}°C`);
+                    showVoiceSuccessFeedback(`❄️ Temperatur Azaldıldı: ${climateState.temp.toFixed(1)}°C`);
                     break;
             }
         }
@@ -6212,9 +6226,11 @@
                 showInAppAuraPill("AURA AI", text);
                 setTimeout(() => hideInAppAuraPill(), 2800);
             } else {
+                const modal = document.getElementById('voiceModal');
                 const output = document.getElementById('voiceOutputText');
                 if (output) output.innerText = text;
-                setTimeout(() => closeVoiceModal(), 1400);
+                if (modal) modal.classList.add('active');
+                setTimeout(() => closeVoiceModal(), 1600);
             }
         }
 
@@ -6260,6 +6276,23 @@
         let lastProcessedTranscript = '';
         let lastProcessedTime = 0;
 
+        function resetSpeechEngineBuffers() {
+            lastProcessedTranscript = '';
+            lastProcessedTime = 0;
+            try {
+                if (persistentSpeechEngine) {
+                    persistentSpeechEngine.onend = null;
+                    persistentSpeechEngine.onerror = null;
+                    persistentSpeechEngine.abort();
+                }
+            } catch(e) {}
+            setTimeout(() => {
+                if (isWakeWordEnabled) {
+                    initPassiveWakeWordListener();
+                }
+            }, 120);
+        }
+
         function initPassiveWakeWordListener() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRec) {
@@ -6269,7 +6302,11 @@
             }
 
             if (persistentSpeechEngine) {
-                try { persistentSpeechEngine.abort(); } catch(e) {}
+                try {
+                    persistentSpeechEngine.onend = null;
+                    persistentSpeechEngine.onerror = null;
+                    persistentSpeechEngine.abort();
+                } catch(e) {}
             }
 
             try {
@@ -6288,26 +6325,28 @@
                 };
 
                 persistentSpeechEngine.onresult = (event) => {
-                    let interimText = '';
-                    let finalText = '';
+                    if (!event.results || event.results.length === 0) return;
 
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        const item = event.results[i][0];
-                        if (event.results[i].isFinal) {
-                            finalText += item.transcript + ' ';
-                        } else {
-                            interimText += item.transcript + ' ';
-                        }
-                    }
+                    // Web Speech API continuous rejimində köhnə nəticələri ard-arda yığır.
+                    // Keçmiş nəticələrin yığılmasının və təkrar olunmasının qarşısını almaq üçün
+                    // HƏMİŞƏ YALNIZ və YALNIZ ən sonuncu nəticəni götürürük:
+                    const latestResult = event.results[event.results.length - 1];
+                    if (!latestResult || !latestResult[0]) return;
 
-                    const activeText = (finalText || interimText).trim();
+                    const activeText = latestResult[0].transcript.trim();
+                    const isFinal = latestResult.isFinal;
+
                     if (!activeText) return;
 
                     renderLiveSpeechPreview(activeText);
-                    handleIncomingSpeechStream(activeText, !!finalText);
+                    handleIncomingSpeechStream(activeText, isFinal);
                 };
 
                 persistentSpeechEngine.onerror = (e) => {
+                    if (e.error === 'aborted') {
+                        // Sıfırlama zamanı abort edilmə normaldır
+                        return;
+                    }
                     if (e.error === 'not-allowed') {
                         logEvent("⚠️ Mikrofona icazə lazımdır. Zəhmət olmasa ekrana toxunun və icazə verin.");
                         updateWakeBadge(false);
@@ -6343,7 +6382,8 @@
             // Əgər sürücü yalnız "Aura" dedisə və hələ əmr deməyibsə:
             if (hasWakeWord) {
                 const afterWake = normalized.replace(/^.*?\b(aura|ey aura|hey aura|ay aura|oura|avra|ayra|avto)\b[,:\s]*/i, '').trim();
-                if (afterWake.length < 2) {
+                const remainingWords = afterWake.replace(/\b(aura|ey aura|hey aura|ay aura|oura|avra|ayra|avto)\b/gi, '').trim();
+                if (remainingWords.length < 2) {
                     triggerAuraWakePrompt();
                     return;
                 }
@@ -6384,7 +6424,7 @@
             if (auraAwakeTimer) clearTimeout(auraAwakeTimer);
             auraAwakeTimer = setTimeout(() => {
                 resetAuraAwakeState();
-            }, 6000);
+            }, 7000);
         }
 
         function resetAuraAwakeState() {
@@ -6394,6 +6434,7 @@
                 closeVoiceModal();
             } else {
                 hideInAppAuraPill();
+                resetSpeechEngineBuffers();
             }
         }
 
@@ -6425,7 +6466,9 @@
             const modal = document.getElementById('voiceModal');
             if (modal) modal.classList.remove('active');
             isAuraAwake = false;
+            if (auraAwakeTimer) clearTimeout(auraAwakeTimer);
             if (!activeFullscreenApp) hideInAppAuraPill();
+            resetSpeechEngineBuffers();
         }
 
         function toggleWakeWordListener() {
