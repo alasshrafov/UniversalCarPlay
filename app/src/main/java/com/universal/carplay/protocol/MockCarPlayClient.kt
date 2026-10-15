@@ -10,6 +10,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.net.InetSocketAddress
 import java.net.Socket
 
 /**
@@ -17,7 +18,7 @@ import java.net.Socket
  */
 class MockCarPlayClient(
     private val host: String = "10.0.2.2", // Emulyator üçün kompüterin IP-si (və ya yerli Wi-Fi IP)
-    private val port: Int = 9999,
+    private val port: Int = 9998,
     private val videoDecoder: VideoDecoder?,
     private val audioEngine: AudioEngine?
 ) {
@@ -36,8 +37,9 @@ class MockCarPlayClient(
         workerJob = scope.launch {
             try {
                 Log.i(TAG, "Virtual iPhone-a qoşulur: $host:$port")
-                socket = Socket(host, port).apply {
-                    tcpNoDelay = true // Gecikməni minimuma endirir
+                socket = Socket().apply {
+                    tcpNoDelay = true
+                    connect(InetSocketAddress(host, port), 4000)
                 }
                 outputStream = DataOutputStream(socket!!.getOutputStream())
                 inputStream = DataInputStream(socket!!.getInputStream())

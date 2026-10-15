@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
-                currentVersionName = "1.4.0"
+                currentVersionName = "1.4.2"
             ) { hasUpdate, newVersion, _ ->
                 if (hasUpdate) {
                     btnCheckUpdate.text = "🚀 v$newVersion Yenilə!"
@@ -678,11 +678,38 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     private fun startMockConnection() {
-        tvStatus.text = "Virtual iPhone Simulyatoruna qoşulur…"
+        val prefs = getSharedPreferences("cartwin_prefs", MODE_PRIVATE)
+        val lastIp = prefs.getString("last_mock_ip", "10.10.20.215") ?: "10.10.20.215"
+
+        val input = EditText(this).apply {
+            setText(lastIp)
+            hint = "Kompüterin Wi-Fi IP ünvanı (məs: 10.10.20.215)"
+            setSingleLine(true)
+            setPadding(50, 40, 50, 40)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("🧪 PC Simulyatoruna Qoşul")
+            .setMessage("Kompüterinizdə server aktivdirsə (Port: 9998), kompüterin yerli Wi-Fi IP ünvanını daxil edin:")
+            .setView(input)
+            .setPositiveButton("Qoşul") { _, _ ->
+                val targetHost = input.text.toString().trim()
+                if (targetHost.isNotEmpty()) {
+                    prefs.edit().putString("last_mock_ip", targetHost).apply()
+                    connectToMockServer(targetHost, 9998)
+                }
+            }
+            .setNegativeButton("Ləğv et", null)
+            .show()
+    }
+
+    private fun connectToMockServer(targetHost: String, targetPort: Int) {
+        tvStatus.text = "Simulyatora qoşulur: $targetHost:$targetPort…"
         try {
+            mockClient?.disconnect()
             mockClient = MockCarPlayClient(
-                host = "10.0.2.2",
-                port = 9999,
+                host = targetHost,
+                port = targetPort,
                 videoDecoder = videoDecoder,
                 audioEngine = audioEngine
             ).apply {
@@ -690,7 +717,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     runOnUiThread {
                         if (connected) {
                             statusOverlay.visibility = View.GONE
-                            Toast.makeText(this@MainActivity, "CarPlay Canlı Yayım Başladı!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MainActivity, "✅ PC Simulyatoruna Qoşuldu!", Toast.LENGTH_SHORT).show()
                         } else {
                             statusOverlay.visibility = View.VISIBLE
                             tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
