@@ -5,28 +5,61 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbDeviceConnection
+import android.hardware.usb.UsbEndpoint
+import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.os.Build
 import android.util.Log
-import androidx.core.content.ContextCompat
+import com.universal.carplay.engine.AudioEngine
+import com.universal.carplay.engine.VideoDecoder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
- * Simli USB Apple CarPlay Əlaqə Meneceri
+ * Tam Həcmli Carlinkit / AutoKit & Apple MFi USB Protokol Sürücüsü (Driver)
  * 
- * iPhone kabel ilə avtomobilin USB portuna taxılan kimi Apple Vendor ID-sini (0x05AC) 
- * və ya Carlinkit/AutoKit adapterini (0x1314) tanıyır və simli CarPlay sessiyasını başladır.
+ * Avtomobilin USB portuna qoşulan Carlinkit (0x1314) və ya Apple (0x05AC)
+ * adapterləri ilə 0x55aa55aa protokolu üzərindən əlaqə qurur,
+ * H.264 video və PCM audio axınını birbaşa dekoderlərə ötürür.
  */
 class CarPlayUsbManager(
     private val context: Context,
+    private val getVideoDecoder: () -> VideoDecoder?,
+    private val getAudioEngine: () -> AudioEngine?,
     private val onAppleDeviceConnected: (UsbDevice) -> Unit,
-    private val onDeviceDisconnected: () -> Unit
+    private val onDeviceDisconnected: () -> Unit,
+    private val onStatusUpdate: ((String) -> Unit)? = null
 ) {
     companion object {
         private const val TAG = "CarPlay_USB"
         private const val ACTION_USB_PERMISSION = "com.universal.carplay.USB_PERMISSION"
-        private const val APPLE_VENDOR_ID = 0x05AC // Apple Inc. rəsmi Vendor ID-si (1452)
-        private const val CARLINKIT_VENDOR_ID = 0x1314 // Carlinkit / AutoKit Dongle ID
+
+        // Rəsmi Carlinkit & Apple Vendor / Product ID-ləri
+        private const val APPLE_VENDOR_ID = 0x05AC
+        private const val CARLINKIT_VENDOR_ID = 0x1314
+
+        // Protokol Sabitləri
+        private const val MAGIC_NUMBER = 0x55aa55aa.toInt()
+
+        // Mesaj Növləri (MessageType)
+        const val MSG_OPEN = 0x01
+        const val MSG_PLUGGED = 0x02
+        const val MSG_PHASE = 0x03
+        const val MSG_UNPLUGGED = 0x04
+        const val MSG_TOUCH = 0x05
+        const val MSG_VIDEO = 0x06
+        const val MSG_AUDIO = 0x07
+        const val MSG_COMMAND = 0x08
+        const val MSG_HEARTBEAT = 0xaa
     }
 
     private val usbManager = try {
@@ -34,6 +67,18 @@ class CarPlayUsbManager(
     } catch (_: Throwable) { null }
 
     private var isRegistered = false
+    private var usbConnection: UsbDeviceConnection? = null
+    private var usbInterface: UsbInterface? = null
+    private var inEndpoint: UsbEndpoint? = null
+    private var outEndpoint: UsbEndpoint? = null
+
+    private var currentDevice: UsbDevice? = null
+    private var readerJob: Job? = null
+    private var heartbeatJob: Job? = null
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    @Volatile
+    private var isDongleOpen = false
 
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -53,7 +98,9 @@ class CarPlayUsbManager(
                 }
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                     Log.i(TAG, "USB Cihaz ayrıldı.")
+                    closeConnection()
                     onDeviceDisconnected()
+                    onStatusUpdate?.invoke("USB: Cihaz ayrıldı. Gözlənilir...")
                 }
                 ACTION_USB_PERMISSION -> {
                     val device: UsbDevice? = try {
@@ -67,7 +114,9 @@ class CarPlayUsbManager(
                     val permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                     if (permissionGranted && device != null) {
                         Log.i(TAG, "USB İcazəsi verildi: ${device.deviceName}")
-                        onAppleDeviceConnected(device)
+                        startDongleCommunication(device)
+                    } else {
+                        onStatusUpdate?.invoke("USB: İcazə verilmədi.")
                     }
                 }
             }
@@ -84,7 +133,6 @@ class CarPlayUsbManager(
                 addAction(ACTION_USB_PERMISSION)
             }
 
-            // Sistem USB broadcastləri üçün RECEIVER_EXPORTED istifadə edirik
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 context.registerReceiver(usbReceiver, filter, Context.RECEIVER_EXPORTED)
             } else {
@@ -93,7 +141,6 @@ class CarPlayUsbManager(
             isRegistered = true
             Log.i(TAG, "USB Meneceri aktivləşdirildi")
 
-            // Hazırda qoşulu olan USB cihazları yoxlayırıq
             checkConnectedDevices()
         } catch (e: Throwable) {
             Log.e(TAG, "USB menecer başlarkən xəta: ${e.message}")
@@ -117,15 +164,17 @@ class CarPlayUsbManager(
     private fun handleDeviceAttached(device: UsbDevice) {
         try {
             if (isCarPlayDevice(device)) {
-                Log.i(TAG, "CarPlay USB Cihazı qoşuldu! VendorID=0x${Integer.toHexString(device.vendorId)}, ProductID=0x${Integer.toHexString(device.productId)}")
+                currentDevice = device
+                val vidHex = Integer.toHexString(device.vendorId)
+                val pidHex = Integer.toHexString(device.productId)
+                Log.i(TAG, "CarPlay / Carlinkit USB Cihazı qoşuldu! VID=0x$vidHex, PID=0x$pidHex")
+                onStatusUpdate?.invoke("USB: Carlinkit Tapıldı (VID:0x$vidHex) — Aktivləşdirilir…")
 
                 if (usbManager?.hasPermission(device) == true) {
-                    onAppleDeviceConnected(device)
+                    startDongleCommunication(device)
                 } else {
                     requestUsbPermission(device)
                 }
-            } else {
-                Log.d(TAG, "Digər USB cihaz taxıldı: VendorID=0x${Integer.toHexString(device.vendorId)}")
             }
         } catch (e: Throwable) {
             Log.e(TAG, "handleDeviceAttached xətası: ${e.message}")
@@ -133,26 +182,286 @@ class CarPlayUsbManager(
     }
 
     private fun isCarPlayDevice(device: UsbDevice): Boolean {
-        return device.vendorId == APPLE_VENDOR_ID || device.vendorId == CARLINKIT_VENDOR_ID
+        val vid = device.vendorId
+        val pid = device.productId
+        val name = (device.productName ?: "") + " " + (device.manufacturerName ?: "")
+        return vid == CARLINKIT_VENDOR_ID ||
+               vid == APPLE_VENDOR_ID ||
+               vid == 0x1520 || vid == 0x1521 ||
+               pid == 0x1520 || pid == 0x1521 || pid == 0x1522 || pid == 0x1523 ||
+               name.contains("Carlinkit", ignoreCase = true) ||
+               name.contains("AutoKit", ignoreCase = true) ||
+               name.contains("CarPlay", ignoreCase = true)
     }
 
     private fun requestUsbPermission(device: UsbDevice) {
         try {
-            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_MUTABLE else 0
             val permissionIntent = PendingIntent.getBroadcast(
                 context,
                 0,
-                Intent(ACTION_USB_PERMISSION),
+                Intent(ACTION_USB_PERMISSION).setPackage(context.packageName),
                 flags
             )
             usbManager?.requestPermission(device, permissionIntent)
             Log.i(TAG, "USB icazə sorğusu göndərildi: ${device.deviceName}")
+            onStatusUpdate?.invoke("USB: Avtomobil ekranında 'İcazə Ver' təsdiqləyin")
         } catch (e: Throwable) {
             Log.e(TAG, "USB icazəsi istənilərkən xəta: ${e.message}")
         }
     }
 
+    /**
+     * Carlinkit Dongle ilə daxili rabitəni və H.264 axınını başladır
+     */
+    private fun startDongleCommunication(device: UsbDevice) {
+        try {
+            closeConnection()
+
+            val connection = usbManager?.openDevice(device) ?: run {
+                Log.e(TAG, "USB cihaz açıla bilmədi (openDevice null)")
+                onStatusUpdate?.invoke("USB: Adapter açıla bilmədi")
+                return
+            }
+
+            // Uyğun Bulk interfeysini tapırıq
+            var matchedInterface: UsbInterface? = null
+            var matchedIn: UsbEndpoint? = null
+            var matchedOut: UsbEndpoint? = null
+
+            for (i in 0 until device.interfaceCount) {
+                val iface = device.getInterface(i)
+                var epIn: UsbEndpoint? = null
+                var epOut: UsbEndpoint? = null
+
+                for (j in 0 until iface.endpointCount) {
+                    val ep = iface.getEndpoint(j)
+                    if (ep.type == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                        if (ep.direction == UsbConstants.USB_DIR_IN) epIn = ep
+                        else if (ep.direction == UsbConstants.USB_DIR_OUT) epOut = ep
+                    }
+                }
+
+                if (epIn != null && epOut != null) {
+                    matchedInterface = iface
+                    matchedIn = epIn
+                    matchedOut = epOut
+                    break
+                }
+            }
+
+            if (matchedInterface == null || matchedIn == null || matchedOut == null) {
+                Log.e(TAG, "Bulk endpoint-lər tapılmadı!")
+                onStatusUpdate?.invoke("USB: Bulk portlar tapılmadı")
+                connection.close()
+                return
+            }
+
+            connection.claimInterface(matchedInterface, true)
+            usbConnection = connection
+            usbInterface = matchedInterface
+            inEndpoint = matchedIn
+            outEndpoint = matchedOut
+            isDongleOpen = true
+
+            Log.i(TAG, "Carlinkit USB bağlantısı quruldu! Interfeys #${matchedInterface.id}")
+            onStatusUpdate?.invoke("USB: Carlinkit Aktivdir. Açılış əmri göndərilir…")
+
+            // 1. Açılış (Open) paketini göndəririk (1920x1080, 30fps, H.264, CarPlay)
+            sendOpenPacket(1920, 1080, 30)
+
+            // 2. Ürək döyüntüsü (Heartbeat) dövrünü başladırıq (hər 1.5 saniyədən bir)
+            startHeartbeat()
+
+            // 3. Davamlı video/audio oxuma dövrünü başladırıq
+            startPacketReader()
+
+            onAppleDeviceConnected(device)
+        } catch (e: Throwable) {
+            Log.e(TAG, "startDongleCommunication xətası: ${e.message}", e)
+            onStatusUpdate?.invoke("USB Xətası: ${e.message}")
+        }
+    }
+
+    private fun sendOpenPacket(width: Int, height: Int, fps: Int) {
+        val payload = ByteBuffer.allocate(28).order(ByteOrder.LITTLE_ENDIAN).apply {
+            putInt(width)
+            putInt(height)
+            putInt(fps)
+            putInt(5) // format: 5 (H.264)
+            putInt(49152) // packetMax
+            putInt(2) // iBoxVersion
+            putInt(2) // phoneWorkMode: 2 (CarPlay)
+        }.array()
+
+        sendPacket(MSG_OPEN, payload)
+        Log.i(TAG, "Carlinkit Open paketi göndərildi (${width}x${height} @ ${fps}fps)")
+    }
+
+    private fun startHeartbeat() {
+        heartbeatJob?.cancel()
+        heartbeatJob = scope.launch {
+            while (isActive && isDongleOpen) {
+                delay(1500)
+                sendPacket(MSG_HEARTBEAT, ByteArray(0))
+            }
+        }
+    }
+
+    private fun startPacketReader() {
+        readerJob?.cancel()
+        readerJob = scope.launch {
+            val headerBuffer = ByteArray(16)
+            val dataBuffer = ByteArray(128 * 1024)
+
+            while (isActive && isDongleOpen && usbConnection != null && inEndpoint != null) {
+                try {
+                    // 16 baytlıq başlığı oxuyuruq
+                    val headerRead = usbConnection!!.bulkTransfer(inEndpoint, headerBuffer, 16, 2000)
+                    if (headerRead < 16) continue
+
+                    val headerBb = ByteBuffer.wrap(headerBuffer).order(ByteOrder.LITTLE_ENDIAN)
+                    val magic = headerBb.int
+                    if (magic != MAGIC_NUMBER) continue
+
+                    val length = headerBb.int
+                    val type = headerBb.int
+                    val typeCheck = headerBb.int
+
+                    val expectedCheck = (type xor -1) and 0xffffffff.toInt()
+                    if (typeCheck != expectedCheck) continue
+
+                    if (length in 1..4_000_000) {
+                        var totalRead = 0
+                        val payload = ByteArray(length)
+
+                        while (totalRead < length && isActive && isDongleOpen) {
+                            val toRead = Math.min(length - totalRead, dataBuffer.size)
+                            val read = usbConnection!!.bulkTransfer(inEndpoint, dataBuffer, toRead, 2000)
+                            if (read <= 0) break
+                            System.arraycopy(dataBuffer, 0, payload, totalRead, read)
+                            totalRead += read
+                        }
+
+                        if (totalRead == length) {
+                            handleIncomingPacket(type, payload)
+                        }
+                    } else if (length == 0) {
+                        handleIncomingPacket(type, ByteArray(0))
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG, "USB oxuma xətası: ${e.message}")
+                }
+            }
+        }
+    }
+
+    private fun handleIncomingPacket(type: Int, payload: ByteArray) {
+        when (type) {
+            MSG_PLUGGED -> {
+                Log.i(TAG, "Carlinkit: iPhone qoşuldu!")
+                currentDevice?.let { onAppleDeviceConnected(it) }
+                onStatusUpdate?.invoke("USB: iPhone qoşuldu! Görüntü ötürülür…")
+            }
+            MSG_UNPLUGGED -> {
+                Log.i(TAG, "Carlinkit: iPhone ayrıldı.")
+                onDeviceDisconnected()
+                onStatusUpdate?.invoke("USB: iPhone ayrıldı. Kabeli yenidən taxın.")
+            }
+            MSG_VIDEO -> {
+                // Video başlığı 20 baytdır: [width:4][height:4][flags:4][length:4][unknown:4] + [H.264 NAL]
+                if (payload.size > 20) {
+                    val nalOffset = 20
+                    val nalLength = payload.size - nalOffset
+                    getVideoDecoder()?.feedFrame(payload, nalOffset, nalLength, System.nanoTime() / 1000)
+                }
+            }
+            MSG_AUDIO -> {
+                // Audio başlığı 12 baytdır: [decodeType:4][volume:4][audioType:4] + [PCM data]
+                if (payload.size > 12) {
+                    val pcmOffset = 12
+                    val pcmLength = payload.size - pcmOffset
+                    getAudioEngine()?.writeMusic(payload, pcmOffset, pcmLength)
+                }
+            }
+            else -> {
+                // Digər idarəetmə mesajları
+            }
+        }
+    }
+
+    /**
+     * Ekrana toxunmanı Carlinkit adapterinə göndərir
+     */
+    fun sendTouch(action: Int, x: Float, y: Float) {
+        if (!isDongleOpen || usbConnection == null || outEndpoint == null) return
+
+        val clampedX = (x * 10000).toInt().coerceIn(0, 10000)
+        val clampedY = (y * 10000).toInt().coerceIn(0, 10000)
+
+        val payload = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN).apply {
+            putInt(action) // 14: Down, 15: Move, 16: Up
+            putInt(clampedX)
+            putInt(clampedY)
+            putInt(0) // flags
+        }.array()
+
+        sendPacket(MSG_TOUCH, payload)
+    }
+
+    /**
+     * Sükan və ya multimedia düyməsini adapterə ötürür
+     */
+    fun sendCommand(commandId: Int) {
+        if (!isDongleOpen || usbConnection == null || outEndpoint == null) return
+
+        val payload = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).apply {
+            putInt(commandId)
+        }.array()
+
+        sendPacket(MSG_COMMAND, payload)
+    }
+
+    private fun sendPacket(type: Int, payload: ByteArray) {
+        val conn = usbConnection ?: return
+        val ep = outEndpoint ?: return
+
+        try {
+            val length = payload.size
+            val typeCheck = (type xor -1) and 0xffffffff.toInt()
+
+            val packet = ByteBuffer.allocate(16 + length).order(ByteOrder.LITTLE_ENDIAN).apply {
+                putInt(MAGIC_NUMBER)
+                putInt(length)
+                putInt(type)
+                putInt(typeCheck)
+                put(payload)
+            }.array()
+
+            conn.bulkTransfer(ep, packet, packet.size, 1000)
+        } catch (e: Throwable) {
+            Log.e(TAG, "sendPacket xətası: ${e.message}")
+        }
+    }
+
+    private fun closeConnection() {
+        isDongleOpen = false
+        readerJob?.cancel()
+        heartbeatJob?.cancel()
+
+        try {
+            usbInterface?.let { usbConnection?.releaseInterface(it) }
+            usbConnection?.close()
+        } catch (_: Throwable) {}
+
+        usbConnection = null
+        usbInterface = null
+        inEndpoint = null
+        outEndpoint = null
+    }
+
     fun stop() {
+        closeConnection()
         if (!isRegistered) return
         try {
             context.unregisterReceiver(usbReceiver)

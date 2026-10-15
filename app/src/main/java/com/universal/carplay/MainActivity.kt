@@ -156,8 +156,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun initOtaUpdates() {
         try {
             val currentVer = try {
-                packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4.7"
-            } catch (_: Throwable) { "1.4.7" }
+                packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4.8"
+            } catch (_: Throwable) { "1.4.8" }
 
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
@@ -399,6 +399,13 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 }
                 sessionCoordinator?.sendTouchEvent(commandJson)
                 mockClient?.sendTouchEvent(commandJson)
+
+                if (::usbManager.isInitialized) {
+                    if (commandJson.contains("MEDIA_NEXT")) usbManager.sendCommand(204)
+                    if (commandJson.contains("MEDIA_PREV")) usbManager.sendCommand(205)
+                    if (commandJson.contains("MEDIA_PLAY") || commandJson.contains("MEDIA_PAUSE")) usbManager.sendCommand(203)
+                    if (commandJson.contains("TRIGGER_SIRI")) usbManager.sendCommand(5)
+                }
             }
 
             // 2. Audio Fokus və Arxa Kamera Meneceri
@@ -589,9 +596,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             usbManager = CarPlayUsbManager(
                 context = this,
+                getVideoDecoder = { videoDecoder },
+                getAudioEngine = { audioEngine },
                 onAppleDeviceConnected = { device ->
                     runOnUiThread {
-                        Toast.makeText(this, "Simli CarPlay Aşkarlandı: ${device.deviceName}", Toast.LENGTH_LONG).show()
+                        val devName = device.productName ?: device.deviceName ?: "CarPlay Adapter"
+                        Toast.makeText(this, "✅ Simli CarPlay Aktivdir: $devName", Toast.LENGTH_LONG).show()
                         statusOverlay.visibility = View.GONE
                         cryptoHandshake.startHandshake()
                     }
@@ -601,6 +611,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         statusOverlay.visibility = View.VISIBLE
                         tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
                         cryptoHandshake.reset()
+                    }
+                },
+                onStatusUpdate = { statusMsg ->
+                    runOnUiThread {
+                        tvDetail.text = statusMsg
                     }
                 }
             )
@@ -793,6 +808,20 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         if (touchData != null) {
             sessionCoordinator?.sendTouchEvent(touchData)
             mockClient?.sendTouchEvent(touchData)
+        }
+
+        if (::usbManager.isInitialized && surfaceView.width > 0 && surfaceView.height > 0) {
+            val action = when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> 14
+                MotionEvent.ACTION_MOVE -> 15
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> 16
+                else -> null
+            }
+            if (action != null) {
+                val normX = (event.x / surfaceView.width).coerceIn(0f, 1f)
+                val normY = (event.y / surfaceView.height).coerceIn(0f, 1f)
+                usbManager.sendTouch(action, normX, normY)
+            }
         }
     }
 
