@@ -3651,6 +3651,82 @@
                             <button class="waze-btn-exit" style="position: absolute; top: 20px; right: 20px;" onclick="goHome()">✕ Bağla</button>
                         </div>
 
+                        <!-- 4. SAZLAMALAR (SETTINGS) FULLSCREEN GÖRÜNÜŞÜ -->
+                        <div class="settings-screen" id="settingsAppView" style="display: none; width: 100%; height: 100%; background: #0b0f19; padding: 24px 32px; box-sizing: border-box; overflow-y: auto; flex-direction: column;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #8e8e93, #48484a); display: flex; align-items: center; justify-content: center; font-size: 20px;">⚙️</div>
+                                    <div>
+                                        <div style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">Sistem Sazlamaları</div>
+                                        <div style="font-size: 13px; color: #8e8e93;">CarTwin v1.4.5 • Avtomobil və CarPlay Tənzimləmələri</div>
+                                    </div>
+                                </div>
+                                <button class="waze-btn-exit" style="position: static;" onclick="goHome()">✕ Bağla</button>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                                <!-- 1. Avtomobil Seçimi -->
+                                <div class="interactive-telemetry-card" onclick="openVehicleProfileModal()" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; cursor: pointer; transition: 0.2s;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-size: 26px;">🚘</span>
+                                        <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(48,209,88,0.15); color: #30d158; font-weight: 700;">Aktiv</span>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">Avtomobil Modeli & CAN-Bus</div>
+                                    <div style="font-size: 12px; color: #8e8e93;" id="settingsCurrentCarLabel">BYD Destroyer 05 • Dəyişmək üçün toxunun</div>
+                                </div>
+
+                                <!-- 2. Gündüz / Gecə Rejimi -->
+                                <div class="interactive-telemetry-card" onclick="executeVoiceCommandText('Gecə rejimi')" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; cursor: pointer; transition: 0.2s;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-size: 26px;" id="settingsThemeIcon">🌙</span>
+                                        <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(10,132,255,0.15); color: #0a84ff; font-weight: 700;">Dəyiş</span>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">Görünüş & Rejim</div>
+                                    <div style="font-size: 12px; color: #8e8e93;">Gecə / Gündüz Teması (Toxunaraq dəyişin)</div>
+                                </div>
+
+                                <!-- 3. Səs Rejimi / Cavab -->
+                                <div class="interactive-telemetry-card" onclick="cycleVoiceResponseMode()" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; cursor: pointer; transition: 0.2s;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-size: 26px;">🎙️</span>
+                                        <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(255,159,10,0.15); color: #ff9f0a; font-weight: 700;" id="settingsVoiceModeBadge">Azərbaycan Dili</span>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">Aura Səsli Cavab Rejimi</div>
+                                    <div style="font-size: 12px; color: #8e8e93;">Daimi dinləmə aktivdir • Dinq-dinq səsi ləğv edildi</div>
+                                </div>
+
+                                <!-- 4. GPS & Telemetriya -->
+                                <div class="interactive-telemetry-card" onclick="openSpeedometerModal()" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; cursor: pointer; transition: 0.2s;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-size: 26px;">🛰️</span>
+                                        <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(48,209,88,0.15); color: #30d158; font-weight: 700;">Hazır</span>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">GPS Spidometr & Telemetriya</div>
+                                    <div style="font-size: 12px; color: #8e8e93;">Dəqiq sürət və kompası görmək üçün toxunun</div>
+                                </div>
+
+                                <!-- 5. Batareya və Enerji -->
+                                <div class="interactive-telemetry-card" onclick="openBatteryTelemetryModal()" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; cursor: pointer; transition: 0.2s;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-size: 26px;">⚡</span>
+                                        <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(50,215,75,0.15); color: #32d74b; font-weight: 700;">88% SOC</span>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">Batareya & Doldurma</div>
+                                    <div style="font-size: 12px; color: #8e8e93;">Gərginlik, temperatur və yürüş məlumatı</div>
+                                </div>
+
+                                <!-- 6. OTA Yenilənmə & Versiya -->
+                                <div class="interactive-telemetry-card" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-size: 26px;">🚀</span>
+                                        <span style="font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(48,209,88,0.15); color: #30d158; font-weight: 700;">Ən Son</span>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">CarTwin Sistemi (v1.4.5)</div>
+                                    <div style="font-size: 12px; color: #8e8e93;">Avtomatik Bulud və OTA Yeniləmə Aktivdir</div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- Aura AI & Səs Köməkçisi Modalı -->
@@ -5283,21 +5359,38 @@
             const wazeView = document.getElementById('wazeAppView');
             const spotifyView = document.getElementById('spotifyAppView');
             const phoneView = document.getElementById('phoneAppView');
+            const settingsView = document.getElementById('settingsAppView');
 
             if (wazeView) wazeView.style.display = 'none';
             if (spotifyView) spotifyView.style.display = 'none';
             if (phoneView) phoneView.style.display = 'none';
+            if (settingsView) settingsView.style.display = 'none';
 
             if (name === 'Waze' || name === 'Apple Maps' || name === 'Xəritələr') {
                 if (wazeView) wazeView.style.display = 'flex';
                 logEvent(`🧭 Waze: Canlı naviqasiya xəritəsi yükləndi (Heydər Əliyev Prospekti)`);
-            } else if (name === 'Spotify' || name === 'Musiqi') {
+            } else if (name === 'Spotify' || name === 'Musiqi' || name === 'Podkastlar') {
                 if (spotifyView) spotifyView.style.display = 'flex';
                 updateFullscreenMusic();
             } else if (name === 'Telefon') {
                 if (phoneView) phoneView.style.display = 'flex';
+            } else if (name === 'Sazlamalar' || name === 'Settings') {
+                if (settingsView) settingsView.style.display = 'flex';
+                logEvent(`⚙️ Sazlamalar: CarPlay sistem tənzimləmələri açıldı`);
             } else {
-                if (wazeView) wazeView.style.display = 'flex';
+                if (settingsView) settingsView.style.display = 'flex';
+            }
+        }
+
+        function cycleVoiceResponseMode() {
+            if (voiceResponseMode === 'az_only') {
+                setVoiceFeedbackMode('mute');
+            } else {
+                setVoiceFeedbackMode('az_only');
+            }
+            const badge = document.getElementById('settingsVoiceModeBadge');
+            if (badge) {
+                badge.innerText = (voiceResponseMode === 'az_only') ? 'Azərbaycan Dili' : 'Tam Səssiz';
             }
         }
 
@@ -5839,6 +5932,9 @@
             if (/\b(youtube|yutub|video|film|klip)\b/.test(normText)) {
                 return { type: 'APP_YOUTUBE', desc: 'YouTube Park Rejimi Açılır' };
             }
+            if (/\b(sazlamalar|sazlama|tenzimleme|tenzimlemeler|nastroyki|settings|ayar|ayarlar|nastroyku)\b/.test(normText)) {
+                return { type: 'APP_SETTINGS', desc: 'Sazlamalar Açılır' };
+            }
 
             // --- 7. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ ---
             if (/\b(lyuk|luk|tavan)\b/.test(normText)) {
@@ -6062,6 +6158,12 @@
                     speakFeedback("YouTube açılır");
                     showVoiceSuccessFeedback("✓ YouTube Açılır");
                     openInCarBrowser('https://m.youtube.com');
+                    break;
+
+                case 'APP_SETTINGS':
+                    speakFeedback("Sazlamalar açılır");
+                    showVoiceSuccessFeedback("✓ Sazlamalar Açılır");
+                    launchApp('Sazlamalar');
                     break;
 
                 case 'VEHICLE_SUNROOF_OPEN':

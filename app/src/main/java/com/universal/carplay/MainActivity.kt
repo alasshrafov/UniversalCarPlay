@@ -503,6 +503,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         }
                         "OPEN_BROWSER" -> openBrowser("https://www.google.com")
                         "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
+                        "OPEN_SETTINGS" -> showProfileSelectionDialog()
                         "GO_HOME" -> {
                             if (browserOverlay.visibility == View.VISIBLE) {
                                 closeBrowser()

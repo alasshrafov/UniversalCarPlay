@@ -434,6 +434,13 @@ class UniversalVoiceAssistant(
             return
         }
 
+        if (clean.contains("sazlama") || clean.contains("sazlamalar") || clean.contains("tenzimleme") ||
+            clean.contains("nastroyki") || clean.contains("settings") || clean.contains("ayar")) {
+            speak("Sazlamalar açılır")
+            onCommandRecognized("OPEN_SETTINGS", rawText, null)
+            return
+        }
+
         // 7. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ
         if (clean.contains("lyuk") || clean.contains("luk") || clean.contains("tavan")) {
             if (clean.contains("bagla") || clean.contains("ort") || clean.contains("kapat")) {
