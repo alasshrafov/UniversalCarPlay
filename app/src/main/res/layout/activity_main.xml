@@ -176,6 +176,15 @@
             android:textStyle="bold" />
 
         <Button
+            android:id="@+id/btnCheckUpdate"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🚀 OTA Yeniləmə"
+            android:textColor="#30D158"
+            android:textStyle="bold" />
+
+        <Button
             android:id="@+id/btnOpenBrowser"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"

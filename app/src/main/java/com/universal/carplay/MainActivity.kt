@@ -71,6 +71,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var btnReplayIntro: Button
     private lateinit var btnConnectMock: Button
     private lateinit var btnRefreshConnection: Button
+    private lateinit var btnCheckUpdate: Button
+    private lateinit var otaUpdateManager: com.universal.carplay.update.OtaUpdateManager
 
     // Lüks Reklam Açılış Şousu Overlay Elementləri
     private lateinit var commercialSplashOverlay: FrameLayout
@@ -143,8 +145,30 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             initCarIntegrations()
             initSessionCoordinator()
             initUsbManager()
+            initOtaUpdates()
         } catch (e: Throwable) {
             Log.e(TAG, "onCreate zamanı kritik xəta: ${e.message}", e)
+        }
+    }
+
+    private fun initOtaUpdates() {
+        try {
+            otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
+                context = this,
+                currentVersionName = "1.4.0"
+            ) { hasUpdate, newVersion, _ ->
+                if (hasUpdate) {
+                    btnCheckUpdate.text = "🚀 v$newVersion Yenilə!"
+                    btnCheckUpdate.setTextColor(Color.parseColor("#30D158"))
+                }
+            }
+
+            // Avtomobil işə düşəndən 3 saniyə sonra Wi-Fi/LTE qoşulan kimi avtomatik arxa planda yoxlayır
+            Handler(Looper.getMainLooper()).postDelayed({
+                otaUpdateManager.checkForUpdates(silent = true)
+            }, 3000)
+        } catch (e: Throwable) {
+            Log.e(TAG, "OTA yeniləmə xətası: ${e.message}")
         }
     }
 
@@ -182,6 +206,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         btnOpenBrowser = findViewById(R.id.btnOpenBrowser)
         btnConnectMock = findViewById(R.id.btnConnectMock)
         btnRefreshConnection = findViewById(R.id.btnRefreshConnection)
+        btnCheckUpdate = findViewById(R.id.btnCheckUpdate)
+
+        btnCheckUpdate.setOnClickListener {
+            otaUpdateManager.checkForUpdates(silent = false)
+        }
 
         // Reklam Şousu Görünüşləri
         commercialSplashOverlay = findViewById(R.id.commercialSplashOverlay)
@@ -585,23 +614,30 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun showProfileSelectionDialog() {
         val options = VehicleProfile.ALL.map { it.name }.toMutableList().apply {
+            add("🚀 Sistem Yenilənməsini Yoxla (OTA)")
             add("🔄 Bütün Tənzimləmələri Sıfırla")
         }.toTypedArray()
 
         AlertDialog.Builder(this)
-            .setTitle("Avtomobil Profilini Seçin")
+            .setTitle("Avtomobil və Sistem Menyu")
             .setItems(options) { _, which ->
-                if (which < VehicleProfile.ALL.size) {
-                    val selected = VehicleProfile.ALL[which]
-                    vehicleDetector.saveProfile(selected)
-                    setupProfile(selected)
-                    restartAllCarPlayServices()
-                    Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
-                } else {
-                    vehicleDetector.resetSavedProfile()
-                    Toast.makeText(this, "Tənzimləmələr sıfırlandı", Toast.LENGTH_SHORT).show()
-                    initVehicleDetection()
-                    restartAllCarPlayServices()
+                when {
+                    which < VehicleProfile.ALL.size -> {
+                        val selected = VehicleProfile.ALL[which]
+                        vehicleDetector.saveProfile(selected)
+                        setupProfile(selected)
+                        restartAllCarPlayServices()
+                        Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
+                    }
+                    which == VehicleProfile.ALL.size -> {
+                        otaUpdateManager.checkForUpdates(silent = false)
+                    }
+                    else -> {
+                        vehicleDetector.resetSavedProfile()
+                        Toast.makeText(this, "Tənzimləmələr sıfırlandı", Toast.LENGTH_SHORT).show()
+                        initVehicleDetection()
+                        restartAllCarPlayServices()
+                    }
                 }
             }
             .setNegativeButton("Bağla", null)

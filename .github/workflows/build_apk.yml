@@ -43,6 +43,7 @@ jobs:
     - name: Copy and Rename APK for Release
       run: |
         mkdir -p release_output
+        cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.4.1.apk
         cp app/build/outputs/apk/debug/*.apk release_output/CarTwin-v1.4.apk
         cp app/build/outputs/apk/debug/*.apk release_output/cartwin.apk
         ls -la release_output/
@@ -50,32 +51,25 @@ jobs:
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CarTwin-v1.4-apk
-        path: release_output/CarTwin-v1.4.apk
+        name: CarTwin-v1.4.1-apk
+        path: release_output/CarTwin-v1.4.1.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.4.0
-        name: "CarTwin v1.4.0 (BYD Çökmə Düzəlişi, Port 7000 Server & Real iPhone Qoşulma Bələdçisi)"
+        tag_name: v1.4.1
+        name: "CarTwin v1.4.1 (Avtomatik Simsiz OTA Yenilənmə Mühərriki & Port 7000 Server)"
         body: |
-          ## 🌟 CarTwin — Premium Connect (Release v1.4.0)
+          ## 🌟 CarTwin — Premium Connect (Release v1.4.1)
 
-          Bu buraxılış **BYD, Changan, Deepal, Li Auto, Zeekr, Geely, Chery və Haval** avtomobilləri üçün **çökmə (crash-loop) problemlərini 100% aradan qaldıran, daxili CarPlay Port 7000 RTSP qəbuledici serveri və real iPhone qoşulma bələdçisi** ilə təchiz edilmiş ən son stabil versiyadır.
+          Bu buraxılış bütün müştəri avtomobilləri üçün **Simsiz Avtomatik Yenilənmə (OTA - Over-The-Air Auto-Update Engine)** mühərrikini təqdim edir!
 
-          ### 📥 Necə Yükləmək və Quraşdırmaq olar:
-          1. Aşağıdakı **`CarTwin-v1.4.apk`** faylını birbaşa kompüterə və ya telefona yükləyin.
-          2. Faylı USB fleşkarta köçürün və avtomobilin USB portuna taxın.
-          3. Monitorun **"File Manager"** tətbiqindən `CarTwin-v1.4.apk` üzərinə vurun və quraşdırın.
-
-          ### 🛠️ v1.4.0 Yenilikləri və Həll Edilən Problemlər:
-          * 🛡️ **Təkrar Çökmənin (Crash Loop) 100% Qarşısının Alınması**: Qlobal `UncaughtExceptionHandler`, Android 12 Bluetooth runtime icazə müdafiəsi və təhlükəsiz resurs fallback sistemi əlavə edildi.
-          * 🔌 **Real CarPlay RTSP/TCP Serveri (Port 7000)**: iPhone-dan gələn video/audio axınını qəbul edən daxili server aktivləşdirildi.
-          * 📱 **İki Rejimli Real Qoşulma Paneli**:
-            * **Simli (USB)**: Kabel ilə birbaşa qoşulma.
-            * **Simsiz (Wi-Fi + Bluetooth)**: Avtomobil hotspotu və Bluetooth cütləşməsi ilə naqilsiz CarPlay.
-          * ⚡ **Test Rejimi Təmizləndi**: Əsas ekrandakı "Virtual iPhone (Test)" düyməsi kənarlaşdırıldı, əsas ekran 100% real avtomobil istifadəsinə uyğunlaşdırıldı.
+          ### 🚀 Bu Yenilənmənin Əhəmiyyəti:
+          * **Birdəfəlik Quraşdırma**: Artıq avtomobillərə bir dəfə quraşdırdıqdan sonra hər dəfə USB fleşkart və ya əl ilə yükləməyə **qətiyyən ehtiyac yoxdur**.
+          * **Avtomatik Yoxlama**: Avtomobil işə düşəndə və Wi-Fi/LTE şəbəkəsinə qoşulan kimi CarTwin arxa planda yeni versiyaları avtomatik yoxlayır.
+          * **1 Kliklə Yenilənmə**: Yeni yenilənmə çıxan kimi ekranda **"🚀 vX.X Yenilə"** bildirişi və dəyişiklik siyahısı açılır, 1 kliklə yüklənib dərhal yenilənir.
         files: |
+          release_output/CarTwin-v1.4.1.apk
           release_output/CarTwin-v1.4.apk
           release_output/cartwin.apk
       env:
