@@ -21,6 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -270,10 +271,14 @@ class CarPlayUsbManager(
             // 1. Açılış (Open) paketini göndəririk (1920x1080, 30fps, H.264, CarPlay)
             sendOpenPacket(1920, 1080, 30)
 
-            // 2. Ürək döyüntüsü (Heartbeat) dövrünü başladırıq (hər 1.5 saniyədən bir)
+            // 2. Video Fokus (500) və Audio Rejimi (23) göndəririk
+            sendCommand(500) // requestVideoFocus
+            sendCommand(23)  // audioTransferOff (dongle streams audio over USB)
+
+            // 3. Ürək döyüntüsü (Heartbeat) dövrünü başladırıq (hər 1 saniyədən bir)
             startHeartbeat()
 
-            // 3. Davamlı video/audio oxuma dövrünü başladırıq
+            // 4. Qırılmaz və sinxronlaşan stream oxuma dövrünü başladırıq
             startPacketReader()
 
             onAppleDeviceConnected(device)
@@ -302,7 +307,7 @@ class CarPlayUsbManager(
         heartbeatJob?.cancel()
         heartbeatJob = scope.launch {
             while (isActive && isDongleOpen) {
-                delay(1500)
+                delay(1000)
                 sendPacket(MSG_HEARTBEAT, ByteArray(0))
             }
         }
@@ -311,47 +316,111 @@ class CarPlayUsbManager(
     private fun startPacketReader() {
         readerJob?.cancel()
         readerJob = scope.launch {
-            val headerBuffer = ByteArray(16)
-            val dataBuffer = ByteArray(128 * 1024)
+            val rawBuffer = ByteArray(32 * 1024)
+            val streamAccumulator = ByteArrayOutputStream()
 
             while (isActive && isDongleOpen && usbConnection != null && inEndpoint != null) {
                 try {
-                    // 16 baytlıq başlığı oxuyuruq
-                    val headerRead = usbConnection!!.bulkTransfer(inEndpoint, headerBuffer, 16, 2000)
-                    if (headerRead < 16) continue
-
-                    val headerBb = ByteBuffer.wrap(headerBuffer).order(ByteOrder.LITTLE_ENDIAN)
-                    val magic = headerBb.int
-                    if (magic != MAGIC_NUMBER) continue
-
-                    val length = headerBb.int
-                    val type = headerBb.int
-                    val typeCheck = headerBb.int
-
-                    val expectedCheck = (type xor -1) and 0xffffffff.toInt()
-                    if (typeCheck != expectedCheck) continue
-
-                    if (length in 1..4_000_000) {
-                        var totalRead = 0
-                        val payload = ByteArray(length)
-
-                        while (totalRead < length && isActive && isDongleOpen) {
-                            val toRead = Math.min(length - totalRead, dataBuffer.size)
-                            val read = usbConnection!!.bulkTransfer(inEndpoint, dataBuffer, toRead, 2000)
-                            if (read <= 0) break
-                            System.arraycopy(dataBuffer, 0, payload, totalRead, read)
-                            totalRead += read
+                    val read = usbConnection!!.bulkTransfer(inEndpoint, rawBuffer, rawBuffer.size, 1000)
+                    if (read > 0) {
+                        synchronized(streamAccumulator) {
+                            streamAccumulator.write(rawBuffer, 0, read)
                         }
-
-                        if (totalRead == length) {
-                            handleIncomingPacket(type, payload)
-                        }
-                    } else if (length == 0) {
-                        handleIncomingPacket(type, ByteArray(0))
+                        parseAccumulatedPackets(streamAccumulator)
                     }
                 } catch (e: Throwable) {
                     Log.w(TAG, "USB oxuma xətası: ${e.message}")
                 }
+            }
+        }
+    }
+
+    private fun parseAccumulatedPackets(accumulator: ByteArrayOutputStream) {
+        synchronized(accumulator) {
+            var data = accumulator.toByteArray()
+
+            while (data.size >= 16) {
+                // 0x55aa55aa Magic nömrəsini axtarırıq (Little Endian)
+                var syncIndex = -1
+                for (i in 0..data.size - 4) {
+                    val b0 = data[i].toInt() and 0xFF
+                    val b1 = data[i + 1].toInt() and 0xFF
+                    val b2 = data[i + 2].toInt() and 0xFF
+                    val b3 = data[i + 3].toInt() and 0xFF
+                    val intVal = b0 or (b1 shl 8) or (b2 shl 16) or (b3 shl 24)
+                    if (intVal == MAGIC_NUMBER) {
+                        syncIndex = i
+                        break
+                    }
+                }
+
+                if (syncIndex == -1) {
+                    // Paket başlığı tapılmadı, son 3 baytı saxlayıb qalanını atırıq
+                    accumulator.reset()
+                    if (data.size >= 3) {
+                        accumulator.write(data, data.size - 3, 3)
+                    }
+                    return
+                }
+
+                if (syncIndex > 0) {
+                    // Magic-dən əvvəlki natəmiz baytları kənarlaşdırırıq
+                    val trimmed = ByteArray(data.size - syncIndex)
+                    System.arraycopy(data, syncIndex, trimmed, 0, trimmed.size)
+                    data = trimmed
+                }
+
+                if (data.size < 16) {
+                    accumulator.reset()
+                    accumulator.write(data)
+                    return
+                }
+
+                val bb = ByteBuffer.wrap(data, 0, 16).order(ByteOrder.LITTLE_ENDIAN)
+                val magic = bb.int
+                val length = bb.int
+                val type = bb.int
+                val typeCheck = bb.int
+
+                val expectedCheck = (type xor -1) and 0xffffffff.toInt()
+                if (typeCheck != expectedCheck || length < 0 || length > 4_000_000) {
+                    // Yanlış magic uyğunluğu: 1 bayt irəliləyib təkrar axtarırıq
+                    val trimmed = ByteArray(data.size - 1)
+                    System.arraycopy(data, 1, trimmed, 0, trimmed.size)
+                    data = trimmed
+                    continue
+                }
+
+                val totalPacketSize = 16 + length
+                if (data.size < totalPacketSize) {
+                    // Paketin yükü hələ tam gəlməyib, növbəti USB oxunuşunu gözləyirik
+                    accumulator.reset()
+                    accumulator.write(data)
+                    return
+                }
+
+                // Bütöv paket hazırdır!
+                val payload = ByteArray(length)
+                if (length > 0) {
+                    System.arraycopy(data, 16, payload, 0, length)
+                }
+
+                val remainingSize = data.size - totalPacketSize
+                val remaining = ByteArray(remainingSize)
+                if (remainingSize > 0) {
+                    System.arraycopy(data, totalPacketSize, remaining, 0, remainingSize)
+                }
+                data = remaining
+
+                accumulator.reset()
+                accumulator.write(data)
+
+                handleIncomingPacket(type, payload)
+            }
+
+            accumulator.reset()
+            if (data.isNotEmpty()) {
+                accumulator.write(data)
             }
         }
     }
@@ -361,7 +430,11 @@ class CarPlayUsbManager(
             MSG_PLUGGED -> {
                 Log.i(TAG, "Carlinkit: iPhone qoşuldu!")
                 currentDevice?.let { onAppleDeviceConnected(it) }
-                onStatusUpdate?.invoke("USB: iPhone qoşuldu! Görüntü ötürülür…")
+                onStatusUpdate?.invoke("USB: iPhone qoşuldu! Görüntü aktivdir.")
+
+                // iPhone qoşulan kimi dərhal Video Kadr (SPS/PPS I-frame) tələb edirik
+                sendCommand(12)  // frame request
+                sendCommand(500) // requestVideoFocus
             }
             MSG_UNPLUGGED -> {
                 Log.i(TAG, "Carlinkit: iPhone ayrıldı.")

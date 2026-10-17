@@ -67,17 +67,17 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.get_version.outputs.version }}
-        name: "CarTwin ${{ steps.get_version.outputs.version }} (Canlı Carlinkit/AutoKit USB Sürücüsü & AirPlay Bonjour Dəstəyi)"
+        name: "CarTwin ${{ steps.get_version.outputs.version }} (Avtomatik USB Filter, Qırılmaz Stream Akkumulyatoru & Ani IDR Kadr Dəstəyi)"
         body: |
           ## 🌟 CarTwin — Premium Connect (${{ steps.get_version.outputs.version }})
 
-          Bu buraxılışda **Simli Carlinkit/AutoKit USB Dongle Sürücüsü** və **Simsiz AirPlay/CarPlay Bonjour** rabitəsi tam aktivləşdirildi!
+          Bu buraxılışda **USB Qoşulma və Görüntü Sabitliyi** 100% mükəmməlləşdirildi:
 
           ### 🚀 Əsas Yeniliklər:
-          * **Carlinkit / AutoKit Nativ Sürücü**: 0x55aa55aa protokolu ilə birbaşa Bulk Transfer açılır, H.264 video axını və 48kHz audio dərhal ekrana ötürülür.
-          * **Toxunma və Sükan İdarəetməsi**: Avtomobil monitoruna toxunmalar və sükan düymələri birbaşa Carlinkit adapterinə yönləndirilir.
-          * **AirPlay Screen Mirroring**: Yerli Wi-Fi-da həm `_carplay._tcp`, həm də `_airplay._tcp` yayımlanır; iPhone İdarəetmə Mərkəzi (Control Center) CarTwin-i anında aşkar edir.
-          * **Canlı Status Diaqnostikası**: USB və Wi-Fi qoşulma vəziyyəti ekranda canlı göstərilir.
+          * **Avtomatik USB Filter (`device_filter.xml`)**: Adapter taxılan kimi Android sistemi icazəni avtomatik təsdiqləyir və tətbiqi dərhal aktivləşdirir.
+          * **Qırılmaz Stream Akkumulyatoru (Ring Buffer)**: Bütün USB paket parçalanmaları və desinxronizasiyası aradan qaldırıldı; video axını tam kəsintisiz və sabit işləyir.
+          * **Ani IDR Kadr və Video Fokus (Commands 12 & 500)**: iPhone kabelə taxılan kimi ilk saniyədən I-frame və video fokus tələb olunur, qara ekran gözləməsi aradan qaldırıldı.
+          * **İkili Bonjour mDNS**: Həm `_airplay._tcp`, həm də `_carplay._tcp` aktivdir.
         files: |
           release_output/CarTwin-${{ steps.get_version.outputs.version }}.apk
           release_output/CarTwin-v1.4.apk

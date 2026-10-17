@@ -156,8 +156,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun initOtaUpdates() {
         try {
             val currentVer = try {
-                packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4.8"
-            } catch (_: Throwable) { "1.4.8" }
+                packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4.9"
+            } catch (_: Throwable) { "1.4.9" }
 
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,

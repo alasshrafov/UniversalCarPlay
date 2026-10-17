@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Carlinkit / AutoKit Adapterləri -->
+    <usb-device vendor-id="4884" /> <!-- 0x1314 Carlinkit Vendor ID -->
+    <usb-device vendor-id="4884" product-id="5408" /> <!-- 0x1520 CPC200 -->
+    <usb-device vendor-id="4884" product-id="5409" /> <!-- 0x1521 CPC200-CCPA -->
+    <usb-device vendor-id="4884" product-id="5410" /> <!-- 0x1522 -->
+    <usb-device vendor-id="4884" product-id="5411" /> <!-- 0x1523 -->
+
+    <!-- Apple iPhone / iPad -->
+    <usb-device vendor-id="1452" /> <!-- 0x05AC Apple Inc. -->
+
+    <!-- Digər CarPlay USB Dongle-ları -->
+    <usb-device vendor-id="5408" /> <!-- 0x1520 -->
+    <usb-device vendor-id="5409" /> <!-- 0x1521 -->
+</resources>
