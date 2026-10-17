@@ -41,12 +41,16 @@ class CarPlayUsbManager(
     private val onStatusUpdate: ((String) -> Unit)? = null
 ) {
     companion object {
-        private const val TAG = "CarPlay_USB"
+        private const val TAG = "CarTwin_USB"
         private const val ACTION_USB_PERMISSION = "com.universal.carplay.USB_PERMISSION"
 
-        // Rəsmi Carlinkit & Apple Vendor / Product ID-ləri
+        // Rəsmi Carlinkit, Apple & Google Android Vendor ID-ləri
         private const val APPLE_VENDOR_ID = 0x05AC
         private const val CARLINKIT_VENDOR_ID = 0x1314
+        private const val GOOGLE_AOA_VENDOR_ID = 0x18D1
+        private const val SAMSUNG_VENDOR_ID = 0x04E8
+        private const val XIAOMI_VENDOR_ID = 0x2717
+        private const val HUAWEI_VENDOR_ID = 0x12D1
 
         // Protokol Sabitləri
         private const val MAGIC_NUMBER = 0x55aa55aa.toInt()
@@ -61,7 +65,21 @@ class CarPlayUsbManager(
         const val MSG_AUDIO = 0x07
         const val MSG_COMMAND = 0x08
         const val MSG_HEARTBEAT = 0xaa
+
+        // Telefon Platformaları (CarTwin 2.0 İkili Mühərrik)
+        const val PHONE_TYPE_UNKNOWN = 0
+        const val PHONE_TYPE_CARPLAY = 1
+        const val PHONE_TYPE_ANDROID_AUTO = 2
+        const val PHONE_TYPE_HICAR = 3
+        const val PHONE_TYPE_CARLIFE = 4
     }
+
+    var currentPhoneType: Int = PHONE_TYPE_UNKNOWN
+        private set
+
+    var preferredPhoneMode: Int = 3 // 3: Universal (CarPlay + Android Auto), 2: Apple CarPlay, 1: Android Auto
+
+    var onPlatformDetected: ((platformName: String, icon: String) -> Unit)? = null
 
     private val usbManager = try {
         context.getSystemService(Context.USB_SERVICE) as? UsbManager
@@ -188,11 +206,16 @@ class CarPlayUsbManager(
         val name = (device.productName ?: "") + " " + (device.manufacturerName ?: "")
         return vid == CARLINKIT_VENDOR_ID ||
                vid == APPLE_VENDOR_ID ||
+               vid == GOOGLE_AOA_VENDOR_ID ||
+               vid == SAMSUNG_VENDOR_ID ||
+               vid == XIAOMI_VENDOR_ID ||
+               vid == HUAWEI_VENDOR_ID ||
                vid == 0x1520 || vid == 0x1521 ||
                pid == 0x1520 || pid == 0x1521 || pid == 0x1522 || pid == 0x1523 ||
                name.contains("Carlinkit", ignoreCase = true) ||
                name.contains("AutoKit", ignoreCase = true) ||
-               name.contains("CarPlay", ignoreCase = true)
+               name.contains("CarPlay", ignoreCase = true) ||
+               name.contains("Android", ignoreCase = true)
     }
 
     private fun requestUsbPermission(device: UsbDevice) {
@@ -268,8 +291,8 @@ class CarPlayUsbManager(
             Log.i(TAG, "Carlinkit USB bağlantısı quruldu! Interfeys #${matchedInterface.id}")
             onStatusUpdate?.invoke("USB: Carlinkit Aktivdir. Açılış əmri göndərilir…")
 
-            // 1. Açılış (Open) paketini göndəririk (1920x1080, 30fps, H.264, CarPlay)
-            sendOpenPacket(1920, 1080, 30)
+            // 1. Açılış (Open) paketini göndəririk (1920x1080, 30fps, H.264, Universal rejim)
+            sendOpenPacket(1920, 1080, 30, preferredPhoneMode)
 
             // 2. Video Fokus (500) və Audio Rejimi (23) göndəririk
             sendCommand(500) // requestVideoFocus
@@ -288,7 +311,7 @@ class CarPlayUsbManager(
         }
     }
 
-    private fun sendOpenPacket(width: Int, height: Int, fps: Int) {
+    private fun sendOpenPacket(width: Int, height: Int, fps: Int, phoneMode: Int = 3) {
         val payload = ByteBuffer.allocate(28).order(ByteOrder.LITTLE_ENDIAN).apply {
             putInt(width)
             putInt(height)
@@ -296,11 +319,16 @@ class CarPlayUsbManager(
             putInt(5) // format: 5 (H.264)
             putInt(49152) // packetMax
             putInt(2) // iBoxVersion
-            putInt(2) // phoneWorkMode: 2 (CarPlay)
+            putInt(phoneMode) // phoneWorkMode: 3 (Universal Auto-Detect: CarPlay + Android Auto)
         }.array()
 
         sendPacket(MSG_OPEN, payload)
-        Log.i(TAG, "Carlinkit Open paketi göndərildi (${width}x${height} @ ${fps}fps)")
+        val modeStr = when (phoneMode) {
+            1 -> "🤖 Yalnız Android Auto"
+            2 -> "🍏 Yalnız Apple CarPlay"
+            else -> "⚡ Universal (Apple CarPlay & Android Auto)"
+        }
+        Log.i(TAG, "CarTwin 2.0 Open paketi göndərildi: $modeStr (${width}x${height} @ ${fps}fps)")
     }
 
     private fun startHeartbeat() {
@@ -428,18 +456,33 @@ class CarPlayUsbManager(
     private fun handleIncomingPacket(type: Int, payload: ByteArray) {
         when (type) {
             MSG_PLUGGED -> {
-                Log.i(TAG, "Carlinkit: iPhone qoşuldu!")
-                currentDevice?.let { onAppleDeviceConnected(it) }
-                onStatusUpdate?.invoke("USB: iPhone qoşuldu! Görüntü aktivdir.")
+                val phoneType = if (payload.size >= 4) {
+                    ByteBuffer.wrap(payload, 0, 4).order(ByteOrder.LITTLE_ENDIAN).int
+                } else PHONE_TYPE_UNKNOWN
+                currentPhoneType = phoneType
 
-                // iPhone qoşulan kimi dərhal Video Kadr (SPS/PPS I-frame) tələb edirik
+                val (platformName, icon) = when (phoneType) {
+                    PHONE_TYPE_ANDROID_AUTO -> "Android Auto" to "🤖"
+                    PHONE_TYPE_CARPLAY -> "Apple CarPlay" to "🍏"
+                    PHONE_TYPE_HICAR -> "Huawei HiCar" to "📱"
+                    PHONE_TYPE_CARLIFE -> "Baidu CarLife" to "🚗"
+                    else -> "Universal Cihaz" to "⚡"
+                }
+
+                Log.i(TAG, "CarTwin 2.0: $icon $platformName qoşuldu! (Type=$phoneType)")
+                currentDevice?.let { onAppleDeviceConnected(it) }
+                onPlatformDetected?.invoke(platformName, icon)
+                onStatusUpdate?.invoke("$icon $platformName qoşuldu! Görüntü aktivdir.")
+
+                // Ani video kadrı və fokus tələb edirik
                 sendCommand(12)  // frame request
                 sendCommand(500) // requestVideoFocus
             }
             MSG_UNPLUGGED -> {
-                Log.i(TAG, "Carlinkit: iPhone ayrıldı.")
+                Log.i(TAG, "CarTwin 2.0: Cihaz ayrıldı.")
+                currentPhoneType = PHONE_TYPE_UNKNOWN
                 onDeviceDisconnected()
-                onStatusUpdate?.invoke("USB: iPhone ayrıldı. Kabeli yenidən taxın.")
+                onStatusUpdate?.invoke("Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun.")
             }
             MSG_VIDEO -> {
                 // Video başlığı 20 baytdır: [width:4][height:4][flags:4][length:4][unknown:4] + [H.264 NAL]

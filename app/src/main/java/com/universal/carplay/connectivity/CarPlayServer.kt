@@ -167,7 +167,7 @@ class CarPlayServer(
 
             val response = when {
                 request.startsWith("OPTIONS") -> {
-                    "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nPublic: ANNOUNCE, SETUP, RECORD, PAUSE, TEARDOWN\r\nServer: CarTwin/1.4\r\n\r\n"
+                    "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nPublic: ANNOUNCE, SETUP, RECORD, PAUSE, TEARDOWN\r\nServer: CarTwin/2.0\r\n\r\n"
                 }
                 request.startsWith("POST /pair-setup") -> {
                     val m1 = cryptoHandshake.startHandshake()
@@ -178,7 +178,7 @@ class CarPlayServer(
                     "HTTP/1.1 200 OK\r\nCSeq: $cseq\r\nContent-Type: application/octet-stream\r\nContent-Length: 32\r\n\r\n"
                 }
                 else -> {
-                    "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nServer: CarTwin/1.4\r\n\r\n"
+                    "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nServer: CarTwin/2.0\r\n\r\n"
                 }
             }
 

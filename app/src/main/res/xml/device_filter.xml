@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Carlinkit / AutoKit Adapterləri -->
+    <!-- 1. Carlinkit / AutoKit Universal Dongle-lar (CarPlay & Android Auto) -->
     <usb-device vendor-id="4884" /> <!-- 0x1314 Carlinkit Vendor ID -->
     <usb-device vendor-id="4884" product-id="5408" /> <!-- 0x1520 CPC200 -->
     <usb-device vendor-id="4884" product-id="5409" /> <!-- 0x1521 CPC200-CCPA -->
     <usb-device vendor-id="4884" product-id="5410" /> <!-- 0x1522 -->
     <usb-device vendor-id="4884" product-id="5411" /> <!-- 0x1523 -->
-
-    <!-- Apple iPhone / iPad -->
-    <usb-device vendor-id="1452" /> <!-- 0x05AC Apple Inc. -->
-
-    <!-- Digər CarPlay USB Dongle-ları -->
     <usb-device vendor-id="5408" /> <!-- 0x1520 -->
     <usb-device vendor-id="5409" /> <!-- 0x1521 -->
+
+    <!-- 2. Apple iOS Cihazları (Apple CarPlay) -->
+    <usb-device vendor-id="1452" /> <!-- 0x05AC Apple Inc. (iPhone, iPad, iPod) -->
+
+    <!-- 3. Android Cihazları (Android Auto & AOA 2.0 Protokolu) -->
+    <usb-device vendor-id="6353" /> <!-- 0x18D1 Google (Pixel & Android Open Accessory) -->
+    <usb-device vendor-id="1256" /> <!-- 0x04E8 Samsung Electronics -->
+    <usb-device vendor-id="10007" /> <!-- 0x2717 Xiaomi Inc. -->
+    <usb-device vendor-id="4817" /> <!-- 0x12D1 Huawei Technologies -->
+    <usb-device vendor-id="8911" /> <!-- 0x22D9 OnePlus / OPPO -->
+    <usb-device vendor-id="11427" /> <!-- 0x2CA3 Vivo -->
+    <usb-device vendor-id="11200" /> <!-- 0x2BC5 Realtek / Teyes USB -->
 </resources>

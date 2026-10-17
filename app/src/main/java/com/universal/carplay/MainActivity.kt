@@ -156,8 +156,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun initOtaUpdates() {
         try {
             val currentVer = try {
-                packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4.9"
-            } catch (_: Throwable) { "1.4.9" }
+                packageManager.getPackageInfo(packageName, 0).versionName ?: "2.0.0"
+            } catch (_: Throwable) { "2.0.0" }
 
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
@@ -394,7 +394,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 if (commandJson.contains("TRIGGER_SIRI")) {
                     runOnUiThread {
                         voiceAssistant?.startListening()
-                        Toast.makeText(this@MainActivity, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
+                        val prompt = if (::usbManager.isInitialized && usbManager.currentPhoneType == CarPlayUsbManager.PHONE_TYPE_ANDROID_AUTO) {
+                            "🎙️ Aura AI Dinləyir (Android Səs Köməkçisi)..."
+                        } else {
+                            "🎙️ Aura AI Dinləyir..."
+                        }
+                        Toast.makeText(this@MainActivity, prompt, Toast.LENGTH_SHORT).show()
                     }
                 }
                 sessionCoordinator?.sendTouchEvent(commandJson)
@@ -581,7 +586,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         }
                         CarPlaySessionCoordinator.SessionState.WAITING_FOR_DEVICE -> {
                             statusOverlay.visibility = View.VISIBLE
-                            tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
+                            tvStatus.text = "CarTwin 2.0 • Universal Qoşulma"
                         }
                         else -> {}
                     }
@@ -594,14 +599,14 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun initUsbManager() {
         try {
+            val savedMode = getSharedPreferences("cartwin_prefs", MODE_PRIVATE).getInt("preferred_phone_mode", 3)
             usbManager = CarPlayUsbManager(
                 context = this,
                 getVideoDecoder = { videoDecoder },
                 getAudioEngine = { audioEngine },
                 onAppleDeviceConnected = { device ->
                     runOnUiThread {
-                        val devName = device.productName ?: device.deviceName ?: "CarPlay Adapter"
-                        Toast.makeText(this, "✅ Simli CarPlay Aktivdir: $devName", Toast.LENGTH_LONG).show()
+                        val devName = device.productName ?: device.deviceName ?: "CarTwin Adapter"
                         statusOverlay.visibility = View.GONE
                         cryptoHandshake.startHandshake()
                     }
@@ -609,7 +614,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 onDeviceDisconnected = {
                     runOnUiThread {
                         statusOverlay.visibility = View.VISIBLE
-                        tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
+                        tvStatus.text = "CarTwin 2.0 • Universal Qoşulma"
+                        tvDetail.text = "Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun."
                         cryptoHandshake.reset()
                     }
                 },
@@ -618,7 +624,15 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         tvDetail.text = statusMsg
                     }
                 }
-            )
+            ).apply {
+                preferredPhoneMode = savedMode
+                onPlatformDetected = { platformName, icon ->
+                    runOnUiThread {
+                        tvStatus.text = "$icon $platformName Aktivdir"
+                        Toast.makeText(this@MainActivity, "🎉 $icon $platformName Qoşuldu!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         } catch (e: Throwable) {
             Log.e(TAG, "UsbManager xətası: ${e.message}")
         }
@@ -748,22 +762,47 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun showProfileSelectionDialog() {
         val options = VehicleProfile.ALL.map { it.name }.toMutableList().apply {
+            add("⚡ Rejim: Universal (CarPlay & Android Auto)")
+            add("🍏 Rejim: Yalnız Apple CarPlay")
+            add("🤖 Rejim: Yalnız Android Auto")
             add("🚀 Sistem Yenilənməsini Yoxla (OTA)")
             add("🔄 Bütün Tənzimləmələri Sıfırla")
         }.toTypedArray()
 
         AlertDialog.Builder(this)
-            .setTitle("Avtomobil və Sistem Menyu")
+            .setTitle("CarTwin 2.0 • Parametrlər")
             .setItems(options) { _, which ->
+                val vehicleCount = VehicleProfile.ALL.size
                 when {
-                    which < VehicleProfile.ALL.size -> {
+                    which < vehicleCount -> {
                         val selected = VehicleProfile.ALL[which]
                         vehicleDetector.saveProfile(selected)
                         setupProfile(selected)
                         restartAllCarPlayServices()
                         Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
                     }
-                    which == VehicleProfile.ALL.size -> {
+                    which == vehicleCount -> {
+                        // Universal mode (CarPlay & Android Auto)
+                        getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 3).apply()
+                        if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 3
+                        restartAllCarPlayServices()
+                        Toast.makeText(this, "⚡ Universal Rejim: CarPlay & Android Auto Aktivdir", Toast.LENGTH_SHORT).show()
+                    }
+                    which == vehicleCount + 1 -> {
+                        // CarPlay only
+                        getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 2).apply()
+                        if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 2
+                        restartAllCarPlayServices()
+                        Toast.makeText(this, "🍏 Yalnız Apple CarPlay Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                    }
+                    which == vehicleCount + 2 -> {
+                        // Android Auto only
+                        getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 1).apply()
+                        if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 1
+                        restartAllCarPlayServices()
+                        Toast.makeText(this, "🤖 Yalnız Android Auto Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                    }
+                    which == vehicleCount + 3 -> {
                         otaUpdateManager.checkForUpdates(silent = false)
                     }
                     else -> {
@@ -868,7 +907,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             Toast.makeText(this@MainActivity, "✅ PC Simulyatoruna Qoşuldu!", Toast.LENGTH_SHORT).show()
                         } else {
                             statusOverlay.visibility = View.VISIBLE
-                            tvStatus.text = "Apple CarPlay Qoşulması Gözlənilir"
+                            tvStatus.text = "CarTwin 2.0 • Universal Qoşulma Gözlənilir"
                         }
                     }
                 }

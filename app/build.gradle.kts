@@ -11,8 +11,8 @@ android {
         applicationId = "com.universal.carplay"
         minSdk = 25 // Android 7.1+ (Bütün avtomobil monitorlarını dəstəkləmək üçün)
         targetSdk = 34
-        versionCode = 18
-        versionName = "1.4.9"
+        versionCode = 20
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -42,22 +42,22 @@
                 android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Apple CarPlay Qoşulması Gözlənilir"
+                android:text="CarTwin 2.0 • Universal Qoşulma"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- İki Sütunlu Canlı Qoşulma Təlimatı (USB vs Simsiz) -->
+        <!-- CarTwin 2.0 İkili Platforma Kartları (CarPlay & Android Auto) -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
-            <!-- Metod 1: USB Kabel -->
+            <!-- Platforma 1: Apple CarPlay -->
             <LinearLayout
-                android:layout_width="220dp"
+                android:layout_width="230dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:background="#141B2D"
@@ -67,24 +67,24 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🔌 1. Simli Qoşulma"
+                    android:text="🍏 Apple CarPlay"
                     android:textColor="#30D158"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="iPhone-u USB kabel ilə avtomobilin multimedia portuna qoşun. Telefonda 'CarPlay-ə İcazə Ver' düyməsini təsdiqləyin."
+                    android:text="iPhone kabel və ya Carlinkit adapterinə qoşulan kimi Apple CarPlay interfeysi, Waze, Apple Music və zənglər avtomatik açılır."
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
             </LinearLayout>
 
-            <!-- Metod 2: Simsiz Bluetooth / Wi-Fi -->
+            <!-- Platforma 2: Android Auto -->
             <LinearLayout
-                android:layout_width="220dp"
+                android:layout_width="230dp"
                 android:layout_height="wrap_content"
                 android:background="#141B2D"
                 android:padding="16dp"
@@ -93,16 +93,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📡 2. Simsiz Qoşulma"
+                    android:text="🤖 Android Auto"
                     android:textColor="#00F0FF"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="iPhone-da Bluetooth menyusundan avtomobil adını seçin və cütləşdirin. Wi-Fi üzərindən CarPlay avtomatik açılacaq."
+                    android:text="Samsung, Xiaomi, Pixel və s. qoşulan kimi Android Auto, Google Maps, Spotify və Azərbaycan dilli Aura AI səs köməkçisi aktivləşir."
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />

@@ -59,7 +59,7 @@ class CarPlaySessionCoordinator(
                     onDeviceConnected(clientIp)
                 },
                 onClientDisconnected = {
-                    updateState(SessionState.WAITING_FOR_DEVICE, "iPhone ayrıldı. Yeni qoşulma gözlənilir…")
+                    updateState(SessionState.WAITING_FOR_DEVICE, "Cihaz ayrıldı. CarTwin 2.0 (CarPlay / Android Auto) gözlənilir…")
                 }
             ).apply { start() }
         } catch (e: Throwable) {
@@ -83,7 +83,7 @@ class CarPlaySessionCoordinator(
         val ipDisplay = if (!ipAddress.isNullOrBlank()) ipAddress else "Wi-Fi Hotspot gözlənilir"
         updateState(
             SessionState.WAITING_FOR_DEVICE,
-            "iPhone Gözlənilir (Bluetooth: $carName • IP: $ipDisplay • Port: 7000)"
+            "CarTwin 2.0 Gözlənilir (Bluetooth: $carName • IP: $ipDisplay • Port: 7000)"
         )
     }
 
