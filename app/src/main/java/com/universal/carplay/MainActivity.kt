@@ -74,6 +74,10 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var btnConnectMock: Button
     private lateinit var btnRefreshConnection: Button
     private lateinit var btnCheckUpdate: Button
+    private lateinit var btnHelpGuide: Button
+    private lateinit var btnHelpGuideTop: Button
+    private lateinit var cardCarPlayInfo: LinearLayout
+    private lateinit var cardAndroidAutoInfo: LinearLayout
     private lateinit var otaUpdateManager: com.universal.carplay.update.OtaUpdateManager
 
     // Lüks Reklam Açılış Şousu Overlay Elementləri
@@ -156,8 +160,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun initOtaUpdates() {
         try {
             val currentVer = try {
-                packageManager.getPackageInfo(packageName, 0).versionName ?: "2.0.1"
-            } catch (_: Throwable) { "2.0.1" }
+                packageManager.getPackageInfo(packageName, 0).versionName ?: "2.0.2"
+            } catch (_: Throwable) { "2.0.2" }
 
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
@@ -266,6 +270,16 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         btnRefreshConnection.setOnClickListener {
             restartAllCarPlayServices()
         }
+
+        btnHelpGuide = findViewById(R.id.btnHelpGuide)
+        btnHelpGuideTop = findViewById(R.id.btnHelpGuideTop)
+        cardCarPlayInfo = findViewById(R.id.cardCarPlayInfo)
+        cardAndroidAutoInfo = findViewById(R.id.cardAndroidAutoInfo)
+
+        btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
+        btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
+        cardCarPlayInfo.setOnClickListener { showConnectionGuideDialog() }
+        cardAndroidAutoInfo.setOnClickListener { showConnectionGuideDialog() }
     }
 
     private fun restartAllCarPlayServices() {
@@ -766,6 +780,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             add("🍏 Rejim: Yalnız Apple CarPlay")
             add("🤖 Rejim: Yalnız Android Auto")
             add("📶 Simsiz Adapter Tənzimləmələri (192.168.50.2)")
+            add("📖 Qoşulma Bələdçisi (iOS & Android)")
             add("🚀 Sistem Yenilənməsini Yoxla (OTA)")
             add("🔄 Bütün Tənzimləmələri Sıfırla")
         }.toTypedArray()
@@ -808,6 +823,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         Toast.makeText(this, "📶 Simsiz Adapter Səhifəsi Açılır (Adı 'CarTwin' edə bilərsiniz)", Toast.LENGTH_LONG).show()
                     }
                     which == vehicleCount + 4 -> {
+                        showConnectionGuideDialog()
+                    }
+                    which == vehicleCount + 5 -> {
                         otaUpdateManager.checkForUpdates(silent = false)
                     }
                     else -> {
@@ -820,6 +838,18 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             }
             .setNegativeButton("Bağla", null)
             .show()
+    }
+
+    private fun showConnectionGuideDialog() {
+        try {
+            val guideView = layoutInflater.inflate(R.layout.dialog_connection_guide, null)
+            AlertDialog.Builder(this)
+                .setView(guideView)
+                .setPositiveButton("Bağla", null)
+                .show()
+        } catch (e: Throwable) {
+            Log.e(TAG, "Qoşulma bələdçisi açılarkən xəta: ${e.message}")
+        }
     }
 
     override fun onSurfaceCreated(holder: SurfaceHolder) {

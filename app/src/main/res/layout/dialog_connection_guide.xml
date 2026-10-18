@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#0A0E1A"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Başlıq Paneli -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📖"
+                android:textSize="26sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CarTwin 2.0 • Qoşulma Bələdçisi"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Apple CarPlay &amp; Android Auto Addım-Addım Təlimatı"
+                    android:textColor="@color/car_text_gray"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bölmə 1: Apple iOS (CarPlay) Kartı -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="#141B2D"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🍏 1. Apple iPhone (Apple CarPlay)"
+                android:textColor="#30D158"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:lineSpacingExtra="3dp"
+                android:text="🔌 Simli Qoşulma:\n1. iPhone-u USB kabel ilə Carlinkit adapterinə taxın.\n2. Telefon ekranına gələn 'CarPlay-ə İcazə Ver' sorğusunu təsdiqləyin.\n3. Waze, Apple Music və zənglər avtomatik ekranda açılacaq.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. iPhone-da Bluetooth və Wi-Fi-ı yandırın.\n2. Bluetooth menyusundan 'CarTwin' cihazını seçib cütləşdirin (Pair).\n3. 'CarPlay-dən Simsiz İstifadə Et' düyməsini sıxın.\n\n💡 Vacib: iPhone-da Parametrlər ➔ Siri və Axtarış bölməsi aktiv olmalıdır."
+                android:textColor="#D1D5DB"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Bölmə 2: Android (Android Auto) Kartı -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="#141B2D"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🤖 2. Android Telefon (Samsung, Xiaomi, Pixel, Honor)"
+                android:textColor="#00F0FF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:lineSpacingExtra="3dp"
+                android:text="🔌 Simli Qoşulma:\n1. Telefonu keyfiyyətli Type-C kabel ilə adapterə taxın.\n2. Telefonda USB bildirişinə toxunub 'Fayl Ötürülməsi / Android Auto' seçin (Yalnız Şarj YOX!).\n3. 'Android Auto ilə davam et' düyməsini təsdiqləyin.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. Telefonda Bluetooth və Wi-Fi-ı açın.\n2. Bluetooth menyusunda 'CarTwin' cihazını seçib cütləşdirin.\n3. 'Simsiz Android Auto-ya İcazə Ver' təsdiqini verin.\n\n🎙️ Aura AI: Android Auto aktiv olanda sükandakı mikrofon düyməsini sıxaraq Azərbaycan dilində danışın (məs: 'Kondisioneri 21 dərəcə elə', 'Mahnını dəyiş', 'Waze naviqasiyanı aç')."
+                android:textColor="#D1D5DB"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Bölmə 3: Tez-tez Verilən Suallar və Həllər (FAQ) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="#141B2D"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛠️ 3. Ən Çox Rast Gəlinən Hallar və Həlli"
+                android:textColor="#FF9F0A"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="3dp"
+                android:text="⚠️ Kabel Taxıram Amma Görüntü Açılmır?\n• İstifadə etdiyiniz kabelin sadəcə şarj deyil, 'Data Transfer' (məlumat ötürən) kabel olduğuna əmin olun.\n\n📶 Bluetooth Adı Fərqlidir?\n• Parametrlər menyusundan 'Simsiz Adapter Tənzimləmələri (192.168.50.2)' seçərək adapterin adını 'CarTwin' edə bilərsiniz.\n\n🔄 Əlaqə Kəsilərsə?\n• Ekranda '🔄 Xidmətləri Yenidən Başlat' düyməsini sıxmaq kifayətdir."
+                android:textColor="#9CA3AF"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

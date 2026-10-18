@@ -57,11 +57,14 @@
 
             <!-- Platforma 1: Apple CarPlay -->
             <LinearLayout
+                android:id="@+id/cardCarPlayInfo"
                 android:layout_width="230dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:background="#141B2D"
                 android:padding="16dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="vertical">
 
                 <TextView
@@ -76,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="iPhone kabel və ya Carlinkit adapterinə qoşulan kimi Apple CarPlay interfeysi, Waze, Apple Music və zənglər avtomatik açılır."
+                    android:text="iPhone kabel və ya Carlinkit adapterinə qoşulan kimi Apple CarPlay interfeysi, Waze, Apple Music və zənglər avtomatik açılır. Təlimat üçün toxunun."
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
@@ -84,10 +87,13 @@
 
             <!-- Platforma 2: Android Auto -->
             <LinearLayout
+                android:id="@+id/cardAndroidAutoInfo"
                 android:layout_width="230dp"
                 android:layout_height="wrap_content"
                 android:background="#141B2D"
                 android:padding="16dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="vertical">
 
                 <TextView
@@ -102,7 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Samsung, Xiaomi, Pixel və s. qoşulan kimi Android Auto, Google Maps, Spotify və Azərbaycan dilli Aura AI səs köməkçisi aktivləşir."
+                    android:text="Samsung, Xiaomi, Pixel və s. qoşulan kimi Android Auto, Google Maps, Spotify və Azərbaycan dilli Aura AI səs köməkçisi aktivləşir. Təlimat üçün toxunun."
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
@@ -119,7 +125,7 @@
             android:textColor="@color/car_text_gray"
             android:textSize="13sp" />
 
-        <!-- Yeniləmə / Reset Düyməsi -->
+        <!-- Düymələr Paneli -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -128,11 +134,22 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btnHelpGuide"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📖 Qoşulma Təlimatı"
+                android:textColor="#30D158"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <Button
                 android:id="@+id/btnRefreshConnection"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🔄 Xidmətləri Yenidən Başlat"
+                android:layout_marginStart="6dp"
+                android:text="🔄 Yenidən Başlat"
                 android:textColor="@color/car_accent"
                 android:textSize="12sp" />
 
@@ -141,7 +158,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="6dp"
                 android:text="🧪 PC Simulyatoru"
                 android:textColor="#64748B"
                 android:textSize="11sp" />
@@ -200,6 +217,15 @@
             android:layout_height="wrap_content"
             android:text="🎬 Loqo Şousu"
             android:textColor="@color/car_accent" />
+
+        <Button
+            android:id="@+id/btnHelpGuideTop"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📖 Təlimat"
+            android:textColor="#00F0FF"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btnSettings"
