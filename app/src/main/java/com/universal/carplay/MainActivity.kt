@@ -156,8 +156,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private fun initOtaUpdates() {
         try {
             val currentVer = try {
-                packageManager.getPackageInfo(packageName, 0).versionName ?: "2.0.0"
-            } catch (_: Throwable) { "2.0.0" }
+                packageManager.getPackageInfo(packageName, 0).versionName ?: "2.0.1"
+            } catch (_: Throwable) { "2.0.1" }
 
             otaUpdateManager = com.universal.carplay.update.OtaUpdateManager(
                 context = this,
@@ -276,7 +276,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         Handler(Looper.getMainLooper()).postDelayed({
             usbManager.start()
             initSessionCoordinator()
-            sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+            sessionCoordinator?.startDiscovery(carName = "CarTwin")
             Toast.makeText(this, "✅ CarPlay port 7000 və Bluetooth aktivdir!", Toast.LENGTH_SHORT).show()
         }, 500)
     }
@@ -643,7 +643,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         try {
             vehicleStateManager.register()
             usbManager.start()
-            sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+            sessionCoordinator?.startDiscovery(carName = "CarTwin")
         } catch (e: Throwable) {
             Log.e(TAG, "onResume xətası: ${e.message}")
         }
@@ -765,6 +765,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             add("⚡ Rejim: Universal (CarPlay & Android Auto)")
             add("🍏 Rejim: Yalnız Apple CarPlay")
             add("🤖 Rejim: Yalnız Android Auto")
+            add("📶 Simsiz Adapter Tənzimləmələri (192.168.50.2)")
             add("🚀 Sistem Yenilənməsini Yoxla (OTA)")
             add("🔄 Bütün Tənzimləmələri Sıfırla")
         }.toTypedArray()
@@ -803,6 +804,10 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         Toast.makeText(this, "🤖 Yalnız Android Auto Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 3 -> {
+                        openBrowser("http://192.168.50.2")
+                        Toast.makeText(this, "📶 Simsiz Adapter Səhifəsi Açılır (Adı 'CarTwin' edə bilərsiniz)", Toast.LENGTH_LONG).show()
+                    }
+                    which == vehicleCount + 4 -> {
                         otaUpdateManager.checkForUpdates(silent = false)
                     }
                     else -> {
@@ -826,7 +831,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 start()
             }
             initSessionCoordinator()
-            sessionCoordinator?.startDiscovery(carName = "CarTwin-${currentProfile.name}")
+            sessionCoordinator?.startDiscovery(carName = "CarTwin")
         } catch (e: Throwable) {
             Log.e(TAG, "onSurfaceCreated xətası: ${e.message}")
         }

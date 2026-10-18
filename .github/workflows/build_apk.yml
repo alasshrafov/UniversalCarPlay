@@ -78,6 +78,7 @@ jobs:
           * **Avtomatik Cihaz Təyini**: Telefon kabelə və ya adapterə qoşulan kimi model aşkarlanır və müvafiq interfeys (Apple CarPlay və ya Android Auto) avtomatik işə salınır.
           * **Azərbaycan Dilli Aura AI Səs Köməkçisi**: Android Auto mühitində Siri olmadığı üçün sükan mikrofonu birbaşa Aura AI-ya qoşulur — sükan düyməsi ilə kondisioner, pəncərələr, naviqasiya və musiqi Azərbaycan dilində idarə olunur.
           * **Qırılmaz Stream Akkumulyatoru & Ani IDR Kadr**: USB paket parçalanmaları tam aradan qaldırıldı, qara ekran gecikməsi olmadan ilk saniyədən sabit H.264 video axını təmin edildi.
+          * **Default Bluetooth Adı ("CarTwin")**: Avtomobil Bluetooth və BLE yayım adı təmiz "CarTwin" olaraq təyin edildi; adapter menyusundan (192.168.50.2) dongle adı da rahatlıqla dəyişdirilə bilir.
           * **Avtomobil İnteqrasiyaları**: BYD, Changan, Geely, Chery, Zeekr, Li Auto və Haval üçün iqlim HUD, sükan düymələri və toxunma idarəetməsi hər iki platformada eyni dərəcədə qüsursuz işləyir.
         files: |
           release_output/CarTwin-${{ steps.get_version.outputs.version }}.apk

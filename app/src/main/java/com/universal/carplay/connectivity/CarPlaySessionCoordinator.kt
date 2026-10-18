@@ -39,7 +39,7 @@ class CarPlaySessionCoordinator(
     /**
      * Bütün simsiz qəbuledici servisləri və port 7000 dinləyici serverini işə salır
      */
-    fun startDiscovery(carName: String = "Universal CarPlay") {
+    fun startDiscovery(carName: String = "CarTwin") {
         updateState(SessionState.INITIALIZING, "Şəbəkə və Bluetooth xidmətləri başladılır…")
 
         // 1. IP Ünvanını yoxlayırıq

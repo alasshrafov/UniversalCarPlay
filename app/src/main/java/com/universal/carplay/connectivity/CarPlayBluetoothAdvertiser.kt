@@ -67,7 +67,7 @@ class CarPlayBluetoothAdvertiser(private val context: Context) {
     /**
      * Bluetooth yayımını başladır (Qətiyyən çökmür)
      */
-    fun startAdvertising(carName: String = "Universal CarPlay") {
+    fun startAdvertising(carName: String = "CarTwin") {
         try {
             if (!hasBluetoothPermissions()) {
                 Log.w(TAG, "Bluetooth icazələri hələ verilməyib. Yayım gözləmə rejimindədir.")
@@ -77,6 +77,16 @@ class CarPlayBluetoothAdvertiser(private val context: Context) {
             if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
                 Log.w(TAG, "Bluetooth söndürülüb və ya dəstəklənmir.")
                 return
+            }
+
+            // Bluetooth yayım adını birbaşa 'CarTwin' olaraq təyin edirik
+            try {
+                if (bluetoothAdapter.name != carName) {
+                    bluetoothAdapter.name = carName
+                    Log.i(TAG, "Bluetooth cihaz adı '$carName' olaraq təyin edildi.")
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Bluetooth adını dəyişərkən xəta: ${e.message}")
             }
 
             advertiser = bluetoothAdapter.bluetoothLeAdvertiser
