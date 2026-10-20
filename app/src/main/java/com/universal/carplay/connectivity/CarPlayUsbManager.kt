@@ -28,7 +28,7 @@ import java.nio.ByteOrder
 /**
  * CarTwin 2.0 Tam Həcmli Universal USB Meneceri
  * 
- * 1. Android Telefonlar: AOA 2.0 (Android Open Accessory) protokolu ilə birbaşa Type-C kabeil ilə qoşulma.
+ * 1. Android Telefonlar: AOA 2.0 (Android Open Accessory) protokolu ilə birbaşa Type-C kabel ilə qoşulma.
  * 2. Apple iPhone: Birbaşa Apple MFi Vendor Switch (0x52) və CDC-NCM şəbəkəsi.
  * 3. Carlinkit / AutoKit: Fiziki CPC200 adapterlər üçün 0x55aa55aa binar protokolu.
  */
@@ -707,8 +707,8 @@ class CarPlayUsbManager(
                 onPlatformDetected?.invoke(platformName, icon)
                 onStatusUpdate?.invoke("$icon $platformName qoşuldu! Görüntü aktivdir.")
 
-                sendCommand(12)  // frame request
-                sendCommand(500) // requestVideoFocus
+                sendCommand(12)
+                sendCommand(500)
             }
             MSG_UNPLUGGED -> {
                 Log.i(TAG, "CarTwin 2.0: Cihaz ayrıldı.")
