@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="CarTwin 2.0 • Qoşulma Bələdçisi"
+                    android:text="@string/guide_dialog_title"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -42,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Apple CarPlay &amp; Android Auto Addım-Addım Təlimatı"
+                    android:text="@string/guide_dialog_subtitle"
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -60,7 +60,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🍏 1. Apple iPhone (Apple CarPlay)"
+                android:text="@string/guide_ios_title"
                 android:textColor="#30D158"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:lineSpacingExtra="3dp"
-                android:text="🔌 Birbaşa USB Kabel ilə Qoşulma:\n1. iPhone-u birbaşa avtomobilin USB portuna və ya adapterə data kabeli ilə taxın.\n2. Telefonda 'CarPlay-ə İcazə Ver' və ya 'Bu Kompüterə Etibar Et' pəncərəsini təsdiqləyin.\n3. CarTwin birbaşa iPhone-u tanıyaraq Apple CarPlay görüntüsünü və səsini aktivləşdirir.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. iPhone-da Bluetooth və Wi-Fi-ı yandırın.\n2. Bluetooth menyusundan 'CarTwin' cihazını seçib cütləşdirin (Pair).\n3. Ekranda 'CarPlay-dən Simsiz İstifadə Et' düyməsini sıxın.\n\n💡 Vacib: iPhone-da Parametrlər ➔ Siri və Axtarış bölməsi aktiv olmalıdır."
+                android:text="@string/guide_ios_body"
                 android:textColor="#D1D5DB"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -87,7 +87,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🤖 2. Android Telefon (Samsung, Xiaomi, Pixel, Honor)"
+                android:text="@string/guide_android_title"
                 android:textColor="#00F0FF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:lineSpacingExtra="3dp"
-                android:text="🔌 Birbaşa USB Kabel ilə Qoşulma (AOA 2.0):\n1. Telefonu birbaşa avtomobilin USB portuna data kabeli ilə taxın.\n2. Telefonda açılan USB bildirişindən 'Android Auto / Fayl Ötürülməsi' seçin.\n3. CarTwin AOA 2.0 protokolu vasitəsilə telefonunuzun modelini (Samsung, Xiaomi və s.) avtomatik tanıyır və Android Auto interfeysini açır.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. Telefonda Bluetooth və Wi-Fi-ı açın.\n2. Bluetooth menyusunda 'CarTwin' cihazını seçib cütləşdirin.\n3. 'Simsiz Android Auto-ya İcazə Ver' təsdiqini verin.\n\n🎙️ Aura AI: Android cihazlarda Siri olmadığı üçün sükan mikrofonu birbaşa Azərbaycan dilli Aura AI-ya qoşulur (məs: 'Kondisioneri 22 dərəcə elə', 'Musiqini dəyiş', 'Waze naviqasiyanı aç')."
+                android:text="@string/guide_android_body"
                 android:textColor="#D1D5DB"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -114,7 +114,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🛠️ 3. Ən Çox Rast Gəlinən Hallar və Həlli"
+                android:text="@string/guide_faq_title"
                 android:textColor="#FF9F0A"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -124,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="3dp"
-                android:text="⚠️ Kabel Taxıram Amma Telefon Reaksiya Vermir?\n• Telefonda 'Yalnız Şarj' deyil, 'Android Auto / Fayl Ötürülməsi' rejiminin seçildiyinə və kabelin data naqili olduğuna əmin olun.\n• Avtomobil ekranında CarTwin USB icazə sorğusu çıxarsa 'Həmişə İcazə Ver' seçin.\n\n🔄 Əlaqə Kəsilərsə?\n• Ekranda '🔄 Xidmətləri Yenidən Başlat' düyməsini sıxmaq kifayətdir.\n\n🎙️ Aura AI Necə İşləyir?\n• Sükan düyməsinə və ya loqoya basaraq Azərbaycan dilində danışın. Aura AI həm iqlimi, həm də naviqasiyanı dərhal idarə edir."
+                android:text="@string/guide_faq_body"
                 android:textColor="#9CA3AF"
                 android:textSize="12sp" />
         </LinearLayout>

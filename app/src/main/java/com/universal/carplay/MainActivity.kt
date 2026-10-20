@@ -52,8 +52,10 @@ import com.universal.carplay.engine.TouchManager
 import com.universal.carplay.engine.VideoDecoder
 import com.universal.carplay.profiles.VehicleProfile
 import com.universal.carplay.protocol.CarPlayCryptoHandshake
+import android.content.Context
 import com.universal.carplay.protocol.MockCarPlayClient
 import com.universal.carplay.ui.CarPlaySurfaceView
+import com.universal.carplay.util.LocaleHelper
 import com.universal.carplay.voice.UniversalVoiceAssistant
 import java.net.URLEncoder
 
@@ -62,6 +64,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     companion object {
         private const val TAG = "CarTwin_MainActivity"
         private const val PERMISSIONS_REQUEST_CODE = 1001
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val lang = LocaleHelper.getLanguage(newBase)
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, lang))
     }
 
     private lateinit var surfaceView: CarPlaySurfaceView
@@ -77,6 +84,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var btnCheckUpdate: Button
     private lateinit var btnHelpGuide: Button
     private lateinit var btnHelpGuideTop: Button
+    private lateinit var btnLanguage: Button
     private lateinit var cardCarPlayInfo: LinearLayout
     private lateinit var cardAndroidAutoInfo: LinearLayout
     private lateinit var otaUpdateManager: com.universal.carplay.update.OtaUpdateManager
@@ -257,7 +265,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         ivTopBarLogo.setOnClickListener {
             voiceAssistant?.startListening()
-            Toast.makeText(this@MainActivity, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, getString(R.string.aura_listening), Toast.LENGTH_SHORT).show()
         }
 
         btnSettings.setOnClickListener {
@@ -274,8 +282,13 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         btnHelpGuide = findViewById(R.id.btnHelpGuide)
         btnHelpGuideTop = findViewById(R.id.btnHelpGuideTop)
+        btnLanguage = findViewById(R.id.btnLanguage)
         cardCarPlayInfo = findViewById(R.id.cardCarPlayInfo)
         cardAndroidAutoInfo = findViewById(R.id.cardAndroidAutoInfo)
+
+        val currentLang = LocaleHelper.getLanguage(this)
+        btnLanguage.text = LocaleHelper.getLanguageShortBadge(currentLang)
+        btnLanguage.setOnClickListener { showLanguageSelectionDialog() }
 
         btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
         btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
@@ -284,7 +297,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     private fun restartAllCarPlayServices() {
-        Toast.makeText(this, "🔄 Xidmətlər yenidən başladılır…", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.services_restarting), Toast.LENGTH_SHORT).show()
         sessionCoordinator?.stopDiscovery()
         usbManager.stop()
 
@@ -292,7 +305,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             usbManager.start()
             initSessionCoordinator()
             sessionCoordinator?.startDiscovery(carName = "CarTwin")
-            Toast.makeText(this, "✅ CarPlay port 7000 və Bluetooth aktivdir!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.services_ready), Toast.LENGTH_SHORT).show()
         }, 500)
     }
 
@@ -712,7 +725,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun setupProfile(profile: VehicleProfile) {
         currentProfile = profile
-        tvCurrentProfile.text = "CarTwin • ${profile.name}"
+        tvCurrentProfile.text = getString(R.string.profile_label, profile.name)
 
         try {
             ivTopBarLogo.setImageResource(profile.logoResId)
@@ -791,17 +804,18 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun showProfileSelectionDialog() {
         val options = VehicleProfile.ALL.map { it.name }.toMutableList().apply {
-            add("⚡ Rejim: Universal (CarPlay & Android Auto)")
-            add("🍏 Rejim: Yalnız Apple CarPlay")
-            add("🤖 Rejim: Yalnız Android Auto")
-            add("📶 Simsiz Adapter Tənzimləmələri (192.168.50.2)")
-            add("📖 Qoşulma Bələdçisi (iOS & Android)")
-            add("🚀 Sistem Yenilənməsini Yoxla (OTA)")
-            add("🔄 Bütün Tənzimləmələri Sıfırla")
+            add(getString(R.string.settings_mode_universal))
+            add(getString(R.string.settings_mode_carplay))
+            add(getString(R.string.settings_mode_android))
+            add(getString(R.string.settings_wireless_adapter))
+            add(getString(R.string.settings_language))
+            add(getString(R.string.settings_connection_guide))
+            add(getString(R.string.settings_check_ota))
+            add(getString(R.string.settings_reset))
         }.toTypedArray()
 
         AlertDialog.Builder(this)
-            .setTitle("CarTwin 2.0 • Parametrlər")
+            .setTitle(getString(R.string.settings_title))
             .setItems(options) { _, which ->
                 val vehicleCount = VehicleProfile.ALL.size
                 when {
@@ -817,41 +831,73 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 3).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 3
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "⚡ Universal Rejim: CarPlay & Android Auto Aktivdir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "⚡ Universal Rejim: CarPlay & Android Auto", Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 1 -> {
                         // CarPlay only
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 2).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 2
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "🍏 Yalnız Apple CarPlay Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "🍏 Apple CarPlay Rejimi", Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 2 -> {
                         // Android Auto only
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 1).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 1
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "🤖 Yalnız Android Auto Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "🤖 Android Auto Rejimi", Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 3 -> {
                         openBrowser("http://192.168.50.2")
-                        Toast.makeText(this, "📶 Simsiz Adapter Səhifəsi Açılır (Adı 'CarTwin' edə bilərsiniz)", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "📶 192.168.50.2", Toast.LENGTH_LONG).show()
                     }
                     which == vehicleCount + 4 -> {
-                        showConnectionGuideDialog()
+                        showLanguageSelectionDialog()
                     }
                     which == vehicleCount + 5 -> {
+                        showConnectionGuideDialog()
+                    }
+                    which == vehicleCount + 6 -> {
                         otaUpdateManager.checkForUpdates(silent = false)
                     }
                     else -> {
                         vehicleDetector.resetSavedProfile()
-                        Toast.makeText(this, "Tənzimləmələr sıfırlandı", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.settings_reset_done), Toast.LENGTH_SHORT).show()
                         initVehicleDetection()
                         restartAllCarPlayServices()
                     }
                 }
             }
-            .setNegativeButton("Bağla", null)
+            .setNegativeButton(getString(R.string.dialog_close), null)
+            .show()
+    }
+
+    private fun showLanguageSelectionDialog() {
+        val languages = listOf(
+            LocaleHelper.LANG_EN to "🇬🇧 English (Default)",
+            LocaleHelper.LANG_AZ to "🇦🇿 Azərbaycan dili",
+            LocaleHelper.LANG_TR to "🇹🇷 Türkçe",
+            LocaleHelper.LANG_RU to "🇷🇺 Русский"
+        )
+        val currentLang = LocaleHelper.getLanguage(this)
+        val currentIndex = languages.indexOfFirst { it.first == currentLang }.let { if (it >= 0) it else 0 }
+        val options = languages.map { it.second }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.select_language_title))
+            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
+                val selectedLang = languages[which].first
+                if (selectedLang != currentLang) {
+                    LocaleHelper.setLocale(this, selectedLang)
+                    voiceAssistant?.setLanguage(selectedLang)
+                    dialog.dismiss()
+                    Toast.makeText(this, "Language: ${languages[which].second}", Toast.LENGTH_SHORT).show()
+                    recreate()
+                } else {
+                    dialog.dismiss()
+                }
+            }
+            .setNegativeButton(getString(R.string.dialog_close), null)
             .show()
     }
 
@@ -860,7 +906,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             val guideView = layoutInflater.inflate(R.layout.dialog_connection_guide, null)
             AlertDialog.Builder(this)
                 .setView(guideView)
-                .setPositiveButton("Bağla", null)
+                .setPositiveButton(getString(R.string.dialog_close), null)
                 .show()
         } catch (e: Throwable) {
             Log.e(TAG, "Qoşulma bələdçisi açılarkən xəta: ${e.message}")

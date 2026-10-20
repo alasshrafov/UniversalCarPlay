@@ -42,7 +42,7 @@
                 android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="CarTwin 2.0 • Universal Qoşulma"
+                android:text="@string/status_universal_connection"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -70,7 +70,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🍏 Apple CarPlay"
+                    android:text="@string/carplay_card_title"
                     android:textColor="#30D158"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -79,7 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="iPhone kabel və ya Carlinkit adapterinə qoşulan kimi Apple CarPlay interfeysi, Waze, Apple Music və zənglər avtomatik açılır. Təlimat üçün toxunun."
+                    android:text="@string/carplay_card_desc"
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
@@ -99,7 +99,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🤖 Android Auto"
+                    android:text="@string/android_auto_card_title"
                     android:textColor="#00F0FF"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -108,7 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Samsung, Xiaomi, Pixel və s. qoşulan kimi Android Auto, Google Maps, Spotify və Azərbaycan dilli Aura AI səs köməkçisi aktivləşir. Təlimat üçün toxunun."
+                    android:text="@string/android_auto_card_desc"
                     android:textColor="@color/car_text_gray"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
@@ -121,7 +121,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Bluetooth: CarTwin • Server: Port 7000 • USB: Gözlənilir"
+            android:text="@string/status_waiting_device"
             android:textColor="@color/car_text_gray"
             android:textSize="13sp" />
 
@@ -138,7 +138,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📖 Qoşulma Təlimatı"
+                android:text="@string/btn_connection_guide"
                 android:textColor="#30D158"
                 android:textStyle="bold"
                 android:textSize="12sp" />
@@ -149,7 +149,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="🔄 Yenidən Başlat"
+                android:text="@string/btn_restart_services"
                 android:textColor="@color/car_accent"
                 android:textSize="12sp" />
 
@@ -159,7 +159,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="🧪 PC Simulyatoru"
+                android:text="@string/btn_virtual_simulator"
                 android:textColor="#64748B"
                 android:textSize="11sp" />
         </LinearLayout>
@@ -197,7 +197,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🚀 OTA Yeniləmə"
+            android:text="@string/btn_ota_update"
             android:textColor="#30D158"
             android:textStyle="bold" />
 
@@ -206,7 +206,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🌐 Brauzer &amp; Video"
+            android:text="@string/btn_browser"
             android:textColor="#FF30D158"
             android:textStyle="bold" />
 
@@ -215,7 +215,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🎬 Loqo Şousu"
+            android:text="@string/btn_logo_show"
             android:textColor="@color/car_accent" />
 
         <Button
@@ -223,8 +223,17 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="📖 Təlimat"
+            android:text="@string/btn_guide_top"
             android:textColor="#00F0FF"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnLanguage"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_language"
+            android:textColor="#FFD60A"
             android:textStyle="bold" />
 
         <Button
@@ -232,7 +241,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚙️ Brend Dəyiş"
+            android:text="@string/btn_settings"
             android:textColor="@color/white" />
     </LinearLayout>
 

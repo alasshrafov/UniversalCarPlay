@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">CarTwin</string>
+    <string name="brand_tagline">PREMIUM CONNECT</string>
+    <string name="waiting_for_connection">Apple iPhone və ya Android cihaz gözlənilir…</string>
+    <string name="settings">Parametrlər</string>
+    <string name="profile_byd">BYD DiLink Rejimi (15.6\" Fırlanan)</string>
+    <string name="profile_changan">Changan / Deepal Rejimi</string>
+    <string name="profile_liauto">Li Auto Rejimi (15.7\" 3K)</string>
+    <string name="profile_universal">Universal Android Rejimi</string>
+    <string name="status_connected">Qoşuldu</string>
+    <string name="status_disconnected">Qoşulmayıb</string>
+    <string name="voice_assistant_name">Aura AI</string>
+
+    <!-- Main Screen UI Strings -->
+    <string name="status_universal_connection">CarTwin 2.0 • Universal Qoşulma</string>
+    <string name="status_waiting_device">Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun.</string>
+    <string name="status_preparing_stream">Görüntü və Səs Aktivləşdirilir • CarTwin 2.0</string>
+    <string name="carplay_card_title">🍏 Apple CarPlay</string>
+    <string name="carplay_card_desc">iPhone kabel və ya adapterə qoşulan kimi Apple CarPlay interfeysi, Waze, Apple Music və zənglər avtomatik açılır. Təlimat üçün toxunun.</string>
+    <string name="android_auto_card_title">🤖 Android Auto</string>
+    <string name="android_auto_card_desc">Bütün Android telefonlar (Samsung, Xiaomi, Pixel və s.) birbaşa Type-C kabel ilə qoşulan kimi Android Auto və Aura AI avtomatik açılır. Təlimat üçün toxunun.</string>
+    <string name="btn_connection_guide">📖 Qoşulma Bələdçisi</string>
+    <string name="btn_restart_services">🔄 Xidmətləri Yenidən Başlat</string>
+    <string name="btn_virtual_simulator">📱 Virtual Simulyator</string>
+    <string name="btn_ota_update">🚀 OTA Yeniləmə</string>
+    <string name="btn_browser">🌐 Brauzer &amp; Video</string>
+    <string name="btn_logo_show">🎬 Loqo Şousu</string>
+    <string name="btn_guide_top">📖 Təlimat</string>
+    <string name="btn_settings">⚙️ Parametrlər</string>
+    <string name="btn_language">🌐 AZ</string>
+    <string name="select_language_title">🌐 Dili Seçin</string>
+    <string name="dialog_close">Bağla</string>
+    <string name="profile_label">Profil: %1$s</string>
+
+    <!-- Connection Guide Dialog Strings -->
+    <string name="guide_dialog_title">📖 Universal Qoşulma Bələdçisi (CarPlay &amp; Android Auto)</string>
+    <string name="guide_dialog_subtitle">Apple iOS və Android cihazlar üçün addım-addım rəsmi təlimat</string>
+    <string name="guide_ios_title">🍏 1. Apple iPhone (Apple CarPlay)</string>
+    <string name="guide_ios_body">🔌 Birbaşa USB Kabel ilə Qoşulma:\n1. iPhone-u birbaşa avtomobilin USB portuna və ya adapterə data kabeli ilə taxın.\n2. Telefonda \'CarPlay-ə İcazə Ver\' və ya \'Bu Kompüterə Etibar Et\' pəncərəsini təsdiqləyin.\n3. CarTwin birbaşa iPhone-u tanıyaraq Apple CarPlay görüntüsünü və səsini aktivləşdirir.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. iPhone-da Bluetooth və Wi-Fi-ı yandırın.\n2. Bluetooth menyusundan \'CarTwin\' cihazını seçib cütləşdirin (Pair).\n3. Ekranda \'CarPlay-dən Simsiz İstifadə Et\' düyməsini sıxın.\n\n💡 Vacib: iPhone-da Parametrlər ➔ Siri və Axtarış bölməsi aktiv olmalıdır.</string>
+    <string name="guide_android_title">🤖 2. Android Telefon (Samsung, Xiaomi, Pixel, Honor və s.)</string>
+    <string name="guide_android_body">🔌 Birbaşa USB Kabel ilə Qoşulma (AOA 2.0):\n1. Telefonu birbaşa avtomobilin USB portuna data kabeli ilə taxın.\n2. Telefonda açılan USB bildirişindən \'Android Auto / Fayl Ötürülməsi\' seçin.\n3. CarTwin AOA 2.0 protokolu vasitəsilə telefonunuzun modelini (Samsung, Xiaomi və s.) avtomatik tanıyır və Android Auto interfeysini açır.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. Telefonda Bluetooth və Wi-Fi-ı açın.\n2. Bluetooth menyusunda \'CarTwin\' cihazını seçib cütləşdirin.\n3. \'Simsiz Android Auto-ya İcazə Ver\' təsdiqini verin.\n\n🎙️ Aura AI: Sükan düyməsinə və ya loqoya basaraq səslə iqlim, naviqasiya və musiqini idarə edə bilərsiniz.</string>
+    <string name="guide_faq_title">🛠️ 3. Ən Çox Rast Gəlinən Hallar və Həlli</string>
+    <string name="guide_faq_body">⚠️ Kabel Taxıram Amma Telefon Reaksiya Vermir?\n• Telefonda \'Yalnız Şarj\' deyil, \'Android Auto / Fayl Ötürülməsi\' rejiminin seçildiyinə və kabelin data naqili olduğuna əmin olun.\n• Avtomobil ekranında CarTwin USB icazə sorğusu çıxarsa \'Həmişə İcazə Ver\' seçin.\n\n🔄 Əlaqə Kəsilərsə?\n• Ekranda \'🔄 Xidmətləri Yenidən Başlat\' düyməsini sıxmaq kifayətdir.\n\n🎙️ Aura AI Necə İşləyir?\n• Sükan düyməsinə və ya loqoya basaraq danışın. Aura AI həm iqlimi, həm də naviqasiyanı dərhal idarə edir.</string>
+
+    <!-- Settings Dialog Options -->
+    <string name="settings_title">CarTwin 2.0 • Parametrlər</string>
+    <string name="settings_mode_universal">⚡ Rejim: Universal (CarPlay &amp; Android Auto)</string>
+    <string name="settings_mode_carplay">🍏 Rejim: Yalnız Apple CarPlay</string>
+    <string name="settings_mode_android">🤖 Rejim: Yalnız Android Auto</string>
+    <string name="settings_wireless_adapter">📶 Simsiz Adapter Tənzimləmələri (192.168.50.2)</string>
+    <string name="settings_language">🌐 Dil (English, Azərbaycanca, Türkçe, Русский)</string>
+    <string name="settings_connection_guide">📖 Qoşulma Bələdçisi (iOS &amp; Android)</string>
+    <string name="settings_check_ota">🚀 Sistem Yenilənməsini Yoxla (OTA)</string>
+    <string name="settings_reset">🔄 Bütün Tənzimləmələri Sıfırla</string>
+
+    <!-- Aura AI Voice Assistant Prompts -->
+    <string name="aura_listening">🎙️ Aura AI Dinləyir…</string>
+    <string name="aura_ready_prompt">Mən Aura AI — sizin şəxsi avtomobil köməkçinizəm. Əmrlərinizi icra etməyə hazıram.</string>
+    <string name="services_restarting">🔄 Xidmətlər yenidən başladılır…</string>
+    <string name="services_ready">✅ CarTwin port 7000 və Bluetooth aktivdir!</string>
+    <string name="settings_reset_done">Tənzimləmələr sıfırlandı</string>
+</resources>

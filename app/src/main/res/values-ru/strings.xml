@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">CarTwin</string>
+    <string name="brand_tagline">PREMIUM CONNECT</string>
+    <string name="waiting_for_connection">Ожидание устройства Apple iPhone или Android…</string>
+    <string name="settings">Настройки</string>
+    <string name="profile_byd">Режим BYD DiLink (15.6\" Поворотный)</string>
+    <string name="profile_changan">Режим Changan / Deepal</string>
+    <string name="profile_liauto">Режим Li Auto (15.7\" 3K)</string>
+    <string name="profile_universal">Универсальный режим Android</string>
+    <string name="status_connected">Подключено</string>
+    <string name="status_disconnected">Не подключено</string>
+    <string name="voice_assistant_name">Aura AI</string>
+
+    <!-- Main Screen UI Strings -->
+    <string name="status_universal_connection">CarTwin 2.0 • Универсальное подключение</string>
+    <string name="status_waiting_device">Устройство отключено. Подключите Apple или Android телефон.</string>
+    <string name="status_preparing_stream">Активация видео и звука • CarTwin 2.0</string>
+    <string name="carplay_card_title">🍏 Apple CarPlay</string>
+    <string name="carplay_card_desc">При подключении iPhone по кабелю или адаптеру запускается Apple CarPlay с Waze, Apple Music и звонками. Нажмите для инструкции.</string>
+    <string name="android_auto_card_title">🤖 Android Auto</string>
+    <string name="android_auto_card_desc">Любой Android-телефон (Samsung, Xiaomi, Pixel и др.) подключается по кабелю Type-C с автозапуском Android Auto и Aura AI. Нажмите для инструкции.</string>
+    <string name="btn_connection_guide">📖 Инструкция</string>
+    <string name="btn_restart_services">🔄 Перезапустить службы</string>
+    <string name="btn_virtual_simulator">📱 Симулятор</string>
+    <string name="btn_ota_update">🚀 OTA Обновление</string>
+    <string name="btn_browser">🌐 Браузер и видео</string>
+    <string name="btn_logo_show">🎬 Шоу логотипа</string>
+    <string name="btn_guide_top">📖 Инструкция</string>
+    <string name="btn_settings">⚙️ Настройки</string>
+    <string name="btn_language">🌐 RU</string>
+    <string name="select_language_title">🌐 Выберите язык</string>
+    <string name="dialog_close">Закрыть</string>
+    <string name="profile_label">Профиль: %1$s</string>
+
+    <!-- Connection Guide Dialog Strings -->
+    <string name="guide_dialog_title">📖 Универсальная инструкция (CarPlay и Android Auto)</string>
+    <string name="guide_dialog_subtitle">Пошаговое руководство для устройств Apple iOS и Android</string>
+    <string name="guide_ios_title">🍏 1. Apple iPhone (Apple CarPlay)</string>
+    <string name="guide_ios_body">🔌 Прямое подключение по USB-кабелю:\n1. Подключите iPhone кабелем данных к USB-порту автомобиля или адаптеру.\n2. Нажмите \'Разрешить CarPlay\' или \'Доверять этому компьютеру\' на телефоне.\n3. CarTwin мгновенно запустит видео и аудио Apple CarPlay.\n\n📡 Беспроводное подключение:\n1. Включите Bluetooth и Wi-Fi на iPhone.\n2. Найдите \'CarTwin\' в списке Bluetooth и выполните сопряжение.\n3. Нажмите \'Использовать CarPlay\' на экране iPhone.\n\n💡 Важно: В настройках iPhone должен быть включен раздел Siri и Поиск.</string>
+    <string name="guide_android_title">🤖 2. Android Телефон (Samsung, Xiaomi, Pixel, Honor и др.)</string>
+    <string name="guide_android_body">🔌 Прямое подключение по USB-кабелю (AOA 2.0):\n1. Подключите телефон качественным кабелем данных к USB-порту авто.\n2. В шторке уведомлений выберите \'Android Auto / Передача файлов\'.\n3. CarTwin автоматически определит модель телефона (Samsung, Xiaomi, Pixel и др.) по AOA 2.0 и запустит Android Auto.\n\n📡 Беспроводное подключение:\n1. Включите Bluetooth и Wi-Fi на телефоне.\n2. Выполните сопряжение с устройством \'CarTwin\'.\n3. Подтвердите запуск беспроводного Android Auto.\n\n🎙️ Голосовой ассистент Aura AI: Управление климатом, навигацией и музыкой через кнопку на руле или логотип.</string>
+    <string name="guide_faq_title">🛠️ 3. Часто задаваемые вопросы и решения</string>
+    <string name="guide_faq_body">⚠️ Кабель подключен, но нет реакции?\n• Убедитесь, что кабель поддерживает передачу данных, и выбран режим \'Android Auto / Передача файлов\'.\n• Если на экране появится запрос разрешения USB, выберите \'Всегда разрешать\'.\n\n🔄 Если связь оборвалась?\n• Нажмите кнопку \'🔄 Перезапустить службы\' на экране.\n\n🎙️ Как работает Aura AI?\n• Нажмите кнопку на руле или логотип и говорите команды на английском, азербайджанском, турецком или русском.</string>
+
+    <!-- Settings Dialog Options -->
+    <string name="settings_title">CarTwin 2.0 • Настройки</string>
+    <string name="settings_mode_universal">⚡ Режим: Универсальный (CarPlay и Android Auto)</string>
+    <string name="settings_mode_carplay">🍏 Режим: Только Apple CarPlay</string>
+    <string name="settings_mode_android">🤖 Режим: Только Android Auto</string>
+    <string name="settings_wireless_adapter">📶 Настройки беспроводного адаптера (192.168.50.2)</string>
+    <string name="settings_language">🌐 Язык (English, Azərbaycanca, Türkçe, Русский)</string>
+    <string name="settings_connection_guide">📖 Инструкция по подключению (iOS и Android)</string>
+    <string name="settings_check_ota">🚀 Проверить обновления системы (OTA)</string>
+    <string name="settings_reset">🔄 Сбросить все настройки</string>
+
+    <!-- Aura AI Voice Assistant Prompts -->
+    <string name="aura_listening">🎙️ Aura AI Слушает…</string>
+    <string name="aura_ready_prompt">Я Aura AI — ваш персональный автомобильный ассистент. Готов к выполнению команд.</string>
+    <string name="services_restarting">🔄 Перезапуск служб…</string>
+    <string name="services_ready">✅ CarTwin порт 7000 и Bluetooth активны!</string>
+    <string name="settings_reset_done">Все настройки сброшены</string>
+</resources>

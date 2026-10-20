@@ -598,27 +598,17 @@ class UniversalVoiceAssistant(
     }
 
     /**
-     * Səsli geridönüş:
-     * QƏTİYYƏN ingiliscə danışmır!
-     * Sürücünü narahat edən dinq-dinq səsi tamamilə söndürülüb.
+     * Səsli geridönüş: seçilmiş dildə (İngilis, Azərbaycan, Türk, Rus) səsləndirilir
      */
     fun speak(text: String) {
         if (voiceResponseMode == VoiceResponseMode.MUTE) return
 
-        if (voiceResponseMode == VoiceResponseMode.SILENT_CHIME) {
-            playConfirmationChime()
-            return
-        }
-
-        if (voiceResponseMode == VoiceResponseMode.AZERBAIJANI_ONLY && isTtsNativeReady) {
+        if (isTtsNativeReady) {
             try {
                 textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "CarTwinVoice")
             } catch (e: Exception) {
-                playConfirmationChime()
+                Log.w(TAG, "TTS speak xətası: ${e.message}")
             }
-        } else {
-            // Əgər Azərbaycan dili TTS yoxdursa, İNGİLİSCƏ DANIŞMIR, tam səssiz qalır!
-            playConfirmationChime()
         }
     }
 
@@ -630,15 +620,31 @@ class UniversalVoiceAssistant(
         return
     }
 
+    fun setLanguage(langCode: String) {
+        val (recogLang, ttsLocale) = when (langCode.lowercase()) {
+            "az" -> "az-AZ" to Locale("az", "AZ")
+            "tr" -> "tr-TR" to Locale("tr", "TR")
+            "ru" -> "ru-RU" to Locale("ru", "RU")
+            else -> "en-US" to Locale.US
+        }
+        currentLanguage = recogLang
+        try {
+            val res = textToSpeech?.setLanguage(ttsLocale)
+            isTtsNativeReady = (res != TextToSpeech.LANG_MISSING_DATA && res != TextToSpeech.LANG_NOT_SUPPORTED)
+            if (!isTtsNativeReady && langCode == "az") {
+                val trRes = textToSpeech?.setLanguage(Locale("tr", "TR"))
+                isTtsNativeReady = (trRes != TextToSpeech.LANG_MISSING_DATA && trRes != TextToSpeech.LANG_NOT_SUPPORTED)
+            }
+            Log.i(TAG, "Aura AI dili təyin edildi: $recogLang, TTS: $isTtsNativeReady")
+        } catch (e: Throwable) {
+            Log.w(TAG, "setLanguage xətası: ${e.message}")
+        }
+    }
+
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = textToSpeech?.setLanguage(Locale("az", "AZ"))
-            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
-                isTtsNativeReady = true
-            } else {
-                val trResult = textToSpeech?.setLanguage(Locale("tr", "TR"))
-                isTtsNativeReady = (trResult != TextToSpeech.LANG_MISSING_DATA && trResult != TextToSpeech.LANG_NOT_SUPPORTED)
-            }
+            val langCode = com.universal.carplay.util.LocaleHelper.getLanguage(context)
+            setLanguage(langCode)
         }
     }
 

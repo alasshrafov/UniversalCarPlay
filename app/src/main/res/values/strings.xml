@@ -1,13 +1,62 @@
 <resources>
     <string name="app_name">CarTwin</string>
     <string name="brand_tagline">PREMIUM CONNECT</string>
-    <string name="waiting_for_connection">iPhone və ya Virtual Server gözlənilir…</string>
-    <string name="settings">Tənzimləmələr</string>
-    <string name="profile_byd">BYD Rejimi (15.6\" Fırlanan)</string>
-    <string name="profile_changan">Changan / Deepal Rejimi</string>
-    <string name="profile_liauto">Li Auto Rejimi (15.7\" 3K)</string>
-    <string name="profile_universal">Universal Android Rejimi</string>
-    <string name="status_connected">Qoşuldu</string>
-    <string name="status_disconnected">Qoşulmayıb</string>
+    <string name="waiting_for_connection">Waiting for Apple iPhone or Android device…</string>
+    <string name="settings">Settings</string>
+    <string name="profile_byd">BYD DiLink Mode (15.6\" Rotating)</string>
+    <string name="profile_changan">Changan / Deepal Mode</string>
+    <string name="profile_liauto">Li Auto Mode (15.7\" 3K)</string>
+    <string name="profile_universal">Universal Android Mode</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
     <string name="voice_assistant_name">Aura AI</string>
+
+    <!-- Main Screen UI Strings -->
+    <string name="status_universal_connection">CarTwin 2.0 • Universal Connection</string>
+    <string name="status_waiting_device">Device disconnected. Connect your Apple or Android phone.</string>
+    <string name="status_preparing_stream">Activating Video &amp; Audio • CarTwin 2.0</string>
+    <string name="carplay_card_title">🍏 Apple CarPlay</string>
+    <string name="carplay_card_desc">Connect your iPhone via USB cable or wireless adapter to launch Apple CarPlay with Waze, Apple Music, and handsfree calls. Tap for guide.</string>
+    <string name="android_auto_card_title">🤖 Android Auto</string>
+    <string name="android_auto_card_desc">Connect any Android phone (Samsung, Xiaomi, Pixel, etc.) via USB cable. Android Auto and Aura AI launch automatically. Tap for guide.</string>
+    <string name="btn_connection_guide">📖 Connection Guide</string>
+    <string name="btn_restart_services">🔄 Restart Services</string>
+    <string name="btn_virtual_simulator">📱 Virtual Simulator</string>
+    <string name="btn_ota_update">🚀 OTA Update</string>
+    <string name="btn_browser">🌐 Browser &amp; Video</string>
+    <string name="btn_logo_show">🎬 Brand Intro</string>
+    <string name="btn_guide_top">📖 Guide</string>
+    <string name="btn_settings">⚙️ Settings</string>
+    <string name="btn_language">🌐 EN</string>
+    <string name="select_language_title">🌐 Select Language</string>
+    <string name="dialog_close">Close</string>
+    <string name="profile_label">Profile: %1$s</string>
+
+    <!-- Connection Guide Dialog Strings -->
+    <string name="guide_dialog_title">📖 Universal Connection Guide (CarPlay &amp; Android Auto)</string>
+    <string name="guide_dialog_subtitle">Step-by-step instructions for Apple iOS and Android devices</string>
+    <string name="guide_ios_title">🍏 1. Apple iPhone (Apple CarPlay)</string>
+    <string name="guide_ios_body">🔌 Direct USB Cable Connection:\n1. Connect iPhone directly to vehicle USB port or adapter using a quality data cable.\n2. Tap \'Trust This Computer\' or \'Allow CarPlay\' on your iPhone.\n3. CarTwin immediately starts Apple CarPlay video and audio.\n\n📡 Wireless Connection (Cable-free):\n1. Enable Bluetooth and Wi-Fi on iPhone.\n2. Pair with \'CarTwin\' from Bluetooth settings.\n3. Tap \'Use Wireless CarPlay\' on your phone.\n\n💡 Note: Siri must be enabled in iPhone Settings ➔ Siri &amp; Search.</string>
+    <string name="guide_android_title">🤖 2. Android Phone (Samsung, Xiaomi, Pixel, Honor, etc.)</string>
+    <string name="guide_android_body">🔌 Direct USB Cable Connection (AOA 2.0):\n1. Connect phone directly to vehicle USB port with a quality data cable.\n2. In the phone USB notification, select \'Android Auto / File Transfer\'.\n3. CarTwin identifies your phone model (Samsung, Xiaomi, Pixel, etc.) via AOA 2.0 and launches Android Auto.\n\n📡 Wireless Connection (Cable-free):\n1. Turn on Bluetooth and Wi-Fi on your phone.\n2. Pair with \'CarTwin\' in Bluetooth settings.\n3. Confirm \'Allow Wireless Android Auto\'.\n\n🎙️ Aura AI Assistant: Works for hands-free vehicle climate, navigation, and music control.</string>
+    <string name="guide_faq_title">🛠️ 3. Troubleshooting &amp; FAQ</string>
+    <string name="guide_faq_body">⚠️ Cable plugged in but no reaction?\n• Ensure the cable is a data cable (not charge-only) and \'Android Auto / File Transfer\' is selected.\n• If vehicle screen prompts for USB permission, select \'Always Allow\'.\n\n🔄 Connection dropped?\n• Tap \'Restart Services\' button on the screen.\n\n🎙️ How does Aura AI work?\n• Press steering wheel voice button or tap brand logo to speak in English, Azerbaijani, Turkish, or Russian.</string>
+
+    <!-- Settings Dialog Options -->
+    <string name="settings_title">CarTwin 2.0 • Settings</string>
+    <string name="settings_mode_universal">⚡ Mode: Universal (CarPlay &amp; Android Auto)</string>
+    <string name="settings_mode_carplay">🍏 Mode: Apple CarPlay Only</string>
+    <string name="settings_mode_android">🤖 Mode: Android Auto Only</string>
+    <string name="settings_wireless_adapter">📶 Wireless Adapter Settings (192.168.50.2)</string>
+    <string name="settings_language">🌐 Language (English, Azərbaycanca, Türkçe, Русский)</string>
+    <string name="settings_connection_guide">📖 Connection Guide (iOS &amp; Android)</string>
+    <string name="settings_check_ota">🚀 Check System Updates (OTA)</string>
+    <string name="settings_reset">🔄 Reset All Settings</string>
+
+    <!-- Aura AI Voice Assistant Prompts -->
+    <string name="aura_listening">🎙️ Aura AI Listening…</string>
+    <string name="aura_ready_prompt">I am Aura AI — your personal vehicle assistant. Ready for your command.</string>
+    <string name="services_restarting">🔄 Restarting services…</string>
+    <string name="services_ready">✅ CarTwin port 7000 and Bluetooth active!</string>
+    <string name="settings_reset_done">Settings have been reset</string>
 </resources>
