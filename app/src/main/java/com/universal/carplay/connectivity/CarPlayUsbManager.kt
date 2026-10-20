@@ -83,6 +83,9 @@ class CarPlayUsbManager(
     var currentPhoneModel: String = "Naməlum Cihaz"
         private set
 
+    private var previousIdentifiedBrand: String = ""
+    private var previousIdentifiedModel: String = ""
+
     var preferredPhoneMode: Int = 3 // 3: Universal, 2: Apple CarPlay, 1: Android Auto
 
     var onPlatformDetected: ((platformName: String, icon: String) -> Unit)? = null
@@ -303,7 +306,7 @@ class CarPlayUsbManager(
                 }
 
                 // 2. Android Auto İdentifikasiya Məlumatlarını Göndəririk (Request 52)
-                sendAoaString(connection, 0, "Google, Inc.")
+                sendAoaString(connection, 0, "Android")
                 sendAoaString(connection, 1, "Android Auto")
                 sendAoaString(connection, 2, "CarTwin BYD Display")
                 sendAoaString(connection, 3, "2.0")
@@ -396,6 +399,7 @@ class CarPlayUsbManager(
 
                 Log.i(TAG, "Android Auto Bulk kanalı aktivdir! Daxili oxucu başladılır...")
                 startAndroidAutoReader()
+                sendAapVersionRequest()
             }
 
             val (brand, model) = detectPhoneModel(device)
@@ -431,6 +435,33 @@ class CarPlayUsbManager(
                 } catch (e: Throwable) {
                     Log.w(TAG, "Android Auto USB oxuma xətası: ${e.message}")
                 }
+            }
+        }
+    }
+
+    /**
+     * Android Auto Protocol (AAP) ilkin salamlaşmasını (VersionRequest) göndərir
+     */
+    private fun sendAapVersionRequest() {
+        scope.launch {
+            try {
+                // AAP Frame: Channel 0, Single Frame (0x03), Length 6, Message 0x0001 (VersionRequest), Major 1, Minor 6, Status 0
+                val aapVersionReq = byteArrayOf(
+                    0x00,               // Channel 0 (Control)
+                    0x03,               // Flags: 0x01 | 0x02 = 0x03 (First + Last frame)
+                    0x00, 0x06,         // Length: 6 bytes payload
+                    0x00, 0x01,         // Message ID: 1 (VersionRequest)
+                    0x00, 0x01,         // Major: 1
+                    0x00, 0x06          // Minor: 6
+                )
+                val conn = usbConnection
+                val ep = outEndpoint
+                if (conn != null && ep != null) {
+                    val transferred = conn.bulkTransfer(ep, aapVersionReq, aapVersionReq.size, 1000)
+                    Log.i(TAG, "AAP VersionRequest telefonuna göndərildi: $transferred bayt")
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "sendAapVersionRequest xətası: ${e.message}")
             }
         }
     }
@@ -757,31 +788,23 @@ class CarPlayUsbManager(
     }
 
     fun isAndroidPhone(device: UsbDevice): Boolean {
-        if (isCarlinKitDongle(device) || isAppleDevice(device)) return false
-        val vid = device.vendorId
-        val name = ((device.productName ?: "") + " " + (device.manufacturerName ?: "")).lowercase()
-        return vid == SAMSUNG_VENDOR_ID ||
-               vid == XIAOMI_VENDOR_ID ||
-               vid == HUAWEI_VENDOR_ID ||
-               vid == OPPO_VENDOR_ID ||
-               vid == VIVO_VENDOR_ID ||
-               vid == ONEPLUS_VENDOR_ID ||
-               vid == 0x1004 ||
-               vid == 0x22B8 ||
-               vid == 0x17EF ||
-               (vid == GOOGLE_AOA_VENDOR_ID && device.productId !in 0x2D00..0x2D05) ||
-               name.contains("samsung") ||
-               name.contains("xiaomi") ||
-               name.contains("redmi") ||
-               name.contains("pixel") ||
-               name.contains("galaxy") ||
-               name.contains("huawei") ||
-               name.contains("honor") ||
-               name.contains("android") ||
-               name.contains("oppo") ||
-               name.contains("vivo") ||
-               name.contains("oneplus") ||
-               name.contains("phone")
+        if (isCarlinKitDongle(device) || isAppleDevice(device) || isAndroidAoaAccessory(device)) return false
+
+        // Mass Storage (USB fleşkartlar) və HID (siçan/klaviatura) istisna edilir
+        if (device.deviceClass == UsbConstants.USB_CLASS_MASS_STORAGE || device.deviceClass == UsbConstants.USB_CLASS_HID) {
+            return false
+        }
+        var hasMassStorage = false
+        var hasHid = false
+        for (i in 0 until device.interfaceCount) {
+            val cls = device.getInterface(i).interfaceClass
+            if (cls == UsbConstants.USB_CLASS_MASS_STORAGE) hasMassStorage = true
+            if (cls == UsbConstants.USB_CLASS_HID) hasHid = true
+        }
+        if (hasMassStorage && device.interfaceCount <= 1) return false
+        if (hasHid && device.interfaceCount <= 1) return false
+
+        return true
     }
 
     fun isAppleDevice(device: UsbDevice): Boolean {
@@ -789,6 +812,10 @@ class CarPlayUsbManager(
     }
 
     fun detectPhoneModel(device: UsbDevice): Pair<String, String> {
+        if (isAndroidAoaAccessory(device) && previousIdentifiedModel.isNotBlank()) {
+            return previousIdentifiedBrand to previousIdentifiedModel
+        }
+
         val vid = device.vendorId
         val prodName = device.productName ?: ""
         val mfgName = device.manufacturerName ?: ""
@@ -802,6 +829,11 @@ class CarPlayUsbManager(
             vid == OPPO_VENDOR_ID || mfgName.contains("Oppo", true) -> "OPPO"
             vid == ONEPLUS_VENDOR_ID || mfgName.contains("OnePlus", true) -> "OnePlus"
             vid == VIVO_VENDOR_ID || mfgName.contains("Vivo", true) -> "Vivo"
+            vid == 0x22B8 || mfgName.contains("Motorola", true) -> "Motorola"
+            vid == 0x0FCE || mfgName.contains("Sony", true) -> "Sony"
+            vid == 0x1004 || mfgName.contains("LG", true) -> "LG"
+            vid == 0x2C03 || mfgName.contains("Realme", true) -> "Realme"
+            vid == 0x2C64 || mfgName.contains("Infinix", true) || mfgName.contains("Tecno", true) -> "Tecno / Infinix"
             else -> mfgName.ifBlank { "Android Cihazı" }
         }
 
@@ -810,12 +842,22 @@ class CarPlayUsbManager(
         } else {
             brand
         }
+
+        if (brand != "Android Cihazı") {
+            previousIdentifiedBrand = brand
+            previousIdentifiedModel = model
+        }
+
         return brand to model
     }
 
     private fun requestUsbPermission(device: UsbDevice) {
         try {
-            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_MUTABLE else 0
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
             val permissionIntent = PendingIntent.getBroadcast(
                 context,
                 0,

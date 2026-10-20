@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:lineSpacingExtra="3dp"
-                android:text="🔌 Birbaşa USB Kabel &amp; DiPlay İnteqrasiyası:\n1. iPhone-u birbaşa avtomobilin USB portuna və ya Carlinkit adapterinə taxın.\n2. BYD avtomobillərində DiPlay quraşdırılıbsa, CarTwin onu avtomatik aşkarlayır və ekrandakı '🍏 DiPlay (BYD)' düyməsi ilə dərhal CarPlay-ə keçid təmin edir.\n3. Telefonda 'CarPlay-ə İcazə Ver' təsdiqini verin.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. iPhone-da Bluetooth və Wi-Fi-ı yandırın.\n2. Bluetooth menyusundan 'CarTwin' cihazını seçib cütləşdirin (Pair).\n3. 'CarPlay-dən Simsiz İstifadə Et' düyməsini sıxın.\n\n💡 Vacib: iPhone-da Parametrlər ➔ Siri və Axtarış bölməsi aktiv olmalıdır."
+                android:text="🔌 Birbaşa USB Kabel ilə Qoşulma:\n1. iPhone-u birbaşa avtomobilin USB portuna və ya adapterə data kabeli ilə taxın.\n2. Telefonda 'CarPlay-ə İcazə Ver' və ya 'Bu Kompüterə Etibar Et' pəncərəsini təsdiqləyin.\n3. CarTwin birbaşa iPhone-u tanıyaraq Apple CarPlay görüntüsünü və səsini aktivləşdirir.\n\n📡 Simsiz Qoşulma (Kabelsiz):\n1. iPhone-da Bluetooth və Wi-Fi-ı yandırın.\n2. Bluetooth menyusundan 'CarTwin' cihazını seçib cütləşdirin (Pair).\n3. Ekranda 'CarPlay-dən Simsiz İstifadə Et' düyməsini sıxın.\n\n💡 Vacib: iPhone-da Parametrlər ➔ Siri və Axtarış bölməsi aktiv olmalıdır."
                 android:textColor="#D1D5DB"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -124,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="3dp"
-                android:text="⚠️ Kabel Taxıram Amma Telefon Reaksiya Vermir?\n• Telefonda 'Yalnız Şarj' deyil, 'Android Auto / Fayl Ötürülməsi' rejiminin seçildiyinə və kabelin data naqili olduğuna əmin olun.\n\n🍏 DiPlay və CarTwin Birlikdə Necə İşləyir?\n• BYD avtomobillərində DiPlay quraşdırılıbsa, CarTwin onu birbaşa dəstəkləyir. '🍏 DiPlay (BYD)' düyməsi ilə dərhal keçid edə, eyni zamanda avtomobilin iqlimini, HUD-unu və sükan düymələrini CarTwin ilə idarə edə bilərsiniz.\n\n🔄 Əlaqə Kəsilərsə?\n• Ekranda '🔄 Xidmətləri Yenidən Başlat' düyməsini sıxmaq kifayətdir."
+                android:text="⚠️ Kabel Taxıram Amma Telefon Reaksiya Vermir?\n• Telefonda 'Yalnız Şarj' deyil, 'Android Auto / Fayl Ötürülməsi' rejiminin seçildiyinə və kabelin data naqili olduğuna əmin olun.\n• Avtomobil ekranında CarTwin USB icazə sorğusu çıxarsa 'Həmişə İcazə Ver' seçin.\n\n🔄 Əlaqə Kəsilərsə?\n• Ekranda '🔄 Xidmətləri Yenidən Başlat' düyməsini sıxmaq kifayətdir.\n\n🎙️ Aura AI Necə İşləyir?\n• Sükan düyməsinə və ya loqoya basaraq Azərbaycan dilində danışın. Aura AI həm iqlimi, həm də naviqasiyanı dərhal idarə edir."
                 android:textColor="#9CA3AF"
                 android:textSize="12sp" />
         </LinearLayout>

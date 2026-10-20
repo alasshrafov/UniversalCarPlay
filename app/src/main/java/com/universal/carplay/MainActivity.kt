@@ -277,31 +277,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         cardCarPlayInfo = findViewById(R.id.cardCarPlayInfo)
         cardAndroidAutoInfo = findViewById(R.id.cardAndroidAutoInfo)
 
-        val btnLaunchDiPlay = findViewById<Button?>(R.id.btnLaunchDiPlay)
-        if (btnLaunchDiPlay != null) {
-            if (isDiPlayInstalled()) {
-                btnLaunchDiPlay.visibility = View.VISIBLE
-                btnLaunchDiPlay.setOnClickListener { launchDiPlay() }
-            } else {
-                btnLaunchDiPlay.visibility = View.GONE
-            }
-        }
-
         btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
         btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
-        cardCarPlayInfo.setOnClickListener {
-            if (isDiPlayInstalled()) {
-                AlertDialog.Builder(this)
-                    .setTitle("🍏 Apple CarPlay Seçimi")
-                    .setMessage("Avtomobilinizdə BYD DiPlay tətbiqi aşkarlandı! Simli kabel ilə CarPlay üçün DiPlay-ə keçmək istəyirsiniz, yoxsa CarTwin təlimatına baxmaq?")
-                    .setPositiveButton("🍏 DiPlay-i Aç") { _, _ -> launchDiPlay() }
-                    .setNeutralButton("📖 CarTwin Təlimatı") { _, _ -> showConnectionGuideDialog() }
-                    .setNegativeButton("Bağla", null)
-                    .show()
-            } else {
-                showConnectionGuideDialog()
-            }
-        }
+        cardCarPlayInfo.setOnClickListener { showConnectionGuideDialog() }
         cardAndroidAutoInfo.setOnClickListener { showConnectionGuideDialog() }
     }
 
@@ -643,13 +621,16 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 getAudioEngine = { audioEngine },
                 onAppleDeviceConnected = { device ->
                     runOnUiThread {
-                        val devName = device.productName ?: device.deviceName ?: "CarTwin Adapter"
-                        statusOverlay.visibility = View.GONE
+                        val devName = device.productName ?: device.deviceName ?: "CarTwin Cihazı"
+                        tvStatus.text = "🟢 $devName Qoşuldu"
+                        tvDetail.text = "Görüntü və Səs Aktivləşdirilir • CarTwin 2.0"
                         cryptoHandshake.startHandshake()
                     }
                 },
                 onDeviceDisconnected = {
                     runOnUiThread {
+                        statusOverlay.animate().cancel()
+                        statusOverlay.alpha = 1f
                         statusOverlay.visibility = View.VISIBLE
                         tvStatus.text = "CarTwin 2.0 • Universal Qoşulma"
                         tvDetail.text = "Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun."
@@ -886,34 +867,22 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
-    private fun isDiPlayInstalled(): Boolean {
-        val pm = packageManager
-        for (pkg in listOf("com.shihab.diplay", "com.shihab.diplay.cn")) {
-            try {
-                pm.getPackageInfo(pkg, 0)
-                return true
-            } catch (_: Exception) {}
-        }
-        return false
-    }
-
-    private fun launchDiPlay() {
-        val pm = packageManager
-        for (pkg in listOf("com.shihab.diplay", "com.shihab.diplay.cn")) {
-            val intent = pm.getLaunchIntentForPackage(pkg)
-            if (intent != null) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-                Toast.makeText(this, "🍏 DiPlay Başladılır…", Toast.LENGTH_SHORT).show()
-                return
-            }
-        }
-        Toast.makeText(this, "DiPlay tətbiqi tapılmadı", Toast.LENGTH_SHORT).show()
-    }
 
     override fun onSurfaceCreated(holder: SurfaceHolder) {
         try {
             videoDecoder = VideoDecoder(holder.surface).apply {
+                onFirstFrameRendered = {
+                    runOnUiThread {
+                        statusOverlay.animate()
+                            .alpha(0f)
+                            .setDuration(350)
+                            .withEndAction {
+                                statusOverlay.visibility = View.GONE
+                                statusOverlay.alpha = 1f
+                            }
+                            .start()
+                    }
+                }
                 start(currentProfile.defaultWidth, currentProfile.defaultHeight)
             }
             audioEngine = AudioEngine(this).apply {

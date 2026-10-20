@@ -16,6 +16,9 @@ class VideoDecoder(private val surface: Surface) {
     private var codec: MediaCodec? = null
     private var isRunning = false
 
+    var onFirstFrameRendered: (() -> Unit)? = null
+    private var hasRenderedFirstFrame = false
+
     var currentWidth = 1920
         private set
     var currentHeight = 1080
@@ -28,6 +31,7 @@ class VideoDecoder(private val surface: Surface) {
         if (isRunning) stop()
 
         try {
+            hasRenderedFirstFrame = false
             currentWidth = width
             currentHeight = height
 
@@ -80,6 +84,14 @@ class VideoDecoder(private val surface: Surface) {
             while (outputIndex >= 0) {
                 // render = true verildikdə kadr birbaşa SurfaceView-də göstərilir
                 codec!!.releaseOutputBuffer(outputIndex, true)
+                if (!hasRenderedFirstFrame) {
+                    hasRenderedFirstFrame = true
+                    try {
+                        onFirstFrameRendered?.invoke()
+                    } catch (e: Throwable) {
+                        Log.w(TAG, "onFirstFrameRendered callback xətası: ${e.message}")
+                    }
+                }
                 outputIndex = codec!!.dequeueOutputBuffer(bufferInfo, 0L)
             }
         } catch (e: Exception) {

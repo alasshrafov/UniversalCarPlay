@@ -19,5 +19,16 @@
     <usb-device vendor-id="4817" /> <!-- 0x12D1 Huawei Technologies -->
     <usb-device vendor-id="8911" /> <!-- 0x22D9 OnePlus / OPPO -->
     <usb-device vendor-id="11427" /> <!-- 0x2CA3 Vivo -->
+    <usb-device vendor-id="11267" /> <!-- 0x2C03 Realme -->
+    <usb-device vendor-id="8888" /> <!-- 0x22B8 Motorola -->
+    <usb-device vendor-id="4046" /> <!-- 0x0FCE Sony -->
+    <usb-device vendor-id="4100" /> <!-- 0x1004 LG -->
+    <usb-device vendor-id="6127" /> <!-- 0x17EF Lenovo -->
+    <usb-device vendor-id="2821" /> <!-- 0x0B05 Asus -->
+    <usb-device vendor-id="3725" /> <!-- 0x0E8D MediaTek Generic -->
+    <usb-device vendor-id="6018" /> <!-- 0x1782 Unisoc / Spreadtrum -->
+    <usb-device vendor-id="11364" /> <!-- 0x2C64 Transsion / Infinix / Tecno -->
+    <usb-device vendor-id="6610" /> <!-- 0x19D2 ZTE -->
+    <usb-device vendor-id="3034" /> <!-- 0x0BB4 HTC -->
     <usb-device vendor-id="11200" /> <!-- 0x2BC5 Realtek / Teyes USB -->
 </resources>

@@ -193,16 +193,6 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/btnLaunchDiPlay"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🍏 DiPlay (BYD)"
-            android:textColor="#30D158"
-            android:textStyle="bold"
-            android:visibility="gone" />
-
-        <Button
             android:id="@+id/btnCheckUpdate"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
