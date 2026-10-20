@@ -44,8 +44,13 @@ class UniversalVoiceAssistant(
     private var textToSpeech: TextToSpeech? = null
     private var isTtsNativeReady: Boolean = false
 
-    // Standart dil: Azərbaycan dili (az-AZ)
-    var currentLanguage: String = "az-AZ"
+    // Current Speech Recognition Language (Defaults to system/configured locale)
+    var currentLanguage: String = when (com.universal.carplay.util.LocaleHelper.getLanguage(context).lowercase()) {
+        "az" -> "az-AZ"
+        "tr" -> "tr-TR"
+        "ru" -> "ru-RU"
+        else -> "en-US"
+    }
         private set
 
     init {
@@ -298,23 +303,23 @@ class UniversalVoiceAssistant(
 
         // 1. TƏTBİQDƏN ÇIXMAQ / ANA EKRAN (PRIORİTET 1)
         if (isNavDomain && isCloseAction) {
-            speak("Waze bağlandı, əsas ekrana qayıdıldı")
+            speakLocalized("Waze closed, returning to home", "Waze bağlandı, əsas ekrana qayıdıldı", "Waze kapatıldı, ana ekrana dönüldü", "Waze закрыт, возврат на главный экран")
             onCommandRecognized("GO_HOME", rawText, null)
             return
         }
         if ((isMediaDomain || isBrowserDomain || isYouTubeDomain || isSettingsDomain || isPhoneDomain) && isCloseAction) {
-            speak("Tətbiq bağlandı, əsas ekrana qayıdıldı")
+            speakLocalized("App closed, returning to home", "Tətbiq bağlandı, əsas ekrana qayıdıldı", "Uygulama kapatıldı, ana ekrana dönüldü", "Приложение закрыто, возврат на главный экран")
             onCommandRecognized("GO_HOME", rawText, null)
             return
         }
         if (isHomeDomain) {
-            speak("Əsas ekrana qayıdıldı")
+            speakLocalized("Returning to home screen", "Əsas ekrana qayıdıldı", "Ana ekrana dönüldü", "Возврат на главный экран")
             onCommandRecognized("GO_HOME", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(tetbiqi bagla|tetbiqden cix|proqramdan cix|ekrani bagla|eve qayit|eve don|cixis|cix|kapat)\b""")) &&
             !isWindowDomain && !isSunroofDomain && !isVolumeDomain) {
-            speak("Əsas ekrana qayıdıldı")
+            speakLocalized("Returning to home screen", "Əsas ekrana qayıdıldı", "Ana ekrana dönüldü", "Возврат на главный экран")
             onCommandRecognized("GO_HOME", rawText, null)
             return
         }
@@ -322,107 +327,107 @@ class UniversalVoiceAssistant(
         // 2. SƏS VƏ SƏS UCALIĞI (VOLUME)
         if (isVolumeDomain) {
             if (isCloseAction || hasToken(Regex("""\b(kes|mute|sessiz|sus|lal)\b"""))) {
-                speak("Səs bağlandı")
+                speakLocalized("Muted", "Səs bağlandı", "Ses kapatıldı", "Звук выключен")
                 onCommandRecognized("VOLUME_MUTE", rawText, null)
                 return
             }
             if (isOpenAction || hasToken(Regex("""\b(unmute|berpa|gaytar|dindir)\b"""))) {
-                speak("Səs açıldı")
+                speakLocalized("Unmuted", "Səs açıldı", "Ses açıldı", "Звук включен")
                 onCommandRecognized("VOLUME_UNMUTE", rawText, null)
                 return
             }
             if (isIncreaseAction || hasToken(Regex("""\b(esidilmir|esitmirik|esitmiye)\b"""))) {
-                speak("Səs səviyyəsi artırıldı")
+                speakLocalized("Volume up", "Səs səviyyəsi artırıldı", "Ses artırıldı", "Громкость увеличена")
                 onCommandRecognized("VOLUME_UP", rawText, null)
                 return
             }
             if (isDecreaseAction || hasToken(Regex("""\b(cox berkdir|qulagim batdi)\b"""))) {
-                speak("Səs səviyyəsi azaldıldı")
+                speakLocalized("Volume down", "Səs səviyyəsi azaldıldı", "Ses azaltıldı", "Громкость уменьшена")
                 onCommandRecognized("VOLUME_DOWN", rawText, null)
                 return
             }
         }
         if (hasToken(Regex("""\b(sesi artir|artir sesi|sesi ucalt|ucalt sesi|sesi berk ele|berk ele sesi|volume up|gromce)\b"""))) {
-            speak("Səs səviyyəsi artırıldı")
+            speakLocalized("Volume up", "Səs səviyyəsi artırıldı", "Ses artırıldı", "Громкость увеличена")
             onCommandRecognized("VOLUME_UP", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(sesi azalt|azalt sesi|sesi endir|endir sesi|sakit ele|yavas ele|volume down|tise)\b"""))) {
-            speak("Səs səviyyəsi azaldıldı")
+            speakLocalized("Volume down", "Səs səviyyəsi azaldıldı", "Ses azaltıldı", "Громкость уменьшена")
             onCommandRecognized("VOLUME_DOWN", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(sesi kes|sessiz|sus|kes sesi|mute|lal ele)\b"""))) {
-            speak("Səs bağlandı")
+            speakLocalized("Muted", "Səs bağlandı", "Ses kapatıldı", "Звук выключен")
             onCommandRecognized("VOLUME_MUTE", rawText, null)
             return
         }
 
         // 3. MUSİQİ VƏ MEDİA (MEDIA)
         if (isNextAction && (isMediaDomain || !isCloseAction)) {
-            speak("Musiqi dəyişdirildi")
+            speakLocalized("Next track", "Musiqi dəyişdirildi", "Sonraki parça", "Следующий трек")
             onCommandRecognized("MEDIA_NEXT", rawText, null)
             return
         }
         if (isPrevAction && (isMediaDomain || !isCloseAction)) {
-            speak("Əvvəlki musiqi")
+            speakLocalized("Previous track", "Əvvəlki musiqi", "Önceki parça", "Предыдущий трек")
             onCommandRecognized("MEDIA_PREV", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(dayandir|saxla|pauza|stop|pause|kestir|oxutma|calma)\b""")) && (isMediaDomain || !isCloseAction)) {
-            speak("Musiqi dayandırıldı")
+            speakLocalized("Music paused", "Musiqi dayandırıldı", "Müzik duraklatıldı", "Музыка на паузе")
             onCommandRecognized("MEDIA_PAUSE", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(oxut|cal|davam|play|oxusun|qoy|musiqi ver)\b""")) || (isMediaDomain && isOpenAction) ||
             hasToken(Regex("""\b(kefim yoxdur mahni|darixdim mahni|nese oxut|qeseng bir mahni)\b"""))) {
-            speak("Musiqi davam etdirilir")
+            speakLocalized("Resuming music", "Musiqi davam etdirilir", "Müzik devam ediyor", "Возобновление музыки")
             onCommandRecognized("MEDIA_PLAY", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(spotify|spotifay)\b"""))) {
-            speak("Spotify açılır")
+            speakLocalized("Opening Spotify", "Spotify açılır", "Spotify açılıyor", "Открытие Spotify")
             onCommandRecognized("APP_SPOTIFY", rawText, null)
             return
         }
         if (isMediaDomain && !isCloseAction) {
-            speak("Musiqi davam etdirilir")
+            speakLocalized("Resuming music", "Musiqi davam etdirilir", "Müzik devam ediyor", "Возобновление музыки")
             onCommandRecognized("MEDIA_PLAY", rawText, null)
             return
         }
 
         // 4. NAVİQASİYA VƏ WAZE
         if (isNavDomain && !isCloseAction) {
-            speak("Waze naviqasiyası açılır")
+            speakLocalized("Opening Waze navigation", "Waze naviqasiyası açılır", "Waze navigasyon açılıyor", "Открытие навигации Waze")
             onCommandRecognized("NAVIGATION", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(yolu itirdim|haradayam|yola dusek|bizi apar|unvani tap|unvan|hara gedirik)\b"""))) {
-            speak("Waze naviqasiyası açılır")
+            speakLocalized("Opening Waze navigation", "Waze naviqasiyası açılır", "Waze navigasyon açılıyor", "Открытие навигации Waze")
             onCommandRecognized("NAVIGATION", rawText, null)
             return
         }
 
         // 5. TELEFON
         if (isPhoneDomain) {
-            speak("Telefon zəngi açılır")
+            speakLocalized("Opening phone", "Telefon zəngi açılır", "Telefon açılıyor", "Открытие телефона")
             onCommandRecognized("PHONE_CALL", rawText, null)
             return
         }
 
         // 6. BRAUZER VƏ YOUTUBE
         if (isBrowserDomain) {
-            speak("İnternet brauzeri açılır")
+            speakLocalized("Opening web browser", "İnternet brauzeri açılır", "Tarayıcı açılıyor", "Открытие браузера")
             onCommandRecognized("OPEN_BROWSER", rawText, null)
             return
         }
         if (isYouTubeDomain) {
-            speak("YouTube Park Rejimi açılır")
+            speakLocalized("Opening YouTube", "YouTube Park Rejimi açılır", "YouTube açılıyor", "Открытие YouTube")
             onCommandRecognized("OPEN_YOUTUBE", rawText, null)
             return
         }
         if (isSettingsDomain) {
-            speak("Sazlamalar açılır")
+            speakLocalized("Opening settings", "Sazlamalar açılır", "Ayarlar açılıyor", "Открытие настроек")
             onCommandRecognized("OPEN_SETTINGS", rawText, null)
             return
         }
@@ -430,79 +435,79 @@ class UniversalVoiceAssistant(
         // 7. AVTOMOBİL PƏNCƏRƏ VƏ LYUK İDARƏSİ
         if (isSunroofDomain) {
             if (isCloseAction) {
-                speak("Lyuk bağlanır")
+                speakLocalized("Closing sunroof", "Lyuk bağlanır", "Cam tavan kapanıyor", "Люк закрывается")
                 onCommandRecognized("SUNROOF_CLOSE", rawText, null)
             } else {
-                speak("Lyuk açılır")
+                speakLocalized("Opening sunroof", "Lyuk açılır", "Cam tavan açılıyor", "Люк открывается")
                 onCommandRecognized("SUNROOF_OPEN", rawText, null)
             }
             return
         }
         if (isWindowDomain) {
             if (isCloseAction || isIncreaseAction || hasToken(Regex("""\b(yuxari|galdir)\b"""))) {
-                speak("Pəncərələr bağlanır")
+                speakLocalized("Closing windows", "Pəncərələr bağlanır", "Camlar kapanıyor", "Окна закрываются")
                 onCommandRecognized("WINDOWS_CLOSE", rawText, null)
             } else {
-                speak("Pəncərələr açılır")
+                speakLocalized("Opening windows", "Pəncərələr açılır", "Camlar açılıyor", "Окна открываются")
                 onCommandRecognized("WINDOWS_OPEN", rawText, null)
             }
             return
         }
         if (hasToken(Regex("""\b(yagis yagir|yagis|toz girdi|kulekdir)\b""")) && (isWindowDomain || clean.contains("bagla") || clean.contains("ort"))) {
-            speak("Pəncərələr bağlanır")
+            speakLocalized("Closing windows", "Pəncərələr bağlanır", "Camlar kapanıyor", "Окна закрываются")
             onCommandRecognized("WINDOWS_CLOSE", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(temiz hava|havasizdir|hava alaq)\b"""))) {
-            speak("Pəncərələr açılır")
+            speakLocalized("Opening windows", "Pəncərələr açılır", "Camlar açılıyor", "Окна открываются")
             onCommandRecognized("WINDOWS_OPEN", rawText, null)
             return
         }
 
         // 8. EKRAN VƏ GECƏ/GÜNDÜZ REJİMİ
         if (hasToken(Regex("""\b(gece|garanlig|dark)\b""")) && hasToken(Regex("""\b(rejim|mode|ekran)\b"""))) {
-            speak("Gecə rejimi aktivləşdirildi")
+            speakLocalized("Night mode enabled", "Gecə rejimi aktivləşdirildi", "Gece modu etkinleştirildi", "Ночной режим включен")
             onCommandRecognized("SYSTEM_NIGHT_MODE", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(gunduz|isigli|light)\b""")) && hasToken(Regex("""\b(rejim|mode|ekran)\b"""))) {
-            speak("Gündüz rejimi aktivləşdirildi")
+            speakLocalized("Day mode enabled", "Gündüz rejimi aktivləşdirildi", "Gündüz modu etkinleştirildi", "Дневной режим включен")
             onCommandRecognized("SYSTEM_DAY_MODE", rawText, null)
             return
         }
 
         // 9. İQLİM VƏ KONDİSİONER (HVAC)
         if (hasToken(Regex("""\b(maksimum soyut|buz kimi|max ac|lap soyuq ele|cox soyuq ele)\b"""))) {
-            speak("Maksimum soyutma rejimi aktiv edildi")
+            speakLocalized("Maximum cooling activated", "Maksimum soyutma rejimi aktiv edildi", "Maksimum soğutma etkinleştirildi", "Максимальное охлаждение включено")
             onCommandRecognized("CLIMATE_MAX_AC", rawText, 16.0f)
             return
         }
         if (hasToken(Regex("""\b(maksimum gizdir|maksimum isti|max heat|lap isti ele|cox isti ele)\b"""))) {
-            speak("Maksimum istilik rejimi aktiv edildi")
+            speakLocalized("Maximum heating activated", "Maksimum istilik rejimi aktiv edildi", "Maksimum ısıtma etkinleştirildi", "Максимальный обогрев включен")
             onCommandRecognized("CLIMATE_MAX_HEAT", rawText, 30.0f)
             return
         }
         if (hasToken(Regex("""\b(buxar|defrost|on suse|buxari sil|buxari temizle|buxari apar)\b"""))) {
-            speak("Ön şüşə buxar təmizləyicisi aktiv edildi")
+            speakLocalized("Windshield defroster activated", "Ön şüşə buxar təmizləyicisi aktiv edildi", "Ön cam buğu çözücü etkinleştirildi", "Обогрев лобового стекла включен")
             onCommandRecognized("CLIMATE_DEFROST", rawText, null)
             return
         }
 
         // Sürücünün üşüməsi / Peç yandır -> İSTİLİK ARTIR
         if (isPecDomain && (isOpenAction || isIncreaseAction)) {
-            speak("Peç işə salındı, temperatur artırıldı")
+            speakLocalized("Heater on, temperature increased", "Peç işə salındı, temperatur artırıldı", "Isıtma açıldı, sıcaklık artırıldı", "Обогрев включен, температура увеличена")
             onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(usudum|sudum|donuram|dondum|dondug|donduq|donurug|donuruq|soyugdu|soyuqdu|soyugdur|soyuqdur|lap soyuq|cox soyuq|buz kimiyik|buz oldu)\b"""))) {
-            speak("Temperatur artırıldı")
+            speakLocalized("Temperature increased", "Temperatur artırıldı", "Sıcaklık artırıldı", "Температура увеличена")
             onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
             return
         }
 
         // Sürücünün istilənməsi / Bürkü -> SOYUT / TEMPERATURU AZALT
         if (hasToken(Regex("""\b(istidir|cox istidir|lap istidir|yandim|bisdim|pisdim|terledim|burkulu|burkuludur|nefes alma[qg] olmur|bogulduq|boguldug|isti oldu)\b"""))) {
-            speak("Temperatur azaldıldı")
+            speakLocalized("Temperature decreased", "Temperatur azaldıldı", "Sıcaklık azaltıldı", "Температура уменьшена")
             onCommandRecognized("CLIMATE_TEMP_DOWN", rawText, null)
             return
         }
@@ -512,28 +517,28 @@ class UniversalVoiceAssistant(
 
         // Söndürmə
         if (hasClimateNoun && isCloseAction) {
-            speak("Kondisioner söndürüldü")
+            speakLocalized("A/C turned off", "Kondisioner söndürüldü", "Klima kapatıldı", "Кондиционер выключен")
             onCommandRecognized("CLIMATE_AC_OFF", rawText, null)
             return
         }
 
         // Dəqiq temperatur
         if (temp != null && (hasClimateNoun || hasTempWord || hasToken(Regex("""\b(qoy|ele|et|yap|set|sal)\b""")))) {
-            speak("Kondisioner ${temp.toInt()} dərəcəyə təyin edildi")
+            speakLocalized("Climate set to ${temp.toInt()} degrees", "Kondisioner ${temp.toInt()} dərəcəyə təyin edildi", "Klima ${temp.toInt()} dereceye ayarlandı", "Климат установлен на ${temp.toInt()} градусов")
             onCommandRecognized("CLIMATE_SET_TEMP", rawText, temp)
             return
         }
 
         // İstilik artır
         if (hasClimateNoun && (isIncreaseAction || hasToken(Regex("""\b(isti|gizdir|qizdir|istilesdir|teplee|warmer)\b""")))) {
-            speak("Temperatur artırıldı")
+            speakLocalized("Temperature increased", "Temperatur artırıldı", "Sıcaklık artırıldı", "Температура увеличена")
             onCommandRecognized("CLIMATE_TEMP_UP", rawText, null)
             return
         }
 
         // Soyut / Azalt
         if (hasClimateNoun && (isDecreaseAction || hasToken(Regex("""\b(soyut|serin|serinlet|xolodnee|cooler)\b""")))) {
-            speak("Temperatur azaldıldı")
+            speakLocalized("Temperature decreased", "Temperatur azaldıldı", "Sıcaklık azaltıldı", "Температура уменьшена")
             onCommandRecognized("CLIMATE_TEMP_DOWN", rawText, null)
             return
         }
@@ -541,14 +546,14 @@ class UniversalVoiceAssistant(
         // Fan sürəti
         if (hasToken(Regex("""\b(fan|ventilyator|per|ufur)\b"""))) {
             val fanNum = Regex("""\b([1-7])\b""").find(clean)?.groupValues?.get(1)?.toFloatOrNull() ?: 4f
-            speak("Ventilyator sürəti dəyişdirildi")
+            speakLocalized("Fan speed adjusted", "Ventilyator sürəti dəyişdirildi", "Fan hızı ayarlandı", "Скорость вентилятора изменена")
             onCommandRecognized("CLIMATE_FAN_SPEED", rawText, fanNum)
             return
         }
 
         // Açma
         if (hasClimateNoun && isOpenAction) {
-            speak("Kondisioner işə salındı")
+            speakLocalized("A/C turned on", "Kondisioner işə salındı", "Klima açıldı", "Кондиционер включен")
             onCommandRecognized("CLIMATE_AC_ON", rawText, null)
             return
         }
@@ -556,45 +561,69 @@ class UniversalVoiceAssistant(
         // 10. DİALOQ VƏ TELEMETRİYA SORĞULARI
         if (hasToken(Regex("""\b(saat|vaxt|time)\b"""))) {
             val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-            speak("Saat hazırda $currentTime-dir")
+            speakLocalized("The time is $currentTime", "Saat hazırda $currentTime-dir", "Saat şu an $currentTime", "Сейчас $currentTime")
             onCommandRecognized("QUERY_TIME", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(tarix|ayin necesidir|hansi gundur)\b"""))) {
-            val currentDate = SimpleDateFormat("dd MMMM", Locale("az")).format(Date())
-            speak("Bu gün $currentDate-dir")
+            val loc = when (currentLanguage.lowercase().take(2)) {
+                "az" -> Locale("az")
+                "tr" -> Locale("tr")
+                "ru" -> Locale("ru")
+                else -> Locale.US
+            }
+            val currentDate = SimpleDateFormat("d MMMM", loc).format(Date())
+            speakLocalized("Today is $currentDate", "Bu gün $currentDate-dir", "Bugün $currentDate", "Сегодня $currentDate")
             onCommandRecognized("QUERY_DATE", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(salam|xos gorduk|sabahiniz xeyir|axjaminiz xeyir|axsaminiz xeyir|hello|privet)\b"""))) {
-            speak("Salam! Xoş gördük, sizə necə kömək edə bilərəm?")
+            speakLocalized("Hello! How can I assist you?", "Salam! Xoş gördük, sizə necə kömək edə bilərəm?", "Merhaba! Size nasıl yardımcı olabilirim?", "Здравствуйте! Чем я могу помочь?")
             onCommandRecognized("QUERY_GREETING", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(necesen|netersen|veziyyet necedir|how are you|kak dela)\b"""))) {
-            speak("Çox sağ olun, bütün avtomobil sistemləri əla vəziyyətdədir. Yola davam edirik!")
+            speakLocalized("All vehicle systems are running smoothly. Have a great drive!", "Çox sağ olun, bütün avtomobil sistemləri əla vəziyyətdədir. Yola davam edirik!", "Tüm araç sistemleri mükemmel durumda. İyi yolculuklar!", "Все системы автомобиля в полном порядке. Счастливого пути!")
             onCommandRecognized("QUERY_HOW_ARE_YOU", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(sen kimsen|adin nedir|who are you)\b"""))) {
-            speak("Mən Aura AI — sizin şəxsi avtomobil köməkçinizəm. Əmrlərinizi icra etməyə hazıram.")
+            speakLocalized("I am Aura AI — your personal vehicle assistant. Ready for your command.", "Mən Aura AI — sizin şəxsi avtomobil köməkçinizəm. Əmrlərinizi icra etməyə hazıram.", "Ben Aura AI — kişisel araç asistanınızım. Komutlarınızı bekliyorum.", "Я Aura AI — ваш автомобильный ассистент. Готов к выполнению команд.")
             onCommandRecognized("QUERY_WHO_ARE_YOU", rawText, null)
             return
         }
         if (hasToken(Regex("""\b(masin necedir|avtomobilin veziyyeti|status|tezyiq|akkumulyator)\b"""))) {
-            speak("Bütün sistemlər normal işləyir, təkər təzyiqi və mühərrik qaydasındadır. Yaxşı yol!")
+            speakLocalized("All systems are operational, tire pressure and engine are normal. Safe travels!", "Bütün sistemlər normal işləyir, təkər təzyiqi və mühərrik qaydasındadır. Yaxşı yol!", "Tüm sistemler normal çalışıyor, lastik basıncı ve motor iyi durumda. İyi yolculuklar!", "Все системы в норме, давление в шинах и двигатель в порядке. Приятной поездки!")
             onCommandRecognized("QUERY_CAR_STATUS", rawText, null)
             return
         }
 
         if (temp != null) {
-            speak("Kondisioner ${temp.toInt()} dərəcəyə təyin edildi")
+            speakLocalized("Climate set to ${temp.toInt()} degrees", "Kondisioner ${temp.toInt()} dərəcəyə təyin edildi", "Klima ${temp.toInt()} dereceye ayarlandı", "Климат установлен на ${temp.toInt()} градусов")
             onCommandRecognized("CLIMATE_SET_TEMP", rawText, temp)
             return
         }
 
         // Təyin edilməyən digər sorğular
         onCommandRecognized("GENERAL_AI_QUERY", rawText, null)
+    }
+
+    /**
+     * Multilingual voice feedback (EN, AZ, TR, RU)
+     */
+    private fun speakLocalized(
+        en: String,
+        az: String,
+        tr: String,
+        ru: String
+    ) {
+        val text = when (currentLanguage.lowercase().take(2)) {
+            "az" -> az
+            "tr" -> tr
+            "ru" -> ru
+            else -> en
+        }
+        speak(text)
     }
 
     /**

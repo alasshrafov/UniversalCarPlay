@@ -59,4 +59,33 @@
     <string name="services_restarting">🔄 Перезапуск служб…</string>
     <string name="services_ready">✅ CarTwin порт 7000 и Bluetooth активны!</string>
     <string name="settings_reset_done">Все настройки сброшены</string>
+
+    <!-- In-Vehicle Voice & Telemetry Toasts -->
+    <string name="toast_defrost_active">🌬️ Обогрев лобового стекла включен</string>
+    <string name="toast_next_track">⏭ Следующий трек</string>
+    <string name="toast_prev_track">⏮ Предыдущий трек</string>
+    <string name="toast_music_play">▶ Музыка играет</string>
+    <string name="toast_music_pause">⏸ Музыка на паузе</string>
+    <string name="toast_open_spotify">🎵 Открытие Spotify</string>
+    <string name="toast_open_waze">🧭 Открытие Waze</string>
+    <string name="toast_open_phone">📞 Открытие телефона</string>
+    <string name="toast_home">🏠 Главный экран</string>
+    <string name="toast_night_mode">🌙 Ночной режим включен</string>
+    <string name="toast_day_mode">☀️ Дневной режим включен</string>
+    <string name="toast_sunroof_open">🚗 Люк открывается</string>
+    <string name="toast_sunroof_close">🚗 Люк закрывается</string>
+    <string name="toast_windows_open">🚗 Окна открываются</string>
+    <string name="toast_windows_close">🚗 Окна закрываются</string>
+    <string name="toast_device_connected">🎉 %1$s %2$s Подключено!</string>
+    <string name="toast_device_adapted">⚡ %1$s Определено и настроено!</string>
+    <string name="toast_profile_saved">%1$s активирован и сохранен</string>
+    <string name="toast_universal_mode">⚡ Универсальный режим: CarPlay и Android Auto</string>
+    <string name="toast_carplay_mode">🍏 Режим Apple CarPlay</string>
+    <string name="toast_android_auto_mode">🤖 Режим Android Auto</string>
+    <string name="toast_language_changed">Язык: %1$s</string>
+    <string name="hvac_banner">❄️ Климат Aura: %1$d°C • %2$s • Вент: %3$d/7</string>
+    <string name="hvac_ac_on">A/C ВКЛ</string>
+    <string name="hvac_ac_off">A/C ВЫКЛ</string>
+    <string name="toast_simulator_connected">✅ Подключено к симулятору ПК</string>
+    <string name="toast_simulator_not_found">Симулятор не найден: %1$s</string>
 </resources>

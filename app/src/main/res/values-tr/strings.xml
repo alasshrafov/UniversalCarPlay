@@ -59,4 +59,33 @@
     <string name="services_restarting">🔄 Servisler yeniden başlatılıyor…</string>
     <string name="services_ready">✅ CarTwin port 7000 ve Bluetooth aktif!</string>
     <string name="settings_reset_done">Tüm ayarlar sıfırlandı</string>
+
+    <!-- In-Vehicle Voice & Telemetry Toasts -->
+    <string name="toast_defrost_active">🌬️ Ön Cam Buğu Çözücü Aktif</string>
+    <string name="toast_next_track">⏭ Sonraki Parça</string>
+    <string name="toast_prev_track">⏮ Önceki Parça</string>
+    <string name="toast_music_play">▶ Müzik Çalıyor</string>
+    <string name="toast_music_pause">⏸ Müzik Duraklatıldı</string>
+    <string name="toast_open_spotify">🎵 Spotify Açılıyor</string>
+    <string name="toast_open_waze">🧭 Waze Navigasyon Açılıyor</string>
+    <string name="toast_open_phone">📞 Telefon Açılıyor</string>
+    <string name="toast_home">🏠 Ana Ekran</string>
+    <string name="toast_night_mode">🌙 Gece Modu Aktif</string>
+    <string name="toast_day_mode">☀️ Gündüz Modu Aktif</string>
+    <string name="toast_sunroof_open">🚗 Cam Tavan Açılıyor</string>
+    <string name="toast_sunroof_close">🚗 Cam Tavan Kapanıyor</string>
+    <string name="toast_windows_open">🚗 Camlar Açılıyor</string>
+    <string name="toast_windows_close">🚗 Camlar Kapanıyor</string>
+    <string name="toast_device_connected">🎉 %1$s %2$s Bağlandı!</string>
+    <string name="toast_device_adapted">⚡ %1$s Tanımlandı ve Uyarlandı!</string>
+    <string name="toast_profile_saved">%1$s etkinleştirildi ve kaydedildi</string>
+    <string name="toast_universal_mode">⚡ Evrensel Mod: CarPlay &amp; Android Auto</string>
+    <string name="toast_carplay_mode">🍏 Apple CarPlay Modu</string>
+    <string name="toast_android_auto_mode">🤖 Android Auto Modu</string>
+    <string name="toast_language_changed">Dil: %1$s</string>
+    <string name="hvac_banner">❄️ Aura Klima: %1$d°C • %2$s • Fan: %3$d/7</string>
+    <string name="hvac_ac_on">A/C AÇIK</string>
+    <string name="hvac_ac_off">A/C KAPALI</string>
+    <string name="toast_simulator_connected">✅ PC Simülatörüne Bağlandı</string>
+    <string name="toast_simulator_not_found">Simülatör bulunamadı: %1$s</string>
 </resources>

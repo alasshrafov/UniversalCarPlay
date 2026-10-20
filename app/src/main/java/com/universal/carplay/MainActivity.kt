@@ -485,7 +485,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         "CLIMATE_DEFROST" -> {
                             vehicleHvacManager.setAcPower(true)
                             vehicleHvacManager.setFanSpeed(7)
-                            Toast.makeText(this, "🌬️ Ön Şüşə Buxar Təmizləyicisi Aktivdir", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_defrost_active), Toast.LENGTH_SHORT).show()
                         }
                         "CLIMATE_FAN_SPEED" -> {
                             val speed = param?.toInt() ?: 4
@@ -528,34 +528,34 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         "MEDIA_NEXT" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_NEXT","keyCode":87}""")
                             mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_NEXT","keyCode":87}""")
-                            Toast.makeText(this, "⏭ Növbəti Mahnı", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_next_track), Toast.LENGTH_SHORT).show()
                         }
                         "MEDIA_PREV" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PREV","keyCode":88}""")
                             mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PREV","keyCode":88}""")
-                            Toast.makeText(this, "⏮ Əvvəlki Mahnı", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_prev_track), Toast.LENGTH_SHORT).show()
                         }
                         "MEDIA_PLAY" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PLAY","keyCode":126}""")
                             mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PLAY","keyCode":126}""")
-                            Toast.makeText(this, "▶ Musiqi Davam Edir", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_music_play), Toast.LENGTH_SHORT).show()
                         }
                         "MEDIA_PAUSE" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PAUSE","keyCode":127}""")
                             mockClient?.sendTouchEvent("""{"type":"STEERING_WHEEL","command":"MEDIA_PAUSE","keyCode":127}""")
-                            Toast.makeText(this, "⏸ Musiqi Dayandırıldı", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_music_pause), Toast.LENGTH_SHORT).show()
                         }
                         "APP_SPOTIFY" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Spotify"}""")
-                            Toast.makeText(this, "🎵 Spotify Açılır", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_open_spotify), Toast.LENGTH_SHORT).show()
                         }
                         "NAVIGATION", "APP_WAZE" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Waze"}""")
-                            Toast.makeText(this, "🧭 Waze Naviqasiyası Açılır", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_open_waze), Toast.LENGTH_SHORT).show()
                         }
                         "PHONE_CALL" -> {
                             sessionCoordinator?.sendTouchEvent("""{"type":"APP_LAUNCH","app":"Phone"}""")
-                            Toast.makeText(this, "📞 Telefon Açılır", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_open_phone), Toast.LENGTH_SHORT).show()
                         }
                         "OPEN_BROWSER" -> openBrowser("https://www.google.com")
                         "OPEN_YOUTUBE" -> openBrowser("https://m.youtube.com")
@@ -564,20 +564,20 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             if (browserOverlay.visibility == View.VISIBLE) {
                                 closeBrowser()
                             }
-                            Toast.makeText(this, "🏠 Əsas Ekran", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_home), Toast.LENGTH_SHORT).show()
                         }
                         "SYSTEM_NIGHT_MODE" -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                            Toast.makeText(this, "🌙 Gecə Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_night_mode), Toast.LENGTH_SHORT).show()
                         }
                         "SYSTEM_DAY_MODE" -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                            Toast.makeText(this, "☀️ Gündüz Rejimi Aktivdir", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.toast_day_mode), Toast.LENGTH_SHORT).show()
                         }
-                        "SUNROOF_OPEN" -> Toast.makeText(this, "🚗 Lyuk Açılır", Toast.LENGTH_SHORT).show()
-                        "SUNROOF_CLOSE" -> Toast.makeText(this, "🚗 Lyuk Bağlanır", Toast.LENGTH_SHORT).show()
-                        "WINDOWS_OPEN" -> Toast.makeText(this, "🚗 Pəncərələr Açılır", Toast.LENGTH_SHORT).show()
-                        "WINDOWS_CLOSE" -> Toast.makeText(this, "🚗 Pəncərələr Bağlanır", Toast.LENGTH_SHORT).show()
+                        "SUNROOF_OPEN" -> Toast.makeText(this, getString(R.string.toast_sunroof_open), Toast.LENGTH_SHORT).show()
+                        "SUNROOF_CLOSE" -> Toast.makeText(this, getString(R.string.toast_sunroof_close), Toast.LENGTH_SHORT).show()
+                        "WINDOWS_OPEN" -> Toast.makeText(this, getString(R.string.toast_windows_open), Toast.LENGTH_SHORT).show()
+                        "WINDOWS_CLOSE" -> Toast.makeText(this, getString(R.string.toast_windows_close), Toast.LENGTH_SHORT).show()
                         "QUERY_TIME", "QUERY_DATE", "QUERY_GREETING", "QUERY_HOW_ARE_YOU", "QUERY_WHO_ARE_YOU", "QUERY_CAR_STATUS" -> {
                             // Səsli cavab artıq UniversalVoiceAssistant tərəfindən deyildi
                             Toast.makeText(this, "🔮 Aura: $originalText", Toast.LENGTH_SHORT).show()
@@ -594,7 +594,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     private fun showClimateHud(state: VehicleHvacManager.ClimateState) {
-        val banner = "❄️ Aura İqlim: ${state.targetTemp.toInt()}°C • ${if (state.isAcOn) "AC AÇIQ" else "AC BAĞLI"} • Fan: ${state.fanSpeed}/7"
+        val acStatus = if (state.isAcOn) getString(R.string.hvac_ac_on) else getString(R.string.hvac_ac_off)
+        val banner = getString(R.string.hvac_banner, state.targetTemp.toInt(), acStatus, state.fanSpeed)
         Toast.makeText(this, banner, Toast.LENGTH_SHORT).show()
         tvDetail.text = banner
     }
@@ -614,7 +615,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         }
                         CarPlaySessionCoordinator.SessionState.WAITING_FOR_DEVICE -> {
                             statusOverlay.visibility = View.VISIBLE
-                            tvStatus.text = "CarTwin 2.0 • Universal Qoşulma"
+                            tvStatus.text = getString(R.string.status_universal_connection)
                         }
                         else -> {}
                     }
@@ -634,9 +635,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 getAudioEngine = { audioEngine },
                 onAppleDeviceConnected = { device ->
                     runOnUiThread {
-                        val devName = device.productName ?: device.deviceName ?: "CarTwin Cihazı"
-                        tvStatus.text = "🟢 $devName Qoşuldu"
-                        tvDetail.text = "Görüntü və Səs Aktivləşdirilir • CarTwin 2.0"
+                        val devName = device.productName ?: device.deviceName ?: "CarTwin"
+                        tvStatus.text = "🟢 $devName"
+                        tvDetail.text = getString(R.string.status_preparing_stream)
                         cryptoHandshake.startHandshake()
                     }
                 },
@@ -645,8 +646,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         statusOverlay.animate().cancel()
                         statusOverlay.alpha = 1f
                         statusOverlay.visibility = View.VISIBLE
-                        tvStatus.text = "CarTwin 2.0 • Universal Qoşulma"
-                        tvDetail.text = "Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun."
+                        tvStatus.text = getString(R.string.status_universal_connection)
+                        tvDetail.text = getString(R.string.status_waiting_device)
                         cryptoHandshake.reset()
                     }
                 },
@@ -659,19 +660,19 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 preferredPhoneMode = savedMode
                 onPlatformDetected = { platformName, icon ->
                     runOnUiThread {
-                        tvStatus.text = "$icon $platformName Aktivdir"
-                        Toast.makeText(this@MainActivity, "🎉 $icon $platformName Qoşuldu!", Toast.LENGTH_SHORT).show()
+                        tvStatus.text = "$icon $platformName"
+                        Toast.makeText(this@MainActivity, getString(R.string.toast_device_connected, icon, platformName), Toast.LENGTH_SHORT).show()
                     }
                 }
                 onPhoneModelIdentified = { modelName, brand, isAndroid ->
                     runOnUiThread {
                         tvStatus.text = if (isAndroid) "🤖 $modelName (Android Auto)" else "🍏 $modelName (Apple CarPlay)"
                         tvDetail.text = if (isAndroid) {
-                            "🤖 $modelName qoşuldu • Azərbaycan dilli Aura AI aktivdir"
+                            "🤖 $modelName • Android Auto & Aura AI"
                         } else {
-                            "🍏 $modelName qoşuldu • Apple CarPlay aktivdir"
+                            "🍏 $modelName • Apple CarPlay"
                         }
-                        Toast.makeText(this@MainActivity, "⚡ $modelName Aşkarlanaraq Uyğunlaşdırıldı!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, getString(R.string.toast_device_adapted, modelName), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -824,28 +825,28 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         vehicleDetector.saveProfile(selected)
                         setupProfile(selected)
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "${selected.name} aktivləşdirildi və yadda saxlanıldı", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.toast_profile_saved, selected.name), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount -> {
                         // Universal mode (CarPlay & Android Auto)
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 3).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 3
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "⚡ Universal Rejim: CarPlay & Android Auto", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.toast_universal_mode), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 1 -> {
                         // CarPlay only
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 2).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 2
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "🍏 Apple CarPlay Rejimi", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.toast_carplay_mode), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 2 -> {
                         // Android Auto only
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 1).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 1
                         restartAllCarPlayServices()
-                        Toast.makeText(this, "🤖 Android Auto Rejimi", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.toast_android_auto_mode), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 3 -> {
                         openBrowser("http://192.168.50.2")
@@ -891,7 +892,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     LocaleHelper.setLocale(this, selectedLang)
                     voiceAssistant?.setLanguage(selectedLang)
                     dialog.dismiss()
-                    Toast.makeText(this, "Language: ${languages[which].second}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.toast_language_changed, languages[which].second), Toast.LENGTH_SHORT).show()
                     recreate()
                 } else {
                     dialog.dismiss()
@@ -1013,10 +1014,10 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     runOnUiThread {
                         if (connected) {
                             statusOverlay.visibility = View.GONE
-                            Toast.makeText(this@MainActivity, "✅ PC Simulyatoruna Qoşuldu!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MainActivity, getString(R.string.toast_simulator_connected), Toast.LENGTH_SHORT).show()
                         } else {
                             statusOverlay.visibility = View.VISIBLE
-                            tvStatus.text = "CarTwin 2.0 • Universal Qoşulma Gözlənilir"
+                            tvStatus.text = getString(R.string.status_universal_connection)
                         }
                     }
                 }
@@ -1024,7 +1025,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             }
         } catch (e: Throwable) {
             Log.e(TAG, "Mock bağlantı xətası: ${e.message}")
-            Toast.makeText(this, "Simulyator tapılmadı: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_simulator_not_found, e.message ?: ""), Toast.LENGTH_SHORT).show()
         }
     }
 

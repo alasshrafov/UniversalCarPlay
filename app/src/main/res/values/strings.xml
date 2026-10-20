@@ -59,4 +59,33 @@
     <string name="services_restarting">🔄 Restarting services…</string>
     <string name="services_ready">✅ CarTwin port 7000 and Bluetooth active!</string>
     <string name="settings_reset_done">Settings have been reset</string>
+
+    <!-- In-Vehicle Voice & Telemetry Toasts -->
+    <string name="toast_defrost_active">🌬️ Windshield Defroster Active</string>
+    <string name="toast_next_track">⏭ Next Track</string>
+    <string name="toast_prev_track">⏮ Previous Track</string>
+    <string name="toast_music_play">▶ Resuming Music</string>
+    <string name="toast_music_pause">⏸ Music Paused</string>
+    <string name="toast_open_spotify">🎵 Opening Spotify</string>
+    <string name="toast_open_waze">🧭 Opening Waze</string>
+    <string name="toast_open_phone">📞 Opening Phone</string>
+    <string name="toast_home">🏠 Home Screen</string>
+    <string name="toast_night_mode">🌙 Night Mode Active</string>
+    <string name="toast_day_mode">☀️ Day Mode Active</string>
+    <string name="toast_sunroof_open">🚗 Opening Sunroof</string>
+    <string name="toast_sunroof_close">🚗 Closing Sunroof</string>
+    <string name="toast_windows_open">🚗 Opening Windows</string>
+    <string name="toast_windows_close">🚗 Closing Windows</string>
+    <string name="toast_device_connected">🎉 %1$s %2$s Connected!</string>
+    <string name="toast_device_adapted">⚡ %1$s Identified and Configured!</string>
+    <string name="toast_profile_saved">%1$s activated and saved</string>
+    <string name="toast_universal_mode">⚡ Universal Mode: CarPlay &amp; Android Auto</string>
+    <string name="toast_carplay_mode">🍏 Apple CarPlay Mode</string>
+    <string name="toast_android_auto_mode">🤖 Android Auto Mode</string>
+    <string name="toast_language_changed">Language: %1$s</string>
+    <string name="hvac_banner">❄️ Aura Climate: %1$d°C • %2$s • Fan: %3$d/7</string>
+    <string name="hvac_ac_on">A/C ON</string>
+    <string name="hvac_ac_off">A/C OFF</string>
+    <string name="toast_simulator_connected">✅ Connected to PC Simulator</string>
+    <string name="toast_simulator_not_found">Simulator not found: %1$s</string>
 </resources>
