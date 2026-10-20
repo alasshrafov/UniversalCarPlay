@@ -276,9 +276,31 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         cardCarPlayInfo = findViewById(R.id.cardCarPlayInfo)
         cardAndroidAutoInfo = findViewById(R.id.cardAndroidAutoInfo)
 
+        val btnLaunchDiPlay = findViewById<Button?>(R.id.btnLaunchDiPlay)
+        if (btnLaunchDiPlay != null) {
+            if (isDiPlayInstalled()) {
+                btnLaunchDiPlay.visibility = View.VISIBLE
+                btnLaunchDiPlay.setOnClickListener { launchDiPlay() }
+            } else {
+                btnLaunchDiPlay.visibility = View.GONE
+            }
+        }
+
         btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
         btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
-        cardCarPlayInfo.setOnClickListener { showConnectionGuideDialog() }
+        cardCarPlayInfo.setOnClickListener {
+            if (isDiPlayInstalled()) {
+                AlertDialog.Builder(this)
+                    .setTitle("🍏 Apple CarPlay Seçimi")
+                    .setMessage("Avtomobilinizdə BYD DiPlay tətbiqi aşkarlandı! Simli kabel ilə CarPlay üçün DiPlay-ə keçmək istəyirsiniz, yoxsa CarTwin təlimatına baxmaq?")
+                    .setPositiveButton("🍏 DiPlay-i Aç") { _, _ -> launchDiPlay() }
+                    .setNeutralButton("📖 CarTwin Təlimatı") { _, _ -> showConnectionGuideDialog() }
+                    .setNegativeButton("Bağla", null)
+                    .show()
+            } else {
+                showConnectionGuideDialog()
+            }
+        }
         cardAndroidAutoInfo.setOnClickListener { showConnectionGuideDialog() }
     }
 
@@ -646,6 +668,17 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         Toast.makeText(this@MainActivity, "🎉 $icon $platformName Qoşuldu!", Toast.LENGTH_SHORT).show()
                     }
                 }
+                onPhoneModelIdentified = { modelName, brand, isAndroid ->
+                    runOnUiThread {
+                        tvStatus.text = if (isAndroid) "🤖 $modelName (Android Auto)" else "🍏 $modelName (Apple CarPlay)"
+                        tvDetail.text = if (isAndroid) {
+                            "🤖 $modelName qoşuldu • Azərbaycan dilli Aura AI aktivdir"
+                        } else {
+                            "🍏 $modelName qoşuldu • Apple CarPlay aktivdir"
+                        }
+                        Toast.makeText(this@MainActivity, "⚡ $modelName Aşkarlanaraq Uyğunlaşdırıldı!", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         } catch (e: Throwable) {
             Log.e(TAG, "UsbManager xətası: ${e.message}")
@@ -850,6 +883,31 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         } catch (e: Throwable) {
             Log.e(TAG, "Qoşulma bələdçisi açılarkən xəta: ${e.message}")
         }
+    }
+
+    private fun isDiPlayInstalled(): Boolean {
+        val pm = packageManager
+        for (pkg in listOf("com.shihab.diplay", "com.shihab.diplay.cn")) {
+            try {
+                pm.getPackageInfo(pkg, 0)
+                return true
+            } catch (_: Exception) {}
+        }
+        return false
+    }
+
+    private fun launchDiPlay() {
+        val pm = packageManager
+        for (pkg in listOf("com.shihab.diplay", "com.shihab.diplay.cn")) {
+            val intent = pm.getLaunchIntentForPackage(pkg)
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                Toast.makeText(this, "🍏 DiPlay Başladılır…", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+        Toast.makeText(this, "DiPlay tətbiqi tapılmadı", Toast.LENGTH_SHORT).show()
     }
 
     override fun onSurfaceCreated(holder: SurfaceHolder) {
