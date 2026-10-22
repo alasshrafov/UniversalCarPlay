@@ -27,6 +27,7 @@
     <!-- Avtomobil İşə Düşəndə (İqnişn) Avtomatik Açılma İcazəsi -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <uses-feature android:name="android.hardware.usb.accessory" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application
@@ -57,6 +58,14 @@
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
+
+            <!-- USB Aksesuar (Google AOA / Android Auto) Taxıldıqda Avtomatik İşə Düşmə -->
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+                android:resource="@xml/accessory_filter" />
         </activity>
 
         <!-- Avtomobil Açılan Kimi (Xodlananda) CarTwin-i Ekrana Gətirən Qəbuledici -->

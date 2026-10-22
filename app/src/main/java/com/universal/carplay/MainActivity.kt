@@ -5,6 +5,9 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.hardware.usb.UsbAccessory
+import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbManager
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -160,6 +163,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             initCarIntegrations()
             initSessionCoordinator()
             initUsbManager()
+            handleUsbIntent(intent)
             initOtaUpdates()
         } catch (e: Throwable) {
             Log.e(TAG, "onCreate zamanı kritik xəta: ${e.message}", e)
@@ -678,6 +682,43 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             }
         } catch (e: Throwable) {
             Log.e(TAG, "UsbManager xətası: ${e.message}")
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleUsbIntent(intent)
+    }
+
+    private fun handleUsbIntent(intent: Intent?) {
+        intent ?: return
+        if (!::usbManager.isInitialized) return
+        val action = intent.action ?: return
+        Log.i(TAG, "MainActivity USB Intent daxil oldu: $action")
+        when (action) {
+            "android.hardware.usb.action.USB_ACCESSORY_ATTACHED" -> {
+                val accessory: UsbAccessory? = try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY) as? UsbAccessory
+                    }
+                } catch (_: Throwable) { null }
+                accessory?.let { usbManager.handleAccessoryAttached(it) }
+            }
+            UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
+                val device: UsbDevice? = try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as? UsbDevice
+                    }
+                } catch (_: Throwable) { null }
+                device?.let { usbManager.handleDeviceAttached(it) }
+            }
         }
     }
 

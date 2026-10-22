@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
@@ -12,7 +13,9 @@ import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.util.Log
+import com.universal.carplay.R
 import com.universal.carplay.engine.AudioEngine
 import com.universal.carplay.engine.VideoDecoder
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +25,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -51,6 +56,8 @@ class CarPlayUsbManager(
         private const val SAMSUNG_VENDOR_ID = 0x04E8
         private const val XIAOMI_VENDOR_ID = 0x2717
         private const val HUAWEI_VENDOR_ID = 0x12D1
+        private const val HONOR_VENDOR_ID = 0x33BB
+        private const val HONOR_TERMINAL_VENDOR_ID = 0x329B
         private const val OPPO_VENDOR_ID = 0x22D9
         private const val VIVO_VENDOR_ID = 0x2CA3
         private const val ONEPLUS_VENDOR_ID = 0x2A70
@@ -112,6 +119,15 @@ class CarPlayUsbManager(
     @Volatile
     private var isAoaMode = false
 
+    @Volatile
+    private var isAoaSwitching = false
+    private var aoaSwitchTimestamp = 0L
+
+    private var currentAccessory: UsbAccessory? = null
+    private var accessoryParcelFileDescriptor: ParcelFileDescriptor? = null
+    private var accessoryInputStream: FileInputStream? = null
+    private var accessoryOutputStream: FileOutputStream? = null
+
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action ?: return
@@ -129,12 +145,38 @@ class CarPlayUsbManager(
                     device?.let { handleDeviceAttached(it) }
                 }
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
+                    val isRecentlySwitched = isAoaSwitching && (System.currentTimeMillis() - aoaSwitchTimestamp < 6000L)
+                    if (isRecentlySwitched) {
+                        Log.i(TAG, "AOA Re-enumeration zamanı cihaz ayrılması gözləniləndir. UI 'Cihaz ayrıldı' göstərmir.")
+                        onStatusUpdate?.invoke("🤖 Android Auto: Cihaz AOA rejiminə keçir (Re-enumerating)...")
+                        return
+                    }
                     Log.i(TAG, "USB Cihaz ayrıldı.")
+                    isAoaSwitching = false
+                    closeConnection()
+                    onDeviceDisconnected()
+                    onStatusUpdate?.invoke("USB: Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun.")
+                }
+                "android.hardware.usb.action.USB_ACCESSORY_ATTACHED" -> {
+                    val accessory: UsbAccessory? = try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY) as? UsbAccessory
+                        }
+                    } catch (_: Throwable) { null }
+                    accessory?.let { handleAccessoryAttached(it) }
+                }
+                "android.hardware.usb.action.USB_ACCESSORY_DETACHED" -> {
+                    Log.i(TAG, "USB Aksesuar ayrıldı.")
+                    isAoaSwitching = false
                     closeConnection()
                     onDeviceDisconnected()
                     onStatusUpdate?.invoke("USB: Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun.")
                 }
                 ACTION_USB_PERMISSION -> {
+                    val permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                     val device: UsbDevice? = try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
@@ -143,10 +185,24 @@ class CarPlayUsbManager(
                             intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as? UsbDevice
                         }
                     } catch (_: Throwable) { null }
-                    val permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
-                    if (permissionGranted && device != null) {
-                        Log.i(TAG, "USB İcazəsi verildi: ${device.deviceName}")
-                        routeDeviceConnection(device)
+
+                    val accessory: UsbAccessory? = try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY) as? UsbAccessory
+                        }
+                    } catch (_: Throwable) { null }
+
+                    if (permissionGranted) {
+                        if (accessory != null) {
+                            Log.i(TAG, "UsbAccessory İcazəsi verildi: ${accessory.description}")
+                            startAccessoryCommunication(accessory)
+                        } else if (device != null) {
+                            Log.i(TAG, "USB İcazəsi verildi: ${device.deviceName}")
+                            routeDeviceConnection(device)
+                        }
                     } else {
                         onStatusUpdate?.invoke("USB: İcazə verilmədi.")
                     }
@@ -162,6 +218,8 @@ class CarPlayUsbManager(
             val filter = IntentFilter().apply {
                 addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
                 addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+                addAction("android.hardware.usb.action.USB_ACCESSORY_ATTACHED")
+                addAction("android.hardware.usb.action.USB_ACCESSORY_DETACHED")
                 addAction(ACTION_USB_PERMISSION)
             }
 
@@ -181,7 +239,27 @@ class CarPlayUsbManager(
 
     private fun checkConnectedDevices() {
         try {
+            // 1. Mövcud UsbAccessory rejimində olan cihazları yoxlayırıq
+            val accessoryList = usbManager?.accessoryList
+            if (!accessoryList.isNullOrEmpty()) {
+                val acc = accessoryList[0]
+                Log.i(TAG, "Mövcud UsbAccessory aşkarlandı: ${acc.description}")
+                handleAccessoryAttached(acc)
+                return
+            }
+
+            // 2. UsbDevice siyahısını yoxlayırıq
             val deviceList = usbManager?.deviceList ?: return
+
+            // Prioritet 1: Artıq Google AOA rejimində olan cihazlar
+            for (device in deviceList.values) {
+                if (isAndroidAoaAccessory(device)) {
+                    handleDeviceAttached(device)
+                    return
+                }
+            }
+
+            // Prioritet 2: Carlinkit dongle və ya digər dəstəklənən cihazlar
             for (device in deviceList.values) {
                 if (isSupportedDevice(device)) {
                     handleDeviceAttached(device)
@@ -193,7 +271,7 @@ class CarPlayUsbManager(
         }
     }
 
-    private fun handleDeviceAttached(device: UsbDevice) {
+    fun handleDeviceAttached(device: UsbDevice) {
         try {
             if (!isSupportedDevice(device)) {
                 Log.d(TAG, "Dəstəklənməyən USB cihaz: VID=0x${Integer.toHexString(device.vendorId)}, PID=0x${Integer.toHexString(device.productId)}")
@@ -270,11 +348,19 @@ class CarPlayUsbManager(
      * Android telefonunu Android Open Accessory 2.0 rejiminə keçirir
      */
     private fun initiateAndroidAutoAoa(device: UsbDevice) {
+        if (isAoaSwitching && System.currentTimeMillis() - aoaSwitchTimestamp < 4000L) {
+            Log.d(TAG, "AOA keçidi artıq icra olunur, təkrar çağırış ləğv edilir.")
+            return
+        }
+        isAoaSwitching = true
+        aoaSwitchTimestamp = System.currentTimeMillis()
+
         scope.launch {
             try {
                 val connection = usbManager?.openDevice(device) ?: run {
                     Log.e(TAG, "Android cihazı açıla bilmədi (openDevice null)")
                     requestUsbPermission(device)
+                    isAoaSwitching = false
                     return@launch
                 }
 
@@ -293,6 +379,7 @@ class CarPlayUsbManager(
                 if (transferred < 2) {
                     Log.w(TAG, "AOA Protokol sorğusuna cavab alınmadı (transferred=$transferred)")
                     connection.close()
+                    isAoaSwitching = false
                     return@launch
                 }
 
@@ -302,18 +389,19 @@ class CarPlayUsbManager(
                 if (protocolVersion < 1) {
                     Log.w(TAG, "Cihaz AOA protokolunu dəstəkləmir")
                     connection.close()
+                    isAoaSwitching = false
                     return@launch
                 }
 
-                // 2. Android Auto İdentifikasiya Məlumatlarını Göndəririk (Request 52)
+                // 2. Rəsmi Google Android Auto İdentifikasiya Məlumatlarını Göndəririk (Request 52)
                 sendAoaString(connection, 0, "Android")
                 sendAoaString(connection, 1, "Android Auto")
-                sendAoaString(connection, 2, "CarTwin BYD Display")
-                sendAoaString(connection, 3, "2.0")
-                sendAoaString(connection, 4, "https://www.android.com/auto/")
-                sendAoaString(connection, 5, "CarTwin-BYD-001")
+                sendAoaString(connection, 2, "Android Auto")
+                sendAoaString(connection, 3, "2.0.1")
+                sendAoaString(connection, 4, "https://developer.android.com/auto/index.html")
+                sendAoaString(connection, 5, "HU-AAAAAA001")
 
-                Log.i(TAG, "AOA Məlumatları göndərildi. ACCESSORY_START (Request 53) icra olunur...")
+                Log.i(TAG, "Rəsmi Android Auto AOA parametrləri göndərildi. ACCESSORY_START (Request 53) icra olunur...")
 
                 // 3. Aksesuar Rejimini Başladırıq (Request 53)
                 connection.controlTransfer(
@@ -321,16 +409,29 @@ class CarPlayUsbManager(
                     53, // ACCESSORY_START
                     0,
                     0,
-                    null,
+                    byteArrayOf(),
                     0,
                     2000
                 )
 
                 connection.close()
                 Log.i(TAG, "AOA Başladıldı! Telefon USB-ni yenidən başladır (Re-enumeration gözlənilir)...")
-                onStatusUpdate?.invoke("🤖 Android Auto: Telefonda təsdiqləyin, rejim açılır…")
+                onStatusUpdate?.invoke("🤖 Android Auto: Re-enumeration gözlənilir…")
+
+                // Telefon USB interfeysini söndürüb AOA kimi açanda 0.5 - 2 saniyə çəkə bilər
+                delay(800)
+                checkConnectedDevices()
+                delay(1200)
+                if (!isDongleOpen && isAoaSwitching) {
+                    checkConnectedDevices()
+                }
+                delay(1500)
+                if (!isDongleOpen && isAoaSwitching) {
+                    checkConnectedDevices()
+                }
             } catch (e: Throwable) {
                 Log.e(TAG, "AOA Başladılarkən xəta: ${e.message}", e)
+                isAoaSwitching = false
             }
         }
     }
@@ -354,12 +455,16 @@ class CarPlayUsbManager(
      */
     private fun handleAndroidAutoAccessory(device: UsbDevice) {
         Log.i(TAG, "🎉 Android Auto Aksesuar Rejimi Təsdiqləndi! (VID=0x18D1, PID=0x${Integer.toHexString(device.productId)})")
+        isAoaSwitching = false
+        closeConnection()
         currentPhoneType = PHONE_TYPE_ANDROID_AUTO
         isAoaMode = true
 
         try {
-            closeConnection()
             val connection = usbManager?.openDevice(device) ?: run {
+                requestUsbPermission(device)
+                return
+            }
                 requestUsbPermission(device)
                 return
             }
@@ -410,6 +515,109 @@ class CarPlayUsbManager(
             onStatusUpdate?.invoke("🤖 Android Auto Qoşuldu ($model)! Aura AI Aktivdir.")
         } catch (e: Throwable) {
             Log.e(TAG, "handleAndroidAutoAccessory xətası: ${e.message}")
+        }
+    }
+
+    fun handleAccessoryAttached(accessory: UsbAccessory) {
+        Log.i(TAG, "Google AOA UsbAccessory taxıldı: ${accessory.description} (${accessory.manufacturer} - ${accessory.model})")
+        isAoaSwitching = false
+        currentAccessory = accessory
+        currentPhoneType = PHONE_TYPE_ANDROID_AUTO
+        isAoaMode = true
+
+        val modelName = if (previousIdentifiedModel.isNotBlank()) previousIdentifiedModel else "Android (AOA)"
+        val brandName = if (previousIdentifiedBrand.isNotBlank()) previousIdentifiedBrand else "Android"
+        currentPhoneModel = modelName
+
+        if (usbManager?.hasPermission(accessory) == true) {
+            startAccessoryCommunication(accessory)
+        } else {
+            requestAccessoryPermission(accessory)
+        }
+    }
+
+    private fun requestAccessoryPermission(accessory: UsbAccessory) {
+        try {
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+            val permissionIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                Intent(ACTION_USB_PERMISSION).setPackage(context.packageName),
+                flags
+            )
+            usbManager?.requestPermission(accessory, permissionIntent)
+            Log.i(TAG, "UsbAccessory icazə sorğusu göndərildi: ${accessory.description}")
+            onStatusUpdate?.invoke("USB: 'İcazə Ver' təsdiqləyin")
+        } catch (e: Throwable) {
+            Log.e(TAG, "UsbAccessory icazəsi istənilərkən xəta: ${e.message}")
+        }
+    }
+
+    private fun startAccessoryCommunication(accessory: UsbAccessory) {
+        try {
+            closeConnection()
+            val pfd = usbManager?.openAccessory(accessory)
+            if (pfd == null) {
+                Log.e(TAG, "openAccessory null qaytardı!")
+                requestAccessoryPermission(accessory)
+                return
+            }
+
+            currentAccessory = accessory
+            currentPhoneType = PHONE_TYPE_ANDROID_AUTO
+            isAoaMode = true
+            accessoryParcelFileDescriptor = pfd
+            val fd = pfd.fileDescriptor
+            val input = FileInputStream(fd)
+            val output = FileOutputStream(fd)
+            accessoryInputStream = input
+            accessoryOutputStream = output
+            isDongleOpen = true
+
+            val modelName = if (previousIdentifiedModel.isNotBlank()) previousIdentifiedModel else "Android Auto"
+            val brandName = if (previousIdentifiedBrand.isNotBlank()) previousIdentifiedBrand else "Android"
+
+            currentDevice?.let { onAppleDeviceConnected(it) }
+            onPlatformDetected?.invoke("Android Auto", "🤖")
+            onPhoneModelIdentified?.invoke(modelName, brandName, true)
+            onStatusUpdate?.invoke("🤖 Android Auto Qoşuldu ($modelName)! Aura AI Aktivdir.")
+
+            startAccessoryReader(input)
+        } catch (e: Throwable) {
+            Log.e(TAG, "startAccessoryCommunication xətası: ${e.message}", e)
+        }
+    }
+
+    private fun startAccessoryReader(input: FileInputStream) {
+        readerJob?.cancel()
+        readerJob = scope.launch(Dispatchers.IO) {
+            val buffer = ByteArray(16 * 1024)
+            while (isActive && isDongleOpen && accessoryInputStream != null) {
+                try {
+                    val read = input.read(buffer)
+                    if (read > 0) {
+                        val channel = buffer[0].toInt() and 0xFF
+                        if (read > 4) {
+                            val payload = ByteArray(read - 4)
+                            System.arraycopy(buffer, 4, payload, 0, payload.size)
+                            if (channel == 3) {
+                                getVideoDecoder()?.feedFrame(payload, 0, payload.size, System.nanoTime() / 1000)
+                            } else if (channel == 1 || channel == 2) {
+                                getAudioEngine()?.writeMusic(payload, 0, payload.size)
+                            }
+                        }
+                    }
+                } catch (e: Throwable) {
+                    if (isActive && isDongleOpen) {
+                        Log.w(TAG, "Accessory oxuma xətası: ${e.message}")
+                    }
+                    break
+                }
+            }
         }
     }
 
@@ -790,6 +998,13 @@ class CarPlayUsbManager(
     fun isAndroidPhone(device: UsbDevice): Boolean {
         if (isCarlinKitDongle(device) || isAppleDevice(device) || isAndroidAoaAccessory(device)) return false
 
+        val vid = device.vendorId
+        if (vid == HONOR_VENDOR_ID || vid == HONOR_TERMINAL_VENDOR_ID || vid == HUAWEI_VENDOR_ID ||
+            vid == SAMSUNG_VENDOR_ID || vid == XIAOMI_VENDOR_ID || vid == OPPO_VENDOR_ID ||
+            vid == VIVO_VENDOR_ID || vid == ONEPLUS_VENDOR_ID || vid == GOOGLE_AOA_VENDOR_ID) {
+            return true
+        }
+
         // Mass Storage (USB fleşkartlar) və HID (siçan/klaviatura) istisna edilir
         if (device.deviceClass == UsbConstants.USB_CLASS_MASS_STORAGE || device.deviceClass == UsbConstants.USB_CLASS_HID) {
             return false
@@ -821,6 +1036,7 @@ class CarPlayUsbManager(
         val mfgName = device.manufacturerName ?: ""
 
         val brand = when {
+            vid == HONOR_VENDOR_ID || vid == HONOR_TERMINAL_VENDOR_ID || mfgName.contains("Honor", true) || prodName.contains("Honor", true) -> "Honor"
             vid == SAMSUNG_VENDOR_ID || mfgName.contains("Samsung", true) -> "Samsung"
             vid == XIAOMI_VENDOR_ID || mfgName.contains("Xiaomi", true) -> "Xiaomi"
             vid == HUAWEI_VENDOR_ID || mfgName.contains("Huawei", true) -> "Huawei"
@@ -929,6 +1145,20 @@ class CarPlayUsbManager(
         isAoaMode = false
         readerJob?.cancel()
         heartbeatJob?.cancel()
+
+        try {
+            accessoryInputStream?.close()
+        } catch (_: Throwable) {}
+        try {
+            accessoryOutputStream?.close()
+        } catch (_: Throwable) {}
+        try {
+            accessoryParcelFileDescriptor?.close()
+        } catch (_: Throwable) {}
+        accessoryInputStream = null
+        accessoryOutputStream = null
+        accessoryParcelFileDescriptor = null
+        currentAccessory = null
 
         try {
             usbInterface?.let { usbConnection?.releaseInterface(it) }
