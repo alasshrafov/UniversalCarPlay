@@ -465,9 +465,6 @@ class CarPlayUsbManager(
                 requestUsbPermission(device)
                 return
             }
-                requestUsbPermission(device)
-                return
-            }
 
             var matchedIface: UsbInterface? = null
             var matchedIn: UsbEndpoint? = null
