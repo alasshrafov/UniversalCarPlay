@@ -88,4 +88,5 @@
     <string name="hvac_ac_off">AC BAĞLI</string>
     <string name="toast_simulator_connected">✅ PC Simulyatoruna Qoşuldu</string>
     <string name="toast_simulator_not_found">Simulyator tapılmadı: %1$s</string>
+    <string name="status_apple_wireless_guide">🍏 Apple iPhone qoşuldu! Simsiz CarPlay üçün iPhone-da Bluetooth menyusundan \"CarTwin\" seçin (və ya Carlinkit adapteri taxın).</string>
 </resources>

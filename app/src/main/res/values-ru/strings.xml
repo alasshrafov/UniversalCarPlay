@@ -88,4 +88,5 @@
     <string name="hvac_ac_off">A/C ВЫКЛ</string>
     <string name="toast_simulator_connected">✅ Подключено к симулятору ПК</string>
     <string name="toast_simulator_not_found">Симулятор не найден: %1$s</string>
+    <string name="status_apple_wireless_guide">🍏 Apple iPhone подключен! Для беспроводного CarPlay выберите \"CarTwin\" в Bluetooth iPhone (или подключите адаптер Carlinkit).</string>
 </resources>

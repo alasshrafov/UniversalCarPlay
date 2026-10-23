@@ -235,6 +235,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             otaUpdateManager.checkForUpdates(silent = false)
         }
 
+        // TopBar həmişə bütün pərdələrin üstündə və toxunula bilən qalmalıdır
+        findViewById<View>(R.id.topBar)?.bringToFront()
+
         // Reklam Şousu Görünüşləri
         commercialSplashOverlay = findViewById(R.id.commercialSplashOverlay)
         commercialCenterContainer = findViewById(R.id.commercialCenterContainer)
@@ -296,34 +299,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
         btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
-        cardCarPlayInfo.setOnClickListener {
-            if (::usbManager.isInitialized && (usbManager.currentPhoneType == CarPlayUsbManager.PHONE_TYPE_CARPLAY || usbManager.isAppleDeviceConnected())) {
-                statusOverlay.animate()
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction {
-                        statusOverlay.visibility = View.GONE
-                        statusOverlay.alpha = 1f
-                    }
-                    .start()
-            } else {
-                showConnectionGuideDialog()
-            }
-        }
-        cardAndroidAutoInfo.setOnClickListener {
-            if (::usbManager.isInitialized && usbManager.currentPhoneType == CarPlayUsbManager.PHONE_TYPE_ANDROID_AUTO) {
-                statusOverlay.animate()
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction {
-                        statusOverlay.visibility = View.GONE
-                        statusOverlay.alpha = 1f
-                    }
-                    .start()
-            } else {
-                showConnectionGuideDialog()
-            }
-        }
+        cardCarPlayInfo.setOnClickListener { showConnectionGuideDialog() }
+        cardAndroidAutoInfo.setOnClickListener { showConnectionGuideDialog() }
     }
 
     private fun restartAllCarPlayServices() {
@@ -704,15 +681,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         }
                         Toast.makeText(this@MainActivity, getString(R.string.toast_device_adapted, modelName), Toast.LENGTH_SHORT).show()
 
-                        // Telefon qoşulan kimi pərdəni dərhal açırıq (qosan kimi acilsin)
-                        statusOverlay.animate()
-                            .alpha(0f)
-                            .setDuration(350)
-                            .withEndAction {
-                                statusOverlay.visibility = View.GONE
-                                statusOverlay.alpha = 1f
-                            }
-                            .start()
+// StatusOverlay yalnız VideoDecoder ilk kadrı göstərəndə gizlədilir
                     }
                 }
             }
@@ -871,13 +840,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun dismissCommercialIntro() {
         dismissRunnable?.let { introHandler.removeCallbacks(it) }
-        commercialSplashOverlay.animate()
-            .alpha(0f)
-            .setDuration(400)
-            .withEndAction {
-                commercialSplashOverlay.visibility = View.GONE
-            }
-            .start()
+        try { commercialSplashOverlay.animate().cancel() } catch (_: Throwable) {}
+        commercialSplashOverlay.visibility = View.GONE
+        commercialSplashOverlay.alpha = 0f
     }
 
     private fun showProfileSelectionDialog() {

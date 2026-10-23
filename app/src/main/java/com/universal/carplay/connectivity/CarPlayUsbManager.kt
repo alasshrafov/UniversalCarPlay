@@ -269,6 +269,9 @@ class CarPlayUsbManager(
             // Prioritet 2: Carlinkit dongle və ya digər dəstəklənən cihazlar
             for (device in deviceList.values) {
                 if (isSupportedDevice(device)) {
+                    if (isDongleOpen && currentDevice?.deviceId == device.deviceId) {
+                        continue
+                    }
                     handleDeviceAttached(device)
                     break
                 }
@@ -285,6 +288,10 @@ class CarPlayUsbManager(
                 return
             }
 
+            if (isDongleOpen && currentDevice?.deviceId == device.deviceId) {
+                Log.d(TAG, "Cihaz artıq açıqdır və işləyir: ${device.deviceName}")
+                return
+            }
             currentDevice = device
             val (brand, model) = detectPhoneModel(device)
             currentPhoneModel = model
@@ -682,93 +689,21 @@ class CarPlayUsbManager(
      * Apple iPhone ilə birbaşa kabel bağlantısını başladır
      */
     private fun handleAppleDeviceConnected(device: UsbDevice) {
-        Log.i(TAG, "🍏 Apple iPhone birbaşa USB ilə qoşuldu! (VID=0x05AC)")
-        currentPhoneType = PHONE_TYPE_CARPLAY
-        isAppleSwitching = true
-        appleSwitchTimestamp = System.currentTimeMillis()
-
-        scope.launch {
-            try {
-                val connection = usbManager?.openDevice(device)
-                if (connection != null) {
-                    val response = ByteArray(1)
-                    // 1. Apple Vendor Request 0x52 (IN - Device to Host)
-                    var transferred = connection.controlTransfer(
-                        UsbConstants.USB_DIR_IN or UsbConstants.USB_TYPE_VENDOR, // 0xC0
-                        0x52, // CARPLAY_CONFIGURATION_REQUEST
-                        0,
-                        4,    // CARPLAY_CONFIGURATION_INDEX (Extended NCM/CarPlay)
-                        response,
-                        response.size,
-                        2000
-                    )
-                    // 2. Əgər IN qəbul edilməzsə, OUT ilə cəhd edilir
-                    if (transferred < 0) {
-                        transferred = connection.controlTransfer(
-                            UsbConstants.USB_DIR_OUT or UsbConstants.USB_TYPE_VENDOR, // 0x40
-                            0x52,
-                            0,
-                            4,
-                            ByteArray(0),
-                            0,
-                            2000
-                        )
-                    }
-                    if (transferred < 0) {
-                        transferred = connection.controlTransfer(
-                            UsbConstants.USB_DIR_OUT or UsbConstants.USB_TYPE_VENDOR, // 0x40
-                            0x52,
-                            0,
-                            5,
-                            ByteArray(0),
-                            0,
-                            2000
-                        )
-                    }
-                    Log.i(TAG, "Apple CarPlay Vendor Request 0x52 nəticəsi: transferred=$transferred")
-
-                    // 3. Əgər cihazda genişləndirilmiş konfiqurasiya varsa, seçirik
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        for (i in 0 until device.configurationCount) {
-                            val config = device.getConfiguration(i)
-                            if (config.interfaceCount >= 3) {
-                                try {
-                                    connection.setConfiguration(config)
-                                    Log.i(TAG, "Apple Extended Konfiqurasiya #${config.id} seçildi")
-                                } catch (e: Throwable) {
-                                    Log.w(TAG, "setConfiguration xətası: ${e.message}")
-                                }
-                                break
-                            }
-                        }
-                    }
-
-                    connection.close()
-                    Log.i(TAG, "Apple Direct USB əmri icra olundu. Re-enumeration gözlənilir...")
-                    onStatusUpdate?.invoke("🍏 Apple CarPlay: Re-enumeration gözlənilir…")
-
-                    delay(800)
-                    checkConnectedDevices()
-                    delay(1200)
-                    if (isAppleSwitching) {
-                        checkConnectedDevices()
-                    }
-                } else {
-                    requestUsbPermission(device)
-                    isAppleSwitching = false
-                }
-            } catch (e: Throwable) {
-                Log.e(TAG, "Apple Direct USB xətası: ${e.message}")
-                isAppleSwitching = false
-            }
-        }
-
         val (brand, model) = detectPhoneModel(device)
         currentPhoneModel = model
+        currentPhoneType = PHONE_TYPE_CARPLAY
+        isAppleSwitching = false
+        Log.i(TAG, "🍏 Apple iPhone aşkarlandı: $model (VID=0x05AC)")
+
         onAppleDeviceConnected(device)
         onPlatformDetected?.invoke("Apple CarPlay", "🍏")
         onPhoneModelIdentified?.invoke(model, brand, false)
-        onStatusUpdate?.invoke("🍏 Apple CarPlay Qoşuldu ($model)! Video və Audio aktivdir.")
+        val guideMsg = try {
+            context.getString(R.string.status_apple_wireless_guide)
+        } catch (_: Throwable) {
+            "🍏 $model Aşkarlandı! Simsiz CarPlay üçün Bluetooth-da 'CarTwin' seçin."
+        }
+        onStatusUpdate?.invoke(guideMsg)
     }
 
     /**
