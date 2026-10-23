@@ -1168,6 +1168,28 @@ class CarPlayUsbManager(
         return currentDevice?.let { isAppleDevice(it) } ?: false
     }
 
+    fun hasConnectedDevice(): Boolean {
+        if (currentDevice != null || currentAccessory != null || isDongleOpen || isAoaMode) return true
+        val deviceList = usbManager?.deviceList
+        if (!deviceList.isNullOrEmpty()) {
+            for (d in deviceList.values) {
+                if (isSupportedDevice(d)) {
+                    currentDevice = d
+                    val (_, model) = detectPhoneModel(d)
+                    currentPhoneModel = model
+                    return true
+                }
+            }
+        }
+        val accList = usbManager?.accessoryList
+        return !accList.isNullOrEmpty()
+    }
+
+    fun refreshAndConnect(): Boolean {
+        checkConnectedDevices()
+        return hasConnectedDevice()
+    }
+
     fun stop() {
         closeConnection()
         if (!isRegistered) return

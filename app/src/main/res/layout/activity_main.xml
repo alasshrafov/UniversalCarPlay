@@ -125,6 +125,19 @@
             android:textColor="@color/car_text_gray"
             android:textSize="13sp" />
 
+        <!-- Əsas DiPlay-Stilində "Connect with USB" Düyməsi -->
+        <Button
+            android:id="@+id/btnConnectUsb"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/btn_connect_usb"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="#007AFF"
+            android:elevation="6dp" />
+
         <!-- Düymələr Paneli -->
         <LinearLayout
             android:layout_width="wrap_content"

@@ -88,6 +88,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var btnHelpGuide: Button
     private lateinit var btnHelpGuideTop: Button
     private lateinit var btnLanguage: Button
+    private lateinit var btnConnectUsb: Button
     private lateinit var cardCarPlayInfo: LinearLayout
     private lateinit var cardAndroidAutoInfo: LinearLayout
     private lateinit var otaUpdateManager: com.universal.carplay.update.OtaUpdateManager
@@ -290,6 +291,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         btnHelpGuide = findViewById(R.id.btnHelpGuide)
         btnHelpGuideTop = findViewById(R.id.btnHelpGuideTop)
         btnLanguage = findViewById(R.id.btnLanguage)
+        btnConnectUsb = findViewById(R.id.btnConnectUsb)
         cardCarPlayInfo = findViewById(R.id.cardCarPlayInfo)
         cardAndroidAutoInfo = findViewById(R.id.cardAndroidAutoInfo)
 
@@ -299,8 +301,39 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
         btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
-        cardCarPlayInfo.setOnClickListener { showConnectionGuideDialog() }
+        btnConnectUsb.setOnClickListener { connectWithUsbDevice() }
+        cardCarPlayInfo.setOnClickListener { connectWithUsbDevice() }
         cardAndroidAutoInfo.setOnClickListener { showConnectionGuideDialog() }
+    }
+
+    private fun connectWithUsbDevice() {
+        if (!::usbManager.isInitialized) {
+            initUsbManager()
+        }
+
+        val isConnected = usbManager.hasConnectedDevice() || usbManager.refreshAndConnect()
+        if (isConnected) {
+            val model = if (usbManager.currentPhoneModel.isNotBlank() && usbManager.currentPhoneModel != "Naməlum Cihaz") {
+                usbManager.currentPhoneModel
+            } else {
+                "Apple iPhone"
+            }
+            Toast.makeText(this, "⚡ $model: USB CarPlay aktivləşdirilir...", Toast.LENGTH_SHORT).show()
+            tvStatus.text = "🟢 $model (USB)"
+            tvDetail.text = "⚡ USB İlə Qoşuldu • CarPlay Aktivdir"
+
+            statusOverlay.animate()
+                .alpha(0f)
+                .setDuration(350)
+                .withEndAction {
+                    statusOverlay.visibility = View.GONE
+                    statusOverlay.alpha = 1f
+                }
+                .start()
+        } else {
+            Toast.makeText(this, getString(R.string.toast_usb_no_device), Toast.LENGTH_LONG).show()
+            tvDetail.text = getString(R.string.toast_usb_no_device)
+        }
     }
 
     private fun restartAllCarPlayServices() {
