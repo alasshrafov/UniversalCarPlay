@@ -123,6 +123,10 @@ class CarPlayUsbManager(
     private var isAoaSwitching = false
     private var aoaSwitchTimestamp = 0L
 
+    @Volatile
+    private var isAppleSwitching = false
+    private var appleSwitchTimestamp = 0L
+
     private var currentAccessory: UsbAccessory? = null
     private var accessoryParcelFileDescriptor: ParcelFileDescriptor? = null
     private var accessoryInputStream: FileInputStream? = null
@@ -145,14 +149,17 @@ class CarPlayUsbManager(
                     device?.let { handleDeviceAttached(it) }
                 }
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
-                    val isRecentlySwitched = isAoaSwitching && (System.currentTimeMillis() - aoaSwitchTimestamp < 6000L)
+                    val isRecentlySwitched = (isAoaSwitching && (System.currentTimeMillis() - aoaSwitchTimestamp < 6000L)) ||
+                                             (isAppleSwitching && (System.currentTimeMillis() - appleSwitchTimestamp < 6000L))
                     if (isRecentlySwitched) {
-                        Log.i(TAG, "AOA Re-enumeration zamanı cihaz ayrılması gözləniləndir. UI 'Cihaz ayrıldı' göstərmir.")
-                        onStatusUpdate?.invoke("🤖 Android Auto: Cihaz AOA rejiminə keçir (Re-enumerating)...")
+                        val msg = if (isAppleSwitching) "🍏 Apple CarPlay: Re-enumeration gözlənilir…" else "🤖 Android Auto: Re-enumeration gözlənilir…"
+                        Log.i(TAG, "Re-enumeration zamanı cihaz ayrılması gözləniləndir. UI 'Cihaz ayrıldı' göstərmir.")
+                        onStatusUpdate?.invoke(msg)
                         return
                     }
                     Log.i(TAG, "USB Cihaz ayrıldı.")
                     isAoaSwitching = false
+                    isAppleSwitching = false
                     closeConnection()
                     onDeviceDisconnected()
                     onStatusUpdate?.invoke("USB: Cihaz ayrıldı. Apple və ya Android telefonunuzu qoşun.")
@@ -677,29 +684,82 @@ class CarPlayUsbManager(
     private fun handleAppleDeviceConnected(device: UsbDevice) {
         Log.i(TAG, "🍏 Apple iPhone birbaşa USB ilə qoşuldu! (VID=0x05AC)")
         currentPhoneType = PHONE_TYPE_CARPLAY
+        isAppleSwitching = true
+        appleSwitchTimestamp = System.currentTimeMillis()
 
         scope.launch {
             try {
                 val connection = usbManager?.openDevice(device)
                 if (connection != null) {
-                    // Apple Vendor Request 0x52 (Request 82, Index 4)
                     val response = ByteArray(1)
-                    val transferred = connection.controlTransfer(
+                    // 1. Apple Vendor Request 0x52 (IN - Device to Host)
+                    var transferred = connection.controlTransfer(
                         UsbConstants.USB_DIR_IN or UsbConstants.USB_TYPE_VENDOR, // 0xC0
                         0x52, // CARPLAY_CONFIGURATION_REQUEST
                         0,
-                        4,    // CARPLAY_CONFIGURATION_INDEX
+                        4,    // CARPLAY_CONFIGURATION_INDEX (Extended NCM/CarPlay)
                         response,
                         response.size,
                         2000
                     )
-                    Log.i(TAG, "Apple CarPlay Vendor Request 0x52 göndərildi: transferred=$transferred")
+                    // 2. Əgər IN qəbul edilməzsə, OUT ilə cəhd edilir
+                    if (transferred < 0) {
+                        transferred = connection.controlTransfer(
+                            UsbConstants.USB_DIR_OUT or UsbConstants.USB_TYPE_VENDOR, // 0x40
+                            0x52,
+                            0,
+                            4,
+                            ByteArray(0),
+                            0,
+                            2000
+                        )
+                    }
+                    if (transferred < 0) {
+                        transferred = connection.controlTransfer(
+                            UsbConstants.USB_DIR_OUT or UsbConstants.USB_TYPE_VENDOR, // 0x40
+                            0x52,
+                            0,
+                            5,
+                            ByteArray(0),
+                            0,
+                            2000
+                        )
+                    }
+                    Log.i(TAG, "Apple CarPlay Vendor Request 0x52 nəticəsi: transferred=$transferred")
+
+                    // 3. Əgər cihazda genişləndirilmiş konfiqurasiya varsa, seçirik
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        for (i in 0 until device.configurationCount) {
+                            val config = device.getConfiguration(i)
+                            if (config.interfaceCount >= 3) {
+                                try {
+                                    connection.setConfiguration(config)
+                                    Log.i(TAG, "Apple Extended Konfiqurasiya #${config.id} seçildi")
+                                } catch (e: Throwable) {
+                                    Log.w(TAG, "setConfiguration xətası: ${e.message}")
+                                }
+                                break
+                            }
+                        }
+                    }
+
                     connection.close()
+                    Log.i(TAG, "Apple Direct USB əmri icra olundu. Re-enumeration gözlənilir...")
+                    onStatusUpdate?.invoke("🍏 Apple CarPlay: Re-enumeration gözlənilir…")
+
+                    delay(800)
+                    checkConnectedDevices()
+                    delay(1200)
+                    if (isAppleSwitching) {
+                        checkConnectedDevices()
+                    }
                 } else {
                     requestUsbPermission(device)
+                    isAppleSwitching = false
                 }
             } catch (e: Throwable) {
                 Log.e(TAG, "Apple Direct USB xətası: ${e.message}")
+                isAppleSwitching = false
             }
         }
 
@@ -1140,6 +1200,7 @@ class CarPlayUsbManager(
     private fun closeConnection() {
         isDongleOpen = false
         isAoaMode = false
+        isAppleSwitching = false
         readerJob?.cancel()
         heartbeatJob?.cancel()
 
@@ -1166,6 +1227,10 @@ class CarPlayUsbManager(
         usbInterface = null
         inEndpoint = null
         outEndpoint = null
+    }
+
+    fun isAppleDeviceConnected(): Boolean {
+        return currentDevice?.let { isAppleDevice(it) } ?: false
     }
 
     fun stop() {

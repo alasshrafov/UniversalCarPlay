@@ -296,8 +296,34 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         btnHelpGuide.setOnClickListener { showConnectionGuideDialog() }
         btnHelpGuideTop.setOnClickListener { showConnectionGuideDialog() }
-        cardCarPlayInfo.setOnClickListener { showConnectionGuideDialog() }
-        cardAndroidAutoInfo.setOnClickListener { showConnectionGuideDialog() }
+        cardCarPlayInfo.setOnClickListener {
+            if (::usbManager.isInitialized && (usbManager.currentPhoneType == CarPlayUsbManager.PHONE_TYPE_CARPLAY || usbManager.isAppleDeviceConnected())) {
+                statusOverlay.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction {
+                        statusOverlay.visibility = View.GONE
+                        statusOverlay.alpha = 1f
+                    }
+                    .start()
+            } else {
+                showConnectionGuideDialog()
+            }
+        }
+        cardAndroidAutoInfo.setOnClickListener {
+            if (::usbManager.isInitialized && usbManager.currentPhoneType == CarPlayUsbManager.PHONE_TYPE_ANDROID_AUTO) {
+                statusOverlay.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction {
+                        statusOverlay.visibility = View.GONE
+                        statusOverlay.alpha = 1f
+                    }
+                    .start()
+            } else {
+                showConnectionGuideDialog()
+            }
+        }
     }
 
     private fun restartAllCarPlayServices() {
@@ -677,6 +703,16 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             "🍏 $modelName • Apple CarPlay"
                         }
                         Toast.makeText(this@MainActivity, getString(R.string.toast_device_adapted, modelName), Toast.LENGTH_SHORT).show()
+
+                        // Telefon qoşulan kimi pərdəni dərhal açırıq (qosan kimi acilsin)
+                        statusOverlay.animate()
+                            .alpha(0f)
+                            .setDuration(350)
+                            .withEndAction {
+                                statusOverlay.visibility = View.GONE
+                                statusOverlay.alpha = 1f
+                            }
+                            .start()
                     }
                 }
             }

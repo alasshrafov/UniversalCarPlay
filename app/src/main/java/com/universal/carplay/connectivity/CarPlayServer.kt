@@ -165,25 +165,35 @@ class CarPlayServer(
 
             val cseq = request.lines().find { it.startsWith("CSeq:", ignoreCase = true) }?.split(":")?.getOrNull(1)?.trim() ?: "1"
 
-            val response = when {
+            when {
                 request.startsWith("OPTIONS") -> {
-                    "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nPublic: ANNOUNCE, SETUP, RECORD, PAUSE, TEARDOWN\r\nServer: CarTwin/2.0\r\n\r\n"
+                    val response = "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nPublic: ANNOUNCE, SETUP, RECORD, PAUSE, TEARDOWN\r\nServer: CarTwin/2.0\r\n\r\n"
+                    out.write(response.toByteArray(Charsets.US_ASCII))
+                    out.flush()
                 }
                 request.startsWith("POST /pair-setup") -> {
                     val m1 = cryptoHandshake.startHandshake()
-                    "HTTP/1.1 200 OK\r\nCSeq: $cseq\r\nContent-Type: application/octet-stream\r\nContent-Length: ${m1.size}\r\n\r\n"
+                    val header = "HTTP/1.1 200 OK\r\nCSeq: $cseq\r\nContent-Type: application/octet-stream\r\nContent-Length: ${m1.size}\r\n\r\n"
+                    out.write(header.toByteArray(Charsets.US_ASCII))
+                    out.write(m1)
+                    out.flush()
+                    Log.i(TAG, "Apple CarPlay pair-setup M1 göndərildi: ${m1.size} bayt")
                 }
                 request.startsWith("POST /pair-verify") -> {
-                    cryptoHandshake.processIncomingPacket(ByteArray(32))
-                    "HTTP/1.1 200 OK\r\nCSeq: $cseq\r\nContent-Type: application/octet-stream\r\nContent-Length: 32\r\n\r\n"
+                    val verifyPayload = ByteArray(32) { 0 }
+                    cryptoHandshake.processIncomingPacket(verifyPayload)
+                    val header = "HTTP/1.1 200 OK\r\nCSeq: $cseq\r\nContent-Type: application/octet-stream\r\nContent-Length: ${verifyPayload.size}\r\n\r\n"
+                    out.write(header.toByteArray(Charsets.US_ASCII))
+                    out.write(verifyPayload)
+                    out.flush()
+                    Log.i(TAG, "Apple CarPlay pair-verify cavabı göndərildi: ${verifyPayload.size} bayt")
                 }
                 else -> {
-                    "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nServer: CarTwin/2.0\r\n\r\n"
+                    val response = "RTSP/1.0 200 OK\r\nCSeq: $cseq\r\nServer: CarTwin/2.0\r\n\r\n"
+                    out.write(response.toByteArray(Charsets.US_ASCII))
+                    out.flush()
                 }
             }
-
-            out.write(response.toByteArray(Charsets.US_ASCII))
-            out.flush()
         } catch (e: Exception) {
             Log.e(TAG, "RTSP cavabında xəta: ${e.message}")
         }
