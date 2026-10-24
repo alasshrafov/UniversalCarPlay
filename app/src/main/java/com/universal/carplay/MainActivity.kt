@@ -105,6 +105,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     // İnternet Brauzeri Elementləri
     private lateinit var browserOverlay: LinearLayout
+    private lateinit var browserToolbar: LinearLayout
     private lateinit var webViewBrowser: WebView
     private lateinit var etBrowserUrl: EditText
     private lateinit var btnBrowserBack: Button
@@ -249,6 +250,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
         // Brauzer Elementləri
         browserOverlay = findViewById(R.id.browserOverlay)
+        browserToolbar = findViewById(R.id.browserToolbar)
         webViewBrowser = findViewById(R.id.webViewBrowser)
         etBrowserUrl = findViewById(R.id.etBrowserUrl)
         btnBrowserBack = findViewById(R.id.btnBrowserBack)
@@ -464,7 +466,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     fun openCarPlayCockpit() {
         runOnUiThread {
             try {
-                findViewById<View>(R.id.browserToolbar)?.visibility = View.GONE
+                if (::browserToolbar.isInitialized) browserToolbar.visibility = View.GONE
                 browserOverlay.visibility = View.VISIBLE
                 webViewBrowser.loadUrl("file:///android_asset/carplay_cockpit/index.html")
                 statusOverlay.visibility = View.GONE
@@ -476,7 +478,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     fun openBrowser(url: String = "https://www.google.com") {
-        findViewById<View>(R.id.browserToolbar)?.visibility = View.VISIBLE
+        if (::browserToolbar.isInitialized) browserToolbar.visibility = View.VISIBLE
         browserOverlay.visibility = View.VISIBLE
         var target = url.trim()
         if (!target.startsWith("http://") && !target.startsWith("https://")) {
@@ -488,7 +490,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun closeBrowser() {
         browserOverlay.visibility = View.GONE
-        findViewById<View>(R.id.browserToolbar)?.visibility = View.VISIBLE
+        if (::browserToolbar.isInitialized) browserToolbar.visibility = View.VISIBLE
         statusOverlay.animate().cancel()
         statusOverlay.alpha = 1f
         statusOverlay.visibility = View.VISIBLE

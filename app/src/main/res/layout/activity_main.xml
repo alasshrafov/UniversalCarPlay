@@ -346,6 +346,7 @@
 
         <!-- Brauzer Alətlər Zolağı -->
         <LinearLayout
+            android:id="@+id/browserToolbar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="#FF161D2E"
