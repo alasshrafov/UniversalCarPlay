@@ -1000,9 +1000,6 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             tvDetail.text = getString(R.string.status_waiting_device)
         }
     }
-            .setNegativeButton(getString(R.string.dialog_close), null)
-            .show()
-    }
 
     private fun showConnectionGuideDialog() {
         try {
