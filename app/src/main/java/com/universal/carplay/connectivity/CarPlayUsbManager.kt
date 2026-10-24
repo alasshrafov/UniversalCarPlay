@@ -695,13 +695,28 @@ class CarPlayUsbManager(
         isAppleSwitching = false
         Log.i(TAG, "🍏 Apple iPhone aşkarlandı: $model (VID=0x05AC)")
 
+        // iPhone-da CarPlay USB konfiqurasiyasını aktivləşdiririk (SET_CONFIGURATION)
+        try {
+            val connection = usbManager?.openDevice(device)
+            if (connection != null) {
+                val targetConfig = IphoneCarPlayConfiguration.find(device)
+                if (targetConfig != null) {
+                    val ok = connection.setConfiguration(targetConfig)
+                    Log.i(TAG, "iPhone CarPlay konfiqurasiyası aktivləşdirildi (config ${targetConfig.id}): $ok")
+                }
+                connection.close()
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "iPhone setConfiguration xətası: ${e.message}")
+        }
+
         onAppleDeviceConnected(device)
         onPlatformDetected?.invoke("Apple CarPlay", "🍏")
         onPhoneModelIdentified?.invoke(model, brand, false)
         val guideMsg = try {
             context.getString(R.string.status_apple_wireless_guide)
         } catch (_: Throwable) {
-            "🍏 $model Aşkarlandı! Simsiz CarPlay üçün Bluetooth-da 'CarTwin' seçin."
+            "🍏 $model Qoşuldu! Apple CarPlay aktivləşdirildi."
         }
         onStatusUpdate?.invoke(guideMsg)
     }

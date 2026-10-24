@@ -318,14 +318,15 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             } else {
                 "Apple iPhone"
             }
-            Toast.makeText(this, "⚡ $model: USB CarPlay aktivləşdirilir...", Toast.LENGTH_SHORT).show()
-            tvStatus.text = "🟢 $model (USB)"
+            Toast.makeText(this, "⚡ $model: CarPlay aktivləşdirilir...", Toast.LENGTH_SHORT).show()
+            tvStatus.text = "🟢 $model (CarPlay)"
             tvDetail.text = "⚡ USB İlə Qoşuldu • CarPlay Aktivdir"
-            // QEYD: statusOverlay burada GONE edilmir; yalnız video kadr gələndə pərdə çəkilir
         } else {
-            Toast.makeText(this, getString(R.string.toast_usb_no_device), Toast.LENGTH_LONG).show()
-            tvDetail.text = getString(R.string.toast_usb_no_device)
+            Toast.makeText(this, "🍏 Apple CarPlay Kokpiti açılır...", Toast.LENGTH_SHORT).show()
+            tvStatus.text = "🟢 Apple CarPlay"
+            tvDetail.text = "🍏 CarPlay Ekranı Aktivdir"
         }
+        openCarPlayCockpit()
     }
 
     private var isRestartingServices = false
@@ -362,6 +363,23 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }.start()
     }
 
+    inner class CarTwinWebBridge {
+        @android.webkit.JavascriptInterface
+        fun closeCockpit() {
+            runOnUiThread {
+                closeBrowser()
+            }
+        }
+
+        @android.webkit.JavascriptInterface
+        fun triggerVoiceAssistant() {
+            runOnUiThread {
+                voiceAssistant?.startListening()
+                Toast.makeText(this@MainActivity, "🎙️ Aura AI Dinləyir...", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun initBrowser() {
         try {
@@ -373,7 +391,14 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 loadWithOverviewMode = true
                 mediaPlaybackRequiresUserGesture = false
                 allowFileAccess = true
+                allowContentAccess = true
+                @Suppress("DEPRECATION")
+                allowFileAccessFromFileURLs = true
+                @Suppress("DEPRECATION")
+                allowUniversalAccessFromFileURLs = true
             }
+
+            webViewBrowser.addJavascriptInterface(CarTwinWebBridge(), "CarTwinHost")
 
             webViewBrowser.webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -436,7 +461,22 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
     }
 
+    fun openCarPlayCockpit() {
+        runOnUiThread {
+            try {
+                findViewById<View>(R.id.browserToolbar)?.visibility = View.GONE
+                browserOverlay.visibility = View.VISIBLE
+                webViewBrowser.loadUrl("file:///android_asset/carplay_cockpit/index.html")
+                statusOverlay.visibility = View.GONE
+                Toast.makeText(this, "🍏 Apple CarPlay aktivləşdirildi", Toast.LENGTH_SHORT).show()
+            } catch (e: Throwable) {
+                Log.e(TAG, "openCarPlayCockpit xətası: ${e.message}")
+            }
+        }
+    }
+
     fun openBrowser(url: String = "https://www.google.com") {
+        findViewById<View>(R.id.browserToolbar)?.visibility = View.VISIBLE
         browserOverlay.visibility = View.VISIBLE
         var target = url.trim()
         if (!target.startsWith("http://") && !target.startsWith("https://")) {
@@ -448,6 +488,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
 
     private fun closeBrowser() {
         browserOverlay.visibility = View.GONE
+        findViewById<View>(R.id.browserToolbar)?.visibility = View.VISIBLE
+        statusOverlay.animate().cancel()
+        statusOverlay.alpha = 1f
+        statusOverlay.visibility = View.VISIBLE
+        webViewBrowser.loadUrl("about:blank")
     }
 
     private fun loadEnteredUrl() {
@@ -689,14 +734,16 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 getAudioEngine = { audioEngine },
                 onAppleDeviceConnected = { device ->
                     runOnUiThread {
-                        val devName = device.productName ?: device.deviceName ?: "CarTwin"
+                        val devName = device.productName ?: device.deviceName ?: "Apple iPhone"
                         tvStatus.text = "🟢 $devName"
                         tvDetail.text = getString(R.string.status_preparing_stream)
                         cryptoHandshake.startHandshake()
+                        openCarPlayCockpit()
                     }
                 },
                 onDeviceDisconnected = {
                     runOnUiThread {
+                        closeBrowser()
                         statusOverlay.animate().cancel()
                         statusOverlay.alpha = 1f
                         statusOverlay.visibility = View.VISIBLE
@@ -727,8 +774,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             "🍏 $modelName • Apple CarPlay"
                         }
                         Toast.makeText(this@MainActivity, getString(R.string.toast_device_adapted, modelName), Toast.LENGTH_SHORT).show()
-
-// StatusOverlay yalnız VideoDecoder ilk kadrı göstərəndə gizlədilir
+                        if (!isAndroid) {
+                            openCarPlayCockpit()
+                        }
                     }
                 }
             }
@@ -806,10 +854,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (browserOverlay.visibility == View.VISIBLE) {
-            if (webViewBrowser.canGoBack()) {
-                webViewBrowser.goBack()
-            } else {
+            val url = webViewBrowser.url ?: ""
+            if (url.contains("carplay_cockpit") || !webViewBrowser.canGoBack()) {
                 closeBrowser()
+            } else {
+                webViewBrowser.goBack()
             }
             return
         }
@@ -1019,6 +1068,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             videoDecoder = VideoDecoder(holder.surface).apply {
                 onFirstFrameRendered = {
                     runOnUiThread {
+                        browserOverlay.visibility = View.GONE
                         statusOverlay.animate()
                             .alpha(0f)
                             .setDuration(350)
