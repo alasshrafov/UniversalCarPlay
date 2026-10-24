@@ -65,71 +65,64 @@ class CarPlayBluetoothAdvertiser(private val context: Context) {
     }
 
     /**
-     * Bluetooth yayımını başladır (Qətiyyən çökmür)
+     * Bluetooth yayımını başladır (Qətiyyən əsas UI axınını bloklamır və avtomobil sistemini çökdürmür)
      */
     fun startAdvertising(carName: String = "CarTwin") {
-        try {
-            if (!hasBluetoothPermissions()) {
-                Log.w(TAG, "Bluetooth icazələri hələ verilməyib. Yayım gözləmə rejimindədir.")
-                return
-            }
-
-            if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
-                Log.w(TAG, "Bluetooth söndürülüb və ya dəstəklənmir.")
-                return
-            }
-
-            // Bluetooth yayım adını birbaşa 'CarTwin' olaraq təyin edirik
+        Thread {
             try {
-                if (bluetoothAdapter.name != carName) {
-                    bluetoothAdapter.name = carName
-                    Log.i(TAG, "Bluetooth cihaz adı '$carName' olaraq təyin edildi.")
+                if (!hasBluetoothPermissions()) {
+                    Log.w(TAG, "Bluetooth icazələri hələ verilməyib. Yayım gözləmə rejimindədir.")
+                    return@Thread
                 }
+
+                if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+                    Log.w(TAG, "Bluetooth söndürülüb və ya dəstəklənmir.")
+                    return@Thread
+                }
+
+                advertiser = bluetoothAdapter.bluetoothLeAdvertiser
+                if (advertiser == null) {
+                    Log.w(TAG, "Cihaz BLE Advertising dəstəkləmir.")
+                    return@Thread
+                }
+
+                // BLE Yayım Tənzimləmələri (Aşağı gecikmə və yüksək güc)
+                val settings = AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .setTimeout(0) // Limitsiz
+                    .build()
+
+                // Yayım paketinə CarPlay xidmət məlumatlarını əlavə edirik (Avtomobilin daxili adapter adına toxunmuruq)
+                val data = AdvertiseData.Builder()
+                    .setIncludeDeviceName(false)
+                    .addServiceUuid(ParcelUuid(CARPLAY_SERVICE_UUID))
+                    .build()
+
+                advertiser?.startAdvertising(settings, data, advertiseCallback)
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Bluetooth SecurityException: ${e.message}")
             } catch (e: Throwable) {
-                Log.w(TAG, "Bluetooth adını dəyişərkən xəta: ${e.message}")
+                Log.e(TAG, "Bluetooth xətası: ${e.message}")
             }
-
-            advertiser = bluetoothAdapter.bluetoothLeAdvertiser
-            if (advertiser == null) {
-                Log.w(TAG, "Cihaz BLE Advertising dəstəkləmir.")
-                return
-            }
-
-            // BLE Yayım Tənzimləmələri (Aşağı gecikmə və yüksək güc)
-            val settings = AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true)
-                .setTimeout(0) // Limitsiz
-                .build()
-
-            // Yayım paketinə CarPlay xidmət məlumatlarını əlavə edirik
-            val data = AdvertiseData.Builder()
-                .setIncludeDeviceName(true)
-                .addServiceUuid(ParcelUuid(CARPLAY_SERVICE_UUID))
-                .build()
-
-            advertiser?.startAdvertising(settings, data, advertiseCallback)
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Bluetooth SecurityException: ${e.message}")
-        } catch (e: Throwable) {
-            Log.e(TAG, "Bluetooth xətası: ${e.message}")
-        }
+        }.start()
     }
 
     /**
      * Yayımı dayandırır
      */
     fun stopAdvertising() {
-        if (!isAdvertising) return
-        try {
-            if (hasBluetoothPermissions()) {
-                advertiser?.stopAdvertising(advertiseCallback)
+        Thread {
+            try {
+                if (hasBluetoothPermissions()) {
+                    advertiser?.stopAdvertising(advertiseCallback)
+                }
+                isAdvertising = false
+                Log.i(TAG, "Bluetooth elanı dayandırıldı")
+            } catch (e: Throwable) {
+                Log.e(TAG, "Bluetooth dayandırılarkən xəta: ${e.message}")
             }
-            isAdvertising = false
-            Log.i(TAG, "Bluetooth elanı dayandırıldı")
-        } catch (e: Throwable) {
-            Log.e(TAG, "Bluetooth dayandırılarkən xəta: ${e.message}")
-        }
+        }.start()
     }
 }

@@ -13,34 +13,44 @@ import android.util.Log
  * iPhone eyni Wi-Fi Hotspot-a qoşulan kimi:
  * 1. Apple CarPlay qəbuledicisi kimi avtomatik tapsın.
  * 2. iPhone İdarəetmə Mərkəzi (Control Center) -> "Ekran Yansıtma" (Screen Mirroring) bölməsində CarTwin dərhal görünsün!
+ *
+ * 100% Sinxronizasiyalı və Crash-Proof tərtibat: Təkrar qeydiyyatlar və NsdManager çöküşlərinin qarşısı tam alınır.
  */
 class CarPlayMdnsService(private val context: Context) {
 
     private val TAG = "CarPlay_mDNS"
-    private val nsdManager = context.getSystemService(Context.NSD_SERVICE) as? NsdManager
-
-    private var carplayListener: NsdManager.RegistrationListener? = null
-    private var airplayListener: NsdManager.RegistrationListener? = null
-    private var isCarplayPublished = false
-    private var isAirplayPublished = false
-
-    /**
-     * Həm CarPlay, həm də AirPlay Screen Mirroring mDNS xidmətlərini elan edir
-     */
-    fun publishService(serviceName: String = "CarTwin-CarPlay", port: Int = 7000) {
-        if (nsdManager == null) {
-            Log.e(TAG, "NsdManager dəstəklənmir.")
-            return
-        }
-
-        // 1. _carplay._tcp yayımı
-        publishCarPlay(serviceName, port)
-
-        // 2. _airplay._tcp yayımı (iPhone Control Center Screen Mirroring üçün)
-        publishAirPlay(serviceName, port)
+    private val nsdManager = try {
+        context.getSystemService(Context.NSD_SERVICE) as? NsdManager
+    } catch (_: Throwable) {
+        null
     }
 
-    private fun publishCarPlay(serviceName: String, port: Int) {
+    private val lock = Any()
+    private var carplayListener: NsdManager.RegistrationListener? = null
+    private var airplayListener: NsdManager.RegistrationListener? = null
+
+    /**
+     * Həm CarPlay, həm də AirPlay Screen Mirroring mDNS xidmətlərini təhlükəsiz elan edir
+     */
+    fun publishService(serviceName: String = "CarTwin-CarPlay", port: Int = 7000) {
+        synchronized(lock) {
+            if (nsdManager == null) {
+                Log.w(TAG, "NsdManager dəstəklənmir.")
+                return
+            }
+
+            // Əvvəlki qeydiyyatları tam və təhlükəsiz şəkildə dayandırırıq
+            unpublishServiceLocked()
+
+            // 1. _carplay._tcp yayımı
+            publishCarPlayLocked(serviceName, port)
+
+            // 2. _airplay._tcp yayımı
+            publishAirPlayLocked(serviceName, port)
+        }
+    }
+
+    private fun publishCarPlayLocked(serviceName: String, port: Int) {
         try {
             val serviceInfo = NsdServiceInfo().apply {
                 this.serviceName = serviceName
@@ -56,30 +66,39 @@ class CarPlayMdnsService(private val context: Context) {
                 }
             }
 
-            carplayListener = object : NsdManager.RegistrationListener {
+            val listener = object : NsdManager.RegistrationListener {
                 override fun onServiceRegistered(info: NsdServiceInfo) {
-                    isCarplayPublished = true
                     Log.i(TAG, "mDNS CarPlay servisi uğurla qeydiyyatdan keçdi: ${info.serviceName}")
                 }
                 override fun onRegistrationFailed(info: NsdServiceInfo, errorCode: Int) {
-                    isCarplayPublished = false
                     Log.w(TAG, "mDNS CarPlay qeydiyyat xətası: kod=$errorCode")
+                    synchronized(lock) {
+                        if (carplayListener === this) carplayListener = null
+                    }
                 }
                 override fun onServiceUnregistered(info: NsdServiceInfo) {
-                    isCarplayPublished = false
+                    Log.i(TAG, "mDNS CarPlay dayandırıldı")
+                    synchronized(lock) {
+                        if (carplayListener === this) carplayListener = null
+                    }
                 }
                 override fun onUnregistrationFailed(info: NsdServiceInfo, errorCode: Int) {
                     Log.w(TAG, "mDNS CarPlay dayandırılarkən xəta: kod=$errorCode")
+                    synchronized(lock) {
+                        if (carplayListener === this) carplayListener = null
+                    }
                 }
             }
 
-            nsdManager?.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, carplayListener)
+            carplayListener = listener
+            nsdManager?.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, listener)
         } catch (e: Throwable) {
             Log.e(TAG, "CarPlay mDNS xətası: ${e.message}")
+            carplayListener = null
         }
     }
 
-    private fun publishAirPlay(serviceName: String, port: Int) {
+    private fun publishAirPlayLocked(serviceName: String, port: Int) {
         try {
             val cleanName = serviceName.replace("CarPlay", "Display").trim()
             val serviceInfo = NsdServiceInfo().apply {
@@ -96,47 +115,68 @@ class CarPlayMdnsService(private val context: Context) {
                 }
             }
 
-            airplayListener = object : NsdManager.RegistrationListener {
+            val listener = object : NsdManager.RegistrationListener {
                 override fun onServiceRegistered(info: NsdServiceInfo) {
-                    isAirplayPublished = true
-                    Log.i(TAG, "mDNS AirPlay (Screen Mirroring) servisi qeydiyyatdan keçdi: ${info.serviceName}")
+                    Log.i(TAG, "mDNS AirPlay servisi qeydiyyatdan keçdi: ${info.serviceName}")
                 }
                 override fun onRegistrationFailed(info: NsdServiceInfo, errorCode: Int) {
-                    isAirplayPublished = false
                     Log.w(TAG, "mDNS AirPlay qeydiyyat xətası: kod=$errorCode")
+                    synchronized(lock) {
+                        if (airplayListener === this) airplayListener = null
+                    }
                 }
                 override fun onServiceUnregistered(info: NsdServiceInfo) {
-                    isAirplayPublished = false
+                    Log.i(TAG, "mDNS AirPlay dayandırıldı")
+                    synchronized(lock) {
+                        if (airplayListener === this) airplayListener = null
+                    }
                 }
                 override fun onUnregistrationFailed(info: NsdServiceInfo, errorCode: Int) {
                     Log.w(TAG, "mDNS AirPlay dayandırılarkən xəta: kod=$errorCode")
+                    synchronized(lock) {
+                        if (airplayListener === this) airplayListener = null
+                    }
                 }
             }
 
-            nsdManager?.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, airplayListener)
+            airplayListener = listener
+            nsdManager?.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, listener)
         } catch (e: Throwable) {
             Log.e(TAG, "AirPlay mDNS xətası: ${e.message}")
+            airplayListener = null
         }
     }
 
     /**
-     * Hər iki mDNS servisini dayandırır
+     * Hər iki mDNS servisini təhlükəsiz dayandırır
      */
     fun unpublishService() {
+        synchronized(lock) {
+            unpublishServiceLocked()
+        }
+    }
+
+    private fun unpublishServiceLocked() {
         if (nsdManager == null) return
 
-        if (isCarplayPublished && carplayListener != null) {
+        carplayListener?.let { listener ->
             try {
-                nsdManager.unregisterService(carplayListener)
-                isCarplayPublished = false
-            } catch (_: Throwable) {}
+                nsdManager.unregisterService(listener)
+            } catch (e: Throwable) {
+                Log.w(TAG, "CarPlay unregister xətası: ${e.message}")
+            } finally {
+                carplayListener = null
+            }
         }
 
-        if (isAirplayPublished && airplayListener != null) {
+        airplayListener?.let { listener ->
             try {
-                nsdManager.unregisterService(airplayListener)
-                isAirplayPublished = false
-            } catch (_: Throwable) {}
+                nsdManager.unregisterService(listener)
+            } catch (e: Throwable) {
+                Log.w(TAG, "AirPlay unregister xətası: ${e.message}")
+            } finally {
+                airplayListener = null
+            }
         }
     }
 }

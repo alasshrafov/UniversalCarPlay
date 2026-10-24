@@ -321,32 +321,45 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             Toast.makeText(this, "⚡ $model: USB CarPlay aktivləşdirilir...", Toast.LENGTH_SHORT).show()
             tvStatus.text = "🟢 $model (USB)"
             tvDetail.text = "⚡ USB İlə Qoşuldu • CarPlay Aktivdir"
-
-            statusOverlay.animate()
-                .alpha(0f)
-                .setDuration(350)
-                .withEndAction {
-                    statusOverlay.visibility = View.GONE
-                    statusOverlay.alpha = 1f
-                }
-                .start()
+            // QEYD: statusOverlay burada GONE edilmir; yalnız video kadr gələndə pərdə çəkilir
         } else {
             Toast.makeText(this, getString(R.string.toast_usb_no_device), Toast.LENGTH_LONG).show()
             tvDetail.text = getString(R.string.toast_usb_no_device)
         }
     }
 
-    private fun restartAllCarPlayServices() {
-        Toast.makeText(this, getString(R.string.services_restarting), Toast.LENGTH_SHORT).show()
-        sessionCoordinator?.stopDiscovery()
-        usbManager.stop()
+    private var isRestartingServices = false
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            usbManager.start()
-            initSessionCoordinator()
-            sessionCoordinator?.startDiscovery(carName = "CarTwin")
-            Toast.makeText(this, getString(R.string.services_ready), Toast.LENGTH_SHORT).show()
-        }, 500)
+    private fun restartAllCarPlayServices() {
+        if (isRestartingServices) return
+        isRestartingServices = true
+
+        Toast.makeText(this, getString(R.string.services_restarting), Toast.LENGTH_SHORT).show()
+
+        Thread {
+            try {
+                sessionCoordinator?.stopDiscovery()
+                usbManager.stop()
+            } catch (e: Throwable) {
+                Log.w(TAG, "Services stop error: ${e.message}")
+            }
+
+            try {
+                Thread.sleep(500)
+            } catch (_: InterruptedException) {}
+
+            runOnUiThread {
+                try {
+                    usbManager.start()
+                    sessionCoordinator?.startDiscovery(carName = "CarTwin")
+                    Toast.makeText(this, getString(R.string.services_ready), Toast.LENGTH_SHORT).show()
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Services start error: ${e.message}")
+                } finally {
+                    isRestartingServices = false
+                }
+            }
+        }.start()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -651,7 +664,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     tvDetail.text = message
                     when (state) {
                         CarPlaySessionCoordinator.SessionState.CONNECTED -> {
-                            statusOverlay.visibility = View.GONE
+                            tvStatus.text = "🟢 CarPlay"
+                            // QEYD: statusOverlay burada GONE edilmir; yalnız videoDecoder.onFirstFrameRendered işə düşəndə açılır
                         }
                         CarPlaySessionCoordinator.SessionState.WAITING_FOR_DEVICE -> {
                             statusOverlay.visibility = View.VISIBLE
@@ -799,6 +813,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             }
             return
         }
+        if (statusOverlay.visibility == View.GONE) {
+            statusOverlay.animate().cancel()
+            statusOverlay.alpha = 1f
+            statusOverlay.visibility = View.VISIBLE
+            return
+        }
         @Suppress("DEPRECATION")
         super.onBackPressed()
     }
@@ -820,7 +840,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             targetHeight = profile.defaultHeight
         )
 
-        playCommercialIntro(profile)
+        // Açılış reklam çarxı avtomatik göstərilmir (Qara ekran və donma riskinin qarşısını almaq üçün)
     }
 
     private fun playCommercialIntro(profile: VehicleProfile) {
@@ -899,28 +919,24 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         val selected = VehicleProfile.ALL[which]
                         vehicleDetector.saveProfile(selected)
                         setupProfile(selected)
-                        restartAllCarPlayServices()
                         Toast.makeText(this, getString(R.string.toast_profile_saved, selected.name), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount -> {
                         // Universal mode (CarPlay & Android Auto)
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 3).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 3
-                        restartAllCarPlayServices()
                         Toast.makeText(this, getString(R.string.toast_universal_mode), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 1 -> {
                         // CarPlay only
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 2).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 2
-                        restartAllCarPlayServices()
                         Toast.makeText(this, getString(R.string.toast_carplay_mode), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 2 -> {
                         // Android Auto only
                         getSharedPreferences("cartwin_prefs", MODE_PRIVATE).edit().putInt("preferred_phone_mode", 1).apply()
                         if (::usbManager.isInitialized) usbManager.preferredPhoneMode = 1
-                        restartAllCarPlayServices()
                         Toast.makeText(this, getString(R.string.toast_android_auto_mode), Toast.LENGTH_SHORT).show()
                     }
                     which == vehicleCount + 3 -> {
@@ -940,7 +956,6 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         vehicleDetector.resetSavedProfile()
                         Toast.makeText(this, getString(R.string.settings_reset_done), Toast.LENGTH_SHORT).show()
                         initVehicleDetection()
-                        restartAllCarPlayServices()
                     }
                 }
             }
@@ -968,11 +983,23 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     voiceAssistant?.setLanguage(selectedLang)
                     dialog.dismiss()
                     Toast.makeText(this, getString(R.string.toast_language_changed, languages[which].second), Toast.LENGTH_SHORT).show()
-                    recreate()
+                    refreshLocalizedUI(selectedLang)
                 } else {
                     dialog.dismiss()
                 }
             }
+            .setNegativeButton(getString(R.string.dialog_close), null)
+            .show()
+    }
+
+    private fun refreshLocalizedUI(langCode: String) {
+        btnLanguage.text = LocaleHelper.getLanguageShortBadge(langCode)
+        tvCurrentProfile.text = getString(R.string.profile_label, currentProfile.name)
+        if (statusOverlay.visibility == View.VISIBLE) {
+            tvStatus.text = getString(R.string.status_universal_connection)
+            tvDetail.text = getString(R.string.status_waiting_device)
+        }
+    }
             .setNegativeButton(getString(R.string.dialog_close), null)
             .show()
     }
