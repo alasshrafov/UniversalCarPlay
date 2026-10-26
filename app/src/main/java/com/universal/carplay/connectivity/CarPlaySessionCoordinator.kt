@@ -10,8 +10,8 @@ import com.universal.carplay.engine.VideoDecoder
  */
 class CarPlaySessionCoordinator(
     private val context: Context,
-    private val videoDecoder: VideoDecoder?,
-    private val audioEngine: AudioEngine?,
+    var videoDecoder: VideoDecoder?,
+    var audioEngine: AudioEngine?,
     private val onStateChanged: (SessionState, String) -> Unit
 ) {
     companion object {

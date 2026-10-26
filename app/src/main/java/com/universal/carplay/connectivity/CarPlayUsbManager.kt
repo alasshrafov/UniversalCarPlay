@@ -149,6 +149,20 @@ class CarPlayUsbManager(
                     device?.let { handleDeviceAttached(it) }
                 }
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
+                    val detachedDevice: UsbDevice? = try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as? UsbDevice
+                        }
+                    } catch (_: Throwable) { null }
+
+                    if (detachedDevice != null && currentDevice != null && detachedDevice.deviceId != currentDevice?.deviceId) {
+                        Log.d(TAG, "Başqa bir USB cihaz ayrıldı (${detachedDevice.deviceName}), əsas bağlantıya toxunulmur.")
+                        return
+                    }
+
                     val isRecentlySwitched = (isAoaSwitching && (System.currentTimeMillis() - aoaSwitchTimestamp < 6000L)) ||
                                              (isAppleSwitching && (System.currentTimeMillis() - appleSwitchTimestamp < 6000L))
                     if (isRecentlySwitched) {
@@ -191,7 +205,7 @@ class CarPlayUsbManager(
                             @Suppress("DEPRECATION")
                             intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as? UsbDevice
                         }
-                    } catch (_: Throwable) { null }
+                    } catch (_: Throwable) { null } ?: currentDevice
 
                     val accessory: UsbAccessory? = try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -200,7 +214,7 @@ class CarPlayUsbManager(
                             @Suppress("DEPRECATION")
                             intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY) as? UsbAccessory
                         }
-                    } catch (_: Throwable) { null }
+                    } catch (_: Throwable) { null } ?: currentAccessory
 
                     if (permissionGranted) {
                         if (accessory != null) {
@@ -689,6 +703,7 @@ class CarPlayUsbManager(
      * Apple iPhone ilə birbaşa kabel bağlantısını başladır
      */
     private fun handleAppleDeviceConnected(device: UsbDevice) {
+        currentDevice = device
         val (brand, model) = detectPhoneModel(device)
         currentPhoneModel = model
         currentPhoneType = PHONE_TYPE_CARPLAY
@@ -699,12 +714,12 @@ class CarPlayUsbManager(
         try {
             val connection = usbManager?.openDevice(device)
             if (connection != null) {
+                usbConnection = connection
                 val targetConfig = IphoneCarPlayConfiguration.find(device)
                 if (targetConfig != null) {
                     val ok = connection.setConfiguration(targetConfig)
                     Log.i(TAG, "iPhone CarPlay konfiqurasiyası aktivləşdirildi (config ${targetConfig.id}): $ok")
                 }
-                connection.close()
             }
         } catch (e: Throwable) {
             Log.w(TAG, "iPhone setConfiguration xətası: ${e.message}")
@@ -767,6 +782,7 @@ class CarPlayUsbManager(
             }
 
             connection.claimInterface(matchedInterface, true)
+            currentDevice = device
             usbConnection = connection
             usbInterface = matchedInterface
             inEndpoint = matchedIn
@@ -948,10 +964,15 @@ class CarPlayUsbManager(
                     else -> "Universal Cihaz" to "⚡"
                 }
 
+                val isAndroid = phoneType == PHONE_TYPE_ANDROID_AUTO
+                val modelName = if (isAndroid) "Android Auto" else "Apple iPhone"
+                currentPhoneModel = modelName
+
                 Log.i(TAG, "CarTwin 2.0: $icon $platformName qoşuldu! (Type=$phoneType)")
                 currentDevice?.let { onAppleDeviceConnected(it) }
                 onPlatformDetected?.invoke(platformName, icon)
-                onStatusUpdate?.invoke("$icon $platformName qoşuldu! Görüntü aktivdir.")
+                onPhoneModelIdentified?.invoke(modelName, if (isAndroid) "Android" else "Apple", isAndroid)
+                onStatusUpdate?.invoke("$icon $platformName qoşuldu! CarPlay aktivdir.")
 
                 sendCommand(12)
                 sendCommand(500)

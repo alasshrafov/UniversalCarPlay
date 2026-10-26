@@ -468,7 +468,10 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             try {
                 if (::browserToolbar.isInitialized) browserToolbar.visibility = View.GONE
                 browserOverlay.visibility = View.VISIBLE
-                webViewBrowser.loadUrl("file:///android_asset/carplay_cockpit/index.html")
+                val currentUrl = webViewBrowser.url ?: ""
+                if (!currentUrl.contains("carplay_cockpit/index.html")) {
+                    webViewBrowser.loadUrl("file:///android_asset/carplay_cockpit/index.html")
+                }
                 statusOverlay.visibility = View.GONE
                 Toast.makeText(this, "🍏 Apple CarPlay aktivləşdirildi", Toast.LENGTH_SHORT).show()
             } catch (e: Throwable) {
@@ -745,10 +748,12 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 },
                 onDeviceDisconnected = {
                     runOnUiThread {
-                        closeBrowser()
-                        statusOverlay.animate().cancel()
-                        statusOverlay.alpha = 1f
-                        statusOverlay.visibility = View.VISIBLE
+                        // Əgər kokpit və ya CarPlay aktivdirsə, re-enumeration və ya digər USB ayrılmasında ekranı bağlamırıq
+                        if (browserOverlay.visibility != View.VISIBLE) {
+                            statusOverlay.animate().cancel()
+                            statusOverlay.alpha = 1f
+                            statusOverlay.visibility = View.VISIBLE
+                        }
                         tvStatus.text = getString(R.string.status_universal_connection)
                         tvDetail.text = getString(R.string.status_waiting_device)
                         cryptoHandshake.reset()
@@ -765,6 +770,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     runOnUiThread {
                         tvStatus.text = "$icon $platformName"
                         Toast.makeText(this@MainActivity, getString(R.string.toast_device_connected, icon, platformName), Toast.LENGTH_SHORT).show()
+                        openCarPlayCockpit()
                     }
                 }
                 onPhoneModelIdentified = { modelName, brand, isAndroid ->
@@ -1087,6 +1093,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 start()
             }
             initSessionCoordinator()
+            sessionCoordinator?.videoDecoder = videoDecoder
+            sessionCoordinator?.audioEngine = audioEngine
             sessionCoordinator?.startDiscovery(carName = "CarTwin")
         } catch (e: Throwable) {
             Log.e(TAG, "onSurfaceCreated xətası: ${e.message}")
