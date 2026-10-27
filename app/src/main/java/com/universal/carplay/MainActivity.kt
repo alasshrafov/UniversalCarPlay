@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     private lateinit var tvStatus: TextView
     private lateinit var tvDetail: TextView
     private lateinit var tvCurrentProfile: TextView
+    private var topBar: LinearLayout? = null
     private lateinit var ivTopBarLogo: ImageView
     private lateinit var btnSettings: Button
     private lateinit var btnReplayIntro: Button
@@ -238,7 +239,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
         }
 
         // TopBar həmişə bütün pərdələrin üstündə və toxunula bilən qalmalıdır
-        findViewById<View>(R.id.topBar)?.bringToFront()
+        topBar = findViewById(R.id.topBar)
+        topBar?.bringToFront()
 
         // Reklam Şousu Görünüşləri
         commercialSplashOverlay = findViewById(R.id.commercialSplashOverlay)
@@ -747,7 +749,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 },
                 onDeviceDisconnected = {
                     runOnUiThread {
-                        if (::topBar.isInitialized) topBar.visibility = View.VISIBLE
+                        topBar?.visibility = View.VISIBLE
                         statusOverlay.animate().cancel()
                         statusOverlay.alpha = 1f
                         statusOverlay.visibility = View.VISIBLE
@@ -869,7 +871,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             return
         }
         if (statusOverlay.visibility == View.GONE) {
-            if (::topBar.isInitialized) topBar.visibility = View.VISIBLE
+            topBar?.visibility = View.VISIBLE
             statusOverlay.animate().cancel()
             statusOverlay.alpha = 1f
             statusOverlay.visibility = View.VISIBLE
@@ -1076,7 +1078,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                 onFirstFrameRendered = {
                     runOnUiThread {
                         if (::browserOverlay.isInitialized) browserOverlay.visibility = View.GONE
-                        if (::topBar.isInitialized) topBar.visibility = View.GONE
+                        topBar?.visibility = View.GONE
                         statusOverlay.animate()
                             .alpha(0f)
                             .setDuration(300)

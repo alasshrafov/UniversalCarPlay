@@ -991,19 +991,7 @@ class CarPlayUsbManager(
                 if (payload.size > 20) {
                     val nalOffset = 20
                     val nalLength = payload.size - nalOffset
-                    val decoder = getVideoDecoder()
-                    if (decoder != null) {
-                        try {
-                            val streamWidth = ByteBuffer.wrap(payload, 0, 4).order(ByteOrder.LITTLE_ENDIAN).int
-                            val streamHeight = ByteBuffer.wrap(payload, 4, 4).order(ByteOrder.LITTLE_ENDIAN).int
-                            if (streamWidth in 400..3840 && streamHeight in 300..2160 &&
-                                (streamWidth != decoder.currentWidth || streamHeight != decoder.currentHeight)) {
-                                Log.i(TAG, "CarPlay video ölçüsü yeniləndi: ${streamWidth}x${streamHeight}")
-                                decoder.start(streamWidth, streamHeight)
-                            }
-                        } catch (_: Throwable) {}
-                        decoder.feedFrame(payload, nalOffset, nalLength, System.nanoTime() / 1000)
-                    }
+                    getVideoDecoder()?.feedFrame(payload, nalOffset, nalLength, System.nanoTime() / 1000)
                 }
             }
             MSG_AUDIO -> {
