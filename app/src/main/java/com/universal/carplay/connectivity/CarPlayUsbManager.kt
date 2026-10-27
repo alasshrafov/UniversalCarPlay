@@ -792,12 +792,16 @@ class CarPlayUsbManager(
             Log.i(TAG, "Carlinkit USB bağlantısı quruldu! Interfeys #${matchedInterface.id}")
             onStatusUpdate?.invoke("USB: Carlinkit Aktivdir. Açılış əmri göndərilir…")
 
-            // 1. Açılış (Open) paketini göndəririk
-            sendOpenPacket(1920, 1080, 30, preferredPhoneMode)
+            // 1. Açılış (Open) paketini ekranın həqiqi ölçüləri ilə göndəririk
+            val displayMetrics = context.resources.displayMetrics
+            val w = if (displayMetrics.widthPixels > 0) displayMetrics.widthPixels else 1920
+            val h = if (displayMetrics.heightPixels > 0) displayMetrics.heightPixels else 1080
+            sendOpenPacket(w, h, 60, preferredPhoneMode)
 
-            // 2. Video Fokus (500) və Audio Rejimi (23) göndəririk
+            // 2. Video Fokus (500) və Audio Rejimi (23), Sinxronizasiya (12) göndəririk
             sendCommand(500)
             sendCommand(23)
+            sendCommand(12)
 
             // 3. Ürək döyüntüsü (Heartbeat) dövrünü başladırıq
             startHeartbeat()
@@ -987,7 +991,19 @@ class CarPlayUsbManager(
                 if (payload.size > 20) {
                     val nalOffset = 20
                     val nalLength = payload.size - nalOffset
-                    getVideoDecoder()?.feedFrame(payload, nalOffset, nalLength, System.nanoTime() / 1000)
+                    val decoder = getVideoDecoder()
+                    if (decoder != null) {
+                        try {
+                            val streamWidth = ByteBuffer.wrap(payload, 0, 4).order(ByteOrder.LITTLE_ENDIAN).int
+                            val streamHeight = ByteBuffer.wrap(payload, 4, 4).order(ByteOrder.LITTLE_ENDIAN).int
+                            if (streamWidth in 400..3840 && streamHeight in 300..2160 &&
+                                (streamWidth != decoder.currentWidth || streamHeight != decoder.currentHeight)) {
+                                Log.i(TAG, "CarPlay video ölçüsü yeniləndi: ${streamWidth}x${streamHeight}")
+                                decoder.start(streamWidth, streamHeight)
+                            }
+                        } catch (_: Throwable) {}
+                        decoder.feedFrame(payload, nalOffset, nalLength, System.nanoTime() / 1000)
+                    }
                 }
             }
             MSG_AUDIO -> {

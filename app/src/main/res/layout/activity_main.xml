@@ -174,7 +174,8 @@
                 android:layout_marginStart="6dp"
                 android:text="@string/btn_virtual_simulator"
                 android:textColor="#64748B"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 
@@ -229,7 +230,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_logo_show"
-            android:textColor="@color/car_accent" />
+            android:textColor="@color/car_accent"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnHelpGuideTop"

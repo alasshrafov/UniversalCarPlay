@@ -320,15 +320,16 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             } else {
                 "Apple iPhone"
             }
-            Toast.makeText(this, "⚡ $model: CarPlay aktivləşdirilir...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "⚡ $model: CarPlay video axını aktivləşdirilir...", Toast.LENGTH_SHORT).show()
             tvStatus.text = "🟢 $model (CarPlay)"
-            tvDetail.text = "⚡ USB İlə Qoşuldu • CarPlay Aktivdir"
+            tvDetail.text = "⚡ USB İlə Qoşuldu • Video Axını Başladılır"
+            usbManager.sendCommand(500)
+            usbManager.sendCommand(12)
         } else {
-            Toast.makeText(this, "🍏 Apple CarPlay Kokpiti açılır...", Toast.LENGTH_SHORT).show()
-            tvStatus.text = "🟢 Apple CarPlay"
-            tvDetail.text = "🍏 CarPlay Ekranı Aktivdir"
+            Toast.makeText(this, "Apple iPhone və ya CarPlay adapterini avtomobilin USB portuna taxın", Toast.LENGTH_SHORT).show()
+            tvStatus.text = getString(R.string.status_universal_connection)
+            tvDetail.text = getString(R.string.status_waiting_device)
         }
-        openCarPlayCockpit()
     }
 
     private var isRestartingServices = false
@@ -464,18 +465,14 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     }
 
     fun openCarPlayCockpit() {
+        // Həqiqi CarPlay video axını birbaşa CarPlaySurfaceView üzərində MediaCodec ilə dekod olunur
         runOnUiThread {
             try {
-                if (::browserToolbar.isInitialized) browserToolbar.visibility = View.GONE
-                browserOverlay.visibility = View.VISIBLE
-                val currentUrl = webViewBrowser.url ?: ""
-                if (!currentUrl.contains("carplay_cockpit/index.html")) {
-                    webViewBrowser.loadUrl("file:///android_asset/carplay_cockpit/index.html")
+                if (::browserOverlay.isInitialized) {
+                    browserOverlay.visibility = View.GONE
                 }
-                statusOverlay.visibility = View.GONE
-                Toast.makeText(this, "🍏 Apple CarPlay aktivləşdirildi", Toast.LENGTH_SHORT).show()
             } catch (e: Throwable) {
-                Log.e(TAG, "openCarPlayCockpit xətası: ${e.message}")
+                Log.e(TAG, "CarPlay səthi xətası: ${e.message}")
             }
         }
     }
@@ -743,17 +740,17 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                         tvStatus.text = "🟢 $devName"
                         tvDetail.text = getString(R.string.status_preparing_stream)
                         cryptoHandshake.startHandshake()
-                        openCarPlayCockpit()
+                        if (::browserOverlay.isInitialized) {
+                            browserOverlay.visibility = View.GONE
+                        }
                     }
                 },
                 onDeviceDisconnected = {
                     runOnUiThread {
-                        // Əgər kokpit və ya CarPlay aktivdirsə, re-enumeration və ya digər USB ayrılmasında ekranı bağlamırıq
-                        if (browserOverlay.visibility != View.VISIBLE) {
-                            statusOverlay.animate().cancel()
-                            statusOverlay.alpha = 1f
-                            statusOverlay.visibility = View.VISIBLE
-                        }
+                        if (::topBar.isInitialized) topBar.visibility = View.VISIBLE
+                        statusOverlay.animate().cancel()
+                        statusOverlay.alpha = 1f
+                        statusOverlay.visibility = View.VISIBLE
                         tvStatus.text = getString(R.string.status_universal_connection)
                         tvDetail.text = getString(R.string.status_waiting_device)
                         cryptoHandshake.reset()
@@ -770,7 +767,9 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                     runOnUiThread {
                         tvStatus.text = "$icon $platformName"
                         Toast.makeText(this@MainActivity, getString(R.string.toast_device_connected, icon, platformName), Toast.LENGTH_SHORT).show()
-                        openCarPlayCockpit()
+                        if (::browserOverlay.isInitialized) {
+                            browserOverlay.visibility = View.GONE
+                        }
                     }
                 }
                 onPhoneModelIdentified = { modelName, brand, isAndroid ->
@@ -782,8 +781,8 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
                             "🍏 $modelName • Apple CarPlay"
                         }
                         Toast.makeText(this@MainActivity, getString(R.string.toast_device_adapted, modelName), Toast.LENGTH_SHORT).show()
-                        if (!isAndroid) {
-                            openCarPlayCockpit()
+                        if (::browserOverlay.isInitialized) {
+                            browserOverlay.visibility = View.GONE
                         }
                     }
                 }
@@ -862,8 +861,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (browserOverlay.visibility == View.VISIBLE) {
-            val url = webViewBrowser.url ?: ""
-            if (url.contains("carplay_cockpit") || !webViewBrowser.canGoBack()) {
+            if (!webViewBrowser.canGoBack()) {
                 closeBrowser()
             } else {
                 webViewBrowser.goBack()
@@ -871,6 +869,7 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             return
         }
         if (statusOverlay.visibility == View.GONE) {
+            if (::topBar.isInitialized) topBar.visibility = View.VISIBLE
             statusOverlay.animate().cancel()
             statusOverlay.alpha = 1f
             statusOverlay.visibility = View.VISIBLE
@@ -1076,10 +1075,11 @@ class MainActivity : AppCompatActivity(), CarPlaySurfaceView.SurfaceListener {
             videoDecoder = VideoDecoder(holder.surface).apply {
                 onFirstFrameRendered = {
                     runOnUiThread {
-                        browserOverlay.visibility = View.GONE
+                        if (::browserOverlay.isInitialized) browserOverlay.visibility = View.GONE
+                        if (::topBar.isInitialized) topBar.visibility = View.GONE
                         statusOverlay.animate()
                             .alpha(0f)
-                            .setDuration(350)
+                            .setDuration(300)
                             .withEndAction {
                                 statusOverlay.visibility = View.GONE
                                 statusOverlay.alpha = 1f
