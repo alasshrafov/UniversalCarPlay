@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarTwin — Virtual BYD DiLink Cockpit & CarPlay Monitor</title>
+    <title>CarTwin — Universal Çin Avtomobilləri Kokpiti & CarPlay Monitoru</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=SF+Pro+Display:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,7 +26,7 @@
         body {
             background-color: var(--bg-color);
             background-image: 
-                radial-gradient(circle at 50% 20%, rgba(0, 210, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 50% 20%, var(--primary-glow) 0%, transparent 60%),
                 radial-gradient(circle at 10% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
                 linear-gradient(180deg, #05070a 0%, #0c1018 100%);
             color: #fff;
@@ -35,6 +35,7 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            transition: background 0.5s ease;
         }
 
         /* Top Bar */
@@ -65,21 +66,23 @@
             font-size: 20px;
             font-weight: 900;
             letter-spacing: 1.5px;
-            background: linear-gradient(90deg, #00d2ff, #00ff88);
+            background: linear-gradient(90deg, var(--primary), var(--accent-green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .vehicle-badge {
-            background: rgba(0, 210, 255, 0.15);
-            color: #00d2ff;
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 4px 14px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            box-shadow: 0 0 10px var(--primary-glow);
+            transition: all 0.3s;
         }
 
         .system-status {
@@ -119,11 +122,52 @@
             100% { transform: scale(0.9); opacity: 0.8; }
         }
 
+        /* Multi-Brand Vehicle Switcher Bar */
+        .brand-switcher-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 30px;
+            background: rgba(8, 12, 20, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            overflow-x: auto;
+        }
+
+        .brand-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            color: #8e9bb0;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .brand-pill:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .brand-pill.active {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 15px var(--primary-glow);
+            transform: translateY(-1px);
+        }
+
         /* Main Cockpit Layout */
         .cockpit-container {
             display: flex;
             flex: 1;
-            padding: 24px 30px;
+            padding: 20px 30px;
             gap: 24px;
             align-items: stretch;
             max-width: 1700px;
@@ -142,6 +186,7 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6), 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
         }
 
         .cluster-header {
@@ -157,7 +202,7 @@
 
         .speedometer-area {
             text-align: center;
-            padding: 30px 0;
+            padding: 25px 0;
             position: relative;
         }
 
@@ -166,17 +211,19 @@
             font-size: 72px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            text-shadow: 0 0 20px var(--primary-glow);
             line-height: 1;
+            transition: text-shadow 0.4s;
         }
 
         .speed-unit {
             font-size: 14px;
-            color: #00d2ff;
+            color: var(--primary);
             letter-spacing: 2px;
             margin-top: 6px;
             text-transform: uppercase;
             font-weight: 700;
+            transition: color 0.4s;
         }
 
         .speed-arc {
@@ -191,9 +238,9 @@
         .speed-fill {
             height: 100%;
             width: 35%;
-            background: linear-gradient(90deg, #00d2ff, #00ff88);
+            background: linear-gradient(90deg, var(--primary), var(--accent-green));
             border-radius: 3px;
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, background 0.4s;
         }
 
         .ev-battery-box {
@@ -222,7 +269,7 @@
 
         .battery-charge {
             width: 88%;
-            background: linear-gradient(90deg, #00ff88, #00d2ff);
+            background: linear-gradient(90deg, var(--accent-green), var(--primary));
             border-radius: 5px;
         }
 
@@ -254,13 +301,13 @@
         }
 
         .mode-btn.active {
-            background: rgba(0, 210, 255, 0.2);
-            color: #00d2ff;
-            border-color: #00d2ff;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
         }
 
-        /* Center: BYD DiLink 15.6" Screen */
+        /* Center: Central Screen Area */
         .monitor-stage {
             flex: 1;
             display: flex;
@@ -277,7 +324,7 @@
             border-radius: 22px;
             box-shadow: 
                 0 25px 60px rgba(0, 0, 0, 0.8),
-                0 0 50px rgba(0, 210, 255, 0.15);
+                0 0 50px var(--primary-glow);
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex;
             flex-direction: column;
@@ -286,9 +333,22 @@
             height: 520px;
         }
 
+        /* Screen Configurations for Specific Brands */
+        .screen-enclosure.brand-changan {
+            width: 1020px;
+            height: 460px; /* 21:9 Ultra-Wide Sunflower Screen */
+            border-radius: 26px;
+        }
+
+        .screen-enclosure.brand-liauto {
+            width: 960px;
+            height: 550px; /* 3K Flagship Display */
+            border-radius: 18px;
+        }
+
         .screen-enclosure.portrait {
-            width: 440px;
-            height: 680px;
+            width: 440px !important;
+            height: 680px !important;
         }
 
         /* Screen Top Status Bar */
@@ -351,9 +411,9 @@
             width: 110px;
             height: 110px;
             border-radius: 50%;
-            border: 2px dashed rgba(0, 210, 255, 0.4);
+            border: 2px dashed var(--primary);
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             animation: spin 10s linear infinite;
             display: flex;
             align-items: center;
@@ -372,49 +432,49 @@
 
         @keyframes bounce {
             0%, 100% { transform: scale(0.95); }
-            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.8)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--primary)); }
         }
 
         .standby-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .standby-subtitle {
             font-size: 13px;
             color: #8892b0;
-            max-width: 480px;
-            margin-bottom: 24px;
-            line-height: 1.5;
+            max-width: 520px;
+            margin-bottom: 18px;
+            line-height: 1.4;
         }
 
         .qr-card {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
-            padding: 16px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .qr-card img {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border-radius: 10px;
             background: #fff;
-            padding: 6px;
+            padding: 5px;
         }
 
         .qr-url-badge {
             font-family: monospace;
-            font-size: 13px;
-            color: #00ff88;
+            font-size: 12px;
+            color: var(--accent-green);
             background: rgba(0, 255, 136, 0.1);
             padding: 6px 14px;
             border-radius: 8px;
@@ -469,9 +529,9 @@
         }
 
         .rotate-screen-btn {
-            background: rgba(0, 210, 255, 0.15);
-            color: #00d2ff;
-            border: 1px solid rgba(0, 210, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--primary);
+            border: 1px solid var(--primary);
             border-radius: 12px;
             padding: 6px 14px;
             font-size: 12px;
@@ -484,9 +544,9 @@
         }
 
         .rotate-screen-btn:hover {
-            background: #00d2ff;
+            background: var(--primary);
             color: #000;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+            box-shadow: 0 0 15px var(--primary-glow);
         }
 
         /* Right Side: Vehicle HVAC HUD & Steering Wheel */
@@ -543,7 +603,8 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 28px;
             font-weight: 700;
-            color: #00d2ff;
+            color: var(--primary);
+            transition: color 0.4s;
         }
 
         .temp-controls {
@@ -578,7 +639,7 @@
 
         .fan-slider {
             width: 100%;
-            accent-color: #00d2ff;
+            accent-color: var(--primary);
         }
 
         /* Steering Wheel Key Buttons */
@@ -613,8 +674,8 @@
         }
 
         .wheel-btn:hover {
-            background: rgba(0, 210, 255, 0.2);
-            border-color: #00d2ff;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary);
         }
 
         .wheel-btn:active {
@@ -624,7 +685,7 @@
         /* Ambient Glow Bar */
         .ambient-footer {
             height: 4px;
-            background: linear-gradient(90deg, #00d2ff, #00ff88, #ff9500, #00d2ff);
+            background: linear-gradient(90deg, var(--primary), var(--accent-green), var(--accent-amber), var(--primary));
             background-size: 300% 100%;
             animation: gradientMove 8s ease infinite;
         }
@@ -640,9 +701,9 @@
 
     <header>
         <div class="logo-area">
-            <span class="logo-icon">🚗</span>
+            <span class="logo-icon" id="brandLogoIcon">🚗</span>
             <span class="logo-text">CarTwin</span>
-            <span class="vehicle-badge">BYD DiLink 15.6" Cockpit</span>
+            <span class="vehicle-badge" id="brandBadge">BYD DiLink 15.6" Cockpit</span>
         </div>
         <div class="system-status">
             <div class="status-pill">
@@ -650,24 +711,37 @@
                 <span id="connectionStatusText">iPhone Gözlənilir</span>
             </div>
             <div class="status-pill">
-                <span>📶 Wi-Fi 5GHz:</span>
+                <span>📶 Wi-Fi:</span>
                 <strong id="lanIp">192.168.1.65</strong>
             </div>
         </div>
     </header>
+
+    <!-- Multi-Brand Çin Avtomobilləri Seçim Paneli -->
+    <nav class="brand-switcher-bar">
+        <span style="font-size: 11px; color: #8892b0; margin-right: 6px; text-transform: uppercase; font-weight: 700;">AVTOMOBİL BRENDİ:</span>
+        <button class="brand-pill active" onclick="selectBrand('byd')">🔋 BYD DiLink</button>
+        <button class="brand-pill" onclick="selectBrand('changan')">🌻 Changan / Deepal</button>
+        <button class="brand-pill" onclick="selectBrand('geely')">🛡️ Geely / Lynk</button>
+        <button class="brand-pill" onclick="selectBrand('chery')">🦁 Chery / Exeed</button>
+        <button class="brand-pill" onclick="selectBrand('liauto')">💎 Li Auto (3K)</button>
+        <button class="brand-pill" onclick="selectBrand('zeekr')">⚡ Zeekr 001/007</button>
+        <button class="brand-pill" onclick="selectBrand('haval')">🛡️ Haval / Tank</button>
+        <button class="brand-pill" onclick="selectBrand('universal')">🌐 Universal Rejim</button>
+    </nav>
 
     <div class="cockpit-container">
 
         <!-- Sol Panel: Sükan Paneli və Spidometr -->
         <aside class="instrument-cluster">
             <div class="cluster-header">
-                <span>BORT KOMPÜTERİ</span>
+                <span id="clusterTitle">BYD BORT KOMPÜTERİ</span>
                 <span id="liveTime">00:00</span>
             </div>
 
             <div class="speedometer-area">
                 <div class="speed-number" id="speedValue">0</div>
-                <div class="speed-unit">KM / SAAT</div>
+                <div class="speed-unit" id="speedUnit">KM / SAAT</div>
                 <div class="speed-arc">
                     <div class="speed-fill" id="speedFill" style="width: 0%;"></div>
                 </div>
@@ -675,11 +749,11 @@
 
             <div class="ev-battery-box">
                 <div class="battery-header">
-                    <span>Blade Batareya</span>
+                    <span id="batteryName">Blade Batareya</span>
                     <span>88%</span>
                 </div>
                 <div class="battery-bar">
-                    <div class="battery-charge"></div>
+                    <div class="battery-charge" id="batteryFill"></div>
                 </div>
                 <div class="battery-details">
                     <span>Məsafə: 420 km</span>
@@ -697,7 +771,7 @@
             </div>
         </aside>
 
-        <!-- Mərkəzi Monitor: BYD DiLink 15.6" Fırlanan Ekran -->
+        <!-- Mərkəzi Monitor: Dinamik Çin Avtomobil Ekranı -->
         <main class="monitor-stage">
             <div class="screen-enclosure" id="screenBox">
                 <!-- Top Status Bar -->
@@ -717,7 +791,7 @@
                     <!-- Gözləmə Ekranı və QR Kod -->
                     <div class="standby-overlay" id="standbyOverlay">
                         <div class="radar-scanner"></div>
-                        <h2 class="standby-title">Apple CarPlay Simsiz Test Rejimi</h2>
+                        <h2 class="standby-title" id="standbyBrandTitle">BYD Apple CarPlay Simsiz Əlaqə</h2>
                         <p class="standby-subtitle">
                             Telefonunuzu birbaşa virtual avtomobil monitoruna qoşmaq üçün iPhone kamerasını aşağıdakı QR koda tutun və ya Safari-də linki açın:
                         </p>
@@ -740,8 +814,8 @@
 
                 <!-- Alt İdarəetmə Çərçivəsi -->
                 <div class="screen-bezel-bottom">
-                    <span style="font-size: 11px; color: #8892b0;">BYD DiLink 15.6" QLED</span>
-                    <button class="rotate-screen-btn" onclick="toggleScreenRotation()">
+                    <span style="font-size: 11px; color: #8892b0;" id="bezelBrandLabel">BYD DiLink 15.6" QLED</span>
+                    <button class="rotate-screen-btn" id="rotateBtn" onclick="toggleScreenRotation()">
                         <span>🔄</span>
                         <span id="rotateBtnLabel">Şaquli Fırlat (Portrait)</span>
                     </button>
@@ -752,8 +826,8 @@
         <!-- Sağ Panel: İqlim Nəzarəti və Sükan Düymələri -->
         <aside class="right-control-panel">
             <div class="panel-title">
-                <span>İQLİM & MULTİMEDİA</span>
-                <span style="color: #00d2ff;">A/C AKTİV</span>
+                <span id="hvacBrandTitle">BYD İQLİM NƏZARƏTİ</span>
+                <span style="color: var(--primary);" id="hvacStatusBadge">A/C AKTİV</span>
             </div>
 
             <!-- HVAC HUD -->
@@ -795,14 +869,14 @@
                     <button class="wheel-btn" onclick="simulateWheel('vol_down')">🔉 Səs -</button>
                     <button class="wheel-btn" onclick="simulateWheel('prev')">⏮️ Əvvəlki</button>
                     <button class="wheel-btn" onclick="simulateWheel('next')">⏭️ Növbəti</button>
-                    <button class="wheel-btn" style="grid-column: span 2; background: rgba(0, 210, 255, 0.2); border-color: #00d2ff;" onclick="simulateWheel('siri')">
+                    <button class="wheel-btn" style="grid-column: span 2; background: rgba(255, 255, 255, 0.08); border-color: var(--primary);" onclick="simulateWheel('siri')">
                         🎙️ Aura AI / Siri
                     </button>
                 </div>
             </div>
 
-            <div style="text-align: center; font-size: 11px; color: #55627a;">
-                CarTwin v2.2.0 • BYD Simulyatoru
+            <div style="text-align: center; font-size: 11px; color: #55627a;" id="versionTag">
+                CarTwin v2.2.0 • Universal Çin Avtomobilləri
             </div>
         </aside>
 
@@ -811,9 +885,141 @@
     <div class="ambient-footer"></div>
 
     <script>
+        // Avtomobil Brendləri Məlumat Bazası
+        const VEHICLE_CONFIGS = {
+            byd: {
+                name: 'BYD Auto',
+                badge: 'BYD DiLink 15.6" Cockpit',
+                cluster: 'BYD BORT KOMPÜTERİ',
+                bezel: 'BYD DiLink 15.6" QLED',
+                battery: 'Blade Batareya',
+                accent: '#00F0FF',
+                icon: '🔋',
+                className: '',
+                canRotate: true
+            },
+            changan: {
+                name: 'Changan / Deepal',
+                badge: 'Changan Deepal 21:9 Sunflower',
+                cluster: 'CHANGAN DEEPAL HUD',
+                bezel: 'Changan Sunflower 21:9 Display',
+                battery: 'Golden Shield Batareya',
+                accent: '#2F80ED',
+                icon: '🌻',
+                className: 'brand-changan',
+                canRotate: false
+            },
+            geely: {
+                name: 'Geely / Lynk',
+                badge: 'Geely Flyme Auto 15.4"',
+                cluster: 'GEELY GALAXY OS',
+                bezel: 'Geely Aegis Cockpit Display',
+                battery: 'Short Blade Batareya',
+                accent: '#155DFC',
+                icon: '🛡️',
+                className: '',
+                canRotate: false
+            },
+            chery: {
+                name: 'Chery / Exeed',
+                badge: 'Chery Lion OS 24.6"',
+                cluster: 'CHERY LION INTELLIGENCE',
+                bezel: 'Chery Dual Curved Curved Screen',
+                battery: 'Chery M3X Batareya',
+                accent: '#E53E3E',
+                icon: '🦁',
+                className: '',
+                canRotate: false
+            },
+            liauto: {
+                name: 'Li Auto (Li Xiang)',
+                badge: 'Li Auto 15.7" 3K OLED',
+                cluster: 'LI AUTO FLAGSHIP COCKPIT',
+                bezel: 'Li Auto 3K Anti-Glare Glass',
+                battery: 'CATL Qilin 5C Batareya',
+                accent: '#FFD60A',
+                icon: '💎',
+                className: 'brand-liauto',
+                canRotate: false
+            },
+            zeekr: {
+                name: 'Zeekr (001 / 007)',
+                badge: 'Zeekr OS 6.0 • Snapdragon 8295',
+                cluster: 'ZEEKR PERFORMANCE HUD',
+                bezel: 'Zeekr 15.05" 2.5K OLED',
+                battery: 'Zeekr Golden Battery (800V)',
+                accent: '#30D158',
+                icon: '⚡',
+                className: '',
+                canRotate: false
+            },
+            haval: {
+                name: 'Haval / Tank',
+                badge: 'GWM Tank 300 / Haval Cockpit',
+                cluster: 'TANK 300 OFF-ROAD GAUGE',
+                bezel: 'Coffee Intelligence 14.6" Screen',
+                battery: 'GWM Hi4-T Batareya',
+                accent: '#FF6B00',
+                icon: '🛡️',
+                className: '',
+                canRotate: false
+            },
+            universal: {
+                name: 'CarTwin Universal',
+                badge: 'CarTwin Universal Cockpit',
+                cluster: 'UNIVERSAL ANDROID BORT',
+                bezel: 'Universal HD Automotive Display',
+                battery: 'Avtomobil Batareyası',
+                accent: '#E5B869',
+                icon: '🌐',
+                className: '',
+                canRotate: false
+            }
+        };
+
+        let currentBrand = 'byd';
         let isPortrait = false;
         let temps = { driver: 22.0, pass: 22.0 };
         let pcPeer = null;
+
+        // Brendi Dəyişmə Funksiyası
+        function selectBrand(brandId) {
+            const config = VEHICLE_CONFIGS[brandId];
+            if (!config) return;
+
+            currentBrand = brandId;
+
+            // Aktiv düyməni yeniləyirik
+            document.querySelectorAll('.brand-pill').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Rəng temasını dinamik tənzimləyirik
+            document.documentElement.style.setProperty('--primary', config.accent);
+            document.documentElement.style.setProperty('--primary-glow', config.accent + '66');
+
+            // Mətnləri və loqoları yeniləyirik
+            document.getElementById('brandLogoIcon').innerText = config.icon;
+            document.getElementById('brandBadge').innerText = config.badge;
+            document.getElementById('clusterTitle').innerText = config.cluster;
+            document.getElementById('bezelBrandLabel').innerText = config.bezel;
+            document.getElementById('batteryName').innerText = config.battery;
+            document.getElementById('standbyBrandTitle').innerText = `${config.name} Apple CarPlay Simsiz Əlaqə`;
+            document.getElementById('hvacBrandTitle').innerText = `${config.name.toUpperCase()} İQLİM NƏZARƏTİ`;
+
+            // Ekran forma və ölçü sinfini dəyişirik
+            const box = document.getElementById('screenBox');
+            box.className = 'screen-enclosure ' + config.className;
+            isPortrait = false;
+
+            // Fırlatma düyməsinin görünməsi (Yalnız BYD-də fırlanan ekran var)
+            const rotateBtn = document.getElementById('rotateBtn');
+            if (config.canRotate) {
+                rotateBtn.style.display = 'flex';
+                document.getElementById('rotateBtnLabel').innerText = 'Şaquli Fırlat (Portrait)';
+            } else {
+                rotateBtn.style.display = 'none';
+            }
+        }
 
         // Saatı yeniləyirik
         function updateClock() {
@@ -834,7 +1040,6 @@
                 document.getElementById('lanIp').innerText = data.ip;
                 document.getElementById('phoneUrlLabel').innerText = data.phoneUrl;
                 
-                // QR Kod yaratma (Google Charts / QR API vasitəsilə)
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.phoneUrl)}`;
                 document.getElementById('qrImage').src = qrUrl;
 
@@ -881,7 +1086,6 @@
             const speedVal = document.getElementById('speedValue');
             const speedFill = document.getElementById('speedFill');
 
-            // Simulyasiya sürət animasiyası
             let targetSpeed = mode === 'SPORT' ? 85 : (mode === 'NORMAL' ? 60 : 45);
             speedVal.innerText = targetSpeed;
             speedFill.style.width = (targetSpeed / 240 * 100) + '%';
@@ -927,7 +1131,7 @@
                     img.src = data.frame;
                 }
             } catch (e) {}
-            setTimeout(pollFrames, 40); // ~25-30 fps kadr yenilənməsi
+            setTimeout(pollFrames, 40);
         }
         pollFrames();
 
