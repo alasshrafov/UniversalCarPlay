@@ -936,6 +936,12 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
             left.addView(label(getString(R.string.your_maps_music_and_conversations_carplay_right_here_on_yo), 19, MUTED))
         }
         val card = card()
+        val detectedBrand = com.shilapi.xcertplay.vehicle.VehicleDetector.getActiveBrand(this)
+        val brandBadge = label("🚘 " + detectedBrand.brandName + " • " + detectedBrand.commercialTitle, 11, ACCENT, true).apply {
+            letterSpacing = .08f
+            setPadding(0, 0, 0, dp(4))
+        }
+        card.addView(brandBadge)
         homeCardTitle = label(getString(R.string.wireless_carplay), 12, ACCENT, true).apply { letterSpacing = .12f }
         card.addView(homeCardTitle)
         status = label(getString(R.string.ready_when_you_are), 24, TEXT, true).apply { setPadding(0, dp(10), 0, dp(16)) }
@@ -5863,7 +5869,8 @@ class DiPlayActivity : ComponentActivity(), AppAppearanceOwner {
         val running = CarPlayBackgroundSession.hasSession()
         // A USB session shares this card's status and Disconnect, but not its wireless title or Wi-Fi hint (#742).
         val wired = HomeCardTransport.wired(running, AirPlayPersistence.loadWirelessEnabled(this))
-        homeCardTitle?.text = getString(if (wired) R.string.home_usb_carplay else R.string.wireless_carplay)
+        val currentBrand = com.shilapi.xcertplay.vehicle.VehicleDetector.getActiveBrand(this)
+        homeCardTitle?.text = currentBrand.brandName.uppercase() + " • " + getString(if (wired) R.string.home_usb_carplay else R.string.wireless_carplay)
         homeConnectionHint?.visibility = if (wired) View.GONE else View.VISIBLE
         status?.text = when {
             setupError != null -> getString(R.string.setup_needs_attention)

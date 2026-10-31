@@ -58,37 +58,38 @@ jobs:
         APK_PATH=$(find mobile/build/outputs/apk/debug -name "*.apk" | head -n 1)
         echo "Found APK at: $APK_PATH"
         cp "$APK_PATH" "release_output/CarTwin-${VERSION}.apk"
+        cp "$APK_PATH" release_output/CarTwin-v2.2.1.apk
         cp "$APK_PATH" release_output/CarTwin-v2.2.0.apk
-        cp "$APK_PATH" release_output/CarTwin-v2.0.apk
         cp "$APK_PATH" release_output/cartwin.apk
         ls -la release_output/
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: cartwin-v2.2.0-apk
+        name: cartwin-v2.2.1-apk
         path: release_output/cartwin.apk
 
     - name: Create or Update GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.get_version.outputs.version }}
-        name: "CarTwin ${{ steps.get_version.outputs.version }} (Native BYD DiLink CarPlay Integration)"
+        name: "CarTwin ${{ steps.get_version.outputs.version }} (All Chinese Automotive Brands Universal Integration)"
         body: |
-          ## CarTwin 2.2.0 — BYD Native Apple CarPlay & Data Cable Architecture
+          ## CarTwin 2.2.1 — Bütün Çin Avtomobilləri üçün Universal Apple CarPlay & Data Kabel Arxitekturası
 
-          Avtomobil monitorlari (BYD DiLink ve butun Android sistemleri) ucun tam inteqrasiya edilmis Dogma Apple CarPlay Sistemi!
+          Bütün Çin avtomobil brendləri (BYD, Changan, Geely, Zeekr, Chery, Haval/Tank, Li Auto, NIO, XPeng, GAC, Voyah, Hongqi, BAIC, MG, Xiaomi Auto, Leapmotor) üçün tam avtomatik brend tanıma və adaptiv interfeysə malik Doğma Apple CarPlay Sistemi!
 
-          ### Esas Yenilikler ve Texniki Inteqrasiya:
-          * **Birbasa Data Kabel Inteqrasiyasi**: Xususi CarPlay data kabeli taxilan kimi Apple Vendor Switch 0x52 siqnali gonderilir, iPhone derhal CarPlay aksesuar rejimine kecir ve re-enumeration tamamlanir.
-          * **USBMUX & Dogma iAP2 Protokol Muherriki**: USB multiplexor kanali (EP 4 / EP 0x85) uzerinden iAP2 elaqe sessiyasi qurulur, identification ve avtomobil ekran konfiqurasiyasi Apple standartina uygun oturulur.
-          * **Yerli Oflayn MFi Autentifikasiyasi**: offline-mfi sertifikat zenciri (certificate.p7b ve identity.pk8) tetbiqe daxili inteqrasiya edilib, iPhone-dan gelen kriptoqrafik cagirislari yerli olaraq dogrulayir.
-          * **CDC-NCM Ethernet & Virtual IPv6 Tuneli**: Root icazesi teleb olunmadan VpnService vasitesile USB kabel uzerinden fe80:: IPv6 link-local sebekesi ve NTB-16 paket axini temin olunur.
-          * **Asagi Gecikmeli H.264 Video & Daxili Ses Axini**: iPhone-un daxili AirPlay/CarPlay video axini birbasa MediaCodec dekoderine yonlendirilir ve avtomobil monitorunda tam ekran sekilde acilir.
-          * **Tam Toxunma ve Sukan Idareetmesi**: Avtomobil ekranindaki toxunmalar HID protokoluna cevrilerek derhal iPhone-a oturulur.
+          ### Əsas Yeniliklər və Texniki İnteqrasiya:
+          * **Universal Avtomobil Detektoru**: Tətbiq avtomobilə yüklənən kimi aparat göstəricilərini (MANUFACTURER, BRAND, MODEL, sistem servislərini və ekran nisbətini) təhlil edərək avtomobilin dəqiq brendini (BYD DiLink, Changan Sunflower 21:9, Geely Flyme Auto, Chery Lion OS, Haval Tank, Li Auto 3K və s.) 100% avtomatik təyin edir və interfeysi ona uyğunlaşdırır.
+          * **Birbaşa Data Kabel İnteqrasiyası**: Xüsusi CarPlay data kabeli taxılan kimi Apple Vendor Switch 0x52 siqnalı göndərilir, iPhone dərhal CarPlay aksesuar rejiminə keçir və re-enumeration tamamlanır.
+          * **USBMUX & Doğma iAP2 Protokol Mühərriki**: USB multiplexor kanalı (EP 4 / EP 0x85) üzərindən iAP2 əlaqə sessiyası qurulur, identification və avtomobil ekran konfiqurasiyası Apple standartına uyğun ötürülür.
+          * **Yerli Oflayn MFi Autentifikasiyası**: offline-mfi sertifikat zənciri (certificate.p7b və identity.pk8) tətbiqə daxili inteqrasiya edilib, iPhone-dan gələn kriptoqrafik çağırışları yerli olaraq doğrulayır.
+          * **CDC-NCM Ethernet & Virtual IPv6 Tuneli**: Root icazəsi tələb olunmadan VpnService vasitəsilə USB kabel üzərindən fe80:: IPv6 link-local şəbəkəsi və NTB-16 paket axını təmin olunur.
+          * **Aşağı Gecikməli H.264 Video & Daxili Səs Axını**: iPhone-un daxili AirPlay/CarPlay video axını birbaşa MediaCodec dekoderinə yönləndirilir və avtomobil monitorunda tam ekran şəkildə açılır.
+          * **Tam Toxunma və Sükan İdarəetməsi**: Avtomobil ekranındakı toxunmalar HID protokoluna çevrilərək dərhal iPhone-a ötürülür.
         files: |
           release_output/CarTwin-${{ steps.get_version.outputs.version }}.apk
-          release_output/CarTwin-v2.2.0.apk
+          release_output/CarTwin-v2.2.1.apk
           release_output/cartwin.apk
         make_latest: true
       env:

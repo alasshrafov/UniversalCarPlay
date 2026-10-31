@@ -13,8 +13,8 @@ android {
         applicationId = "com.shihab.diplay"
         minSdk = 24
         targetSdk = 37
-        versionCode = 42
-        versionName = "2.2.0"
+        versionCode = 43
+        versionName = "2.2.1"
     }
 
     signingConfigs {
