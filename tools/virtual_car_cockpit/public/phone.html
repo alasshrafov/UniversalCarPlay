@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CarTwin — iPhone Simsiz Ötürücü</title>
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>CarTwin — Universal Avtomobil Simsiz Ötürücüsü (CarPlay & Android Auto)</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600;700;900&family=Roboto:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --apple-blue: #007aff;
-            --apple-green: #34c759;
-            --apple-dark: #1c1c1e;
-            --apple-gray: #2c2c2e;
+            --primary: #3DDC84; /* Android Green default */
+            --primary-glow: rgba(61, 220, 132, 0.4);
+            --bg-color: #0b0f17;
+            --card-bg: #161c28;
+            --accent-blue: #4285F4;
+            --text-muted: #8e99aa;
         }
 
         * {
@@ -21,154 +23,300 @@
         }
 
         body {
-            background-color: #000;
+            background-color: var(--bg-color);
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Roboto', 'SF Pro Display', 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 24px 20px;
+            padding: 20px 18px;
             justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        /* Top OS Mode Switcher */
+        .os-switch-bar {
+            display: flex;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 4px;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .os-pill {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            border-radius: 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s;
+        }
+
+        .os-pill.active {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 4px 15px var(--primary-glow);
         }
 
         .header-card {
             text-align: center;
-            padding: 20px 0;
+            padding: 10px 0 16px;
         }
 
-        .apple-badge {
+        .device-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 5px 14px;
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px var(--primary-glow);
         }
 
         h1 {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
         }
 
         p.subtitle {
-            font-size: 14px;
-            color: #8e8e93;
+            font-size: 13px;
+            color: var(--text-muted);
             line-height: 1.4;
         }
 
         /* Status Banner */
         .status-box {
-            background: var(--apple-dark);
-            border-radius: 18px;
-            padding: 16px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 14px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            margin: 15px 0;
+            margin: 12px 0;
         }
 
         .status-icon {
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: rgba(0, 122, 255, 0.15);
+            background: rgba(61, 220, 132, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 22px;
-            color: var(--apple-blue);
-        }
-
-        .status-icon.connected {
-            background: rgba(52, 199, 89, 0.15);
-            color: var(--apple-green);
+            color: var(--primary);
+            flex-shrink: 0;
         }
 
         .status-text h4 {
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             margin-bottom: 2px;
         }
 
         .status-text p {
-            font-size: 12px;
-            color: #8e8e93;
+            font-size: 11px;
+            color: var(--text-muted);
         }
 
         /* Action Buttons */
         .action-group {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin: 15px 0;
+            gap: 12px;
+            margin: 12px 0;
         }
 
         .btn-stream {
-            background: var(--apple-blue);
-            color: #fff;
+            background: var(--primary);
+            color: #000;
             border: none;
-            border-radius: 16px;
-            padding: 18px;
-            font-size: 16px;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            transition: all 0.2s;
+        }
+
+        .btn-stream:active {
+            transform: scale(0.98);
+        }
+
+        .btn-stream.active {
+            background: #ff3b30;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(255, 59, 48, 0.4);
+        }
+
+        .btn-interactive {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            border: 1px solid rgba(66, 133, 244, 0.5);
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 14px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0, 122, 255, 0.4);
-            transition: all 0.2s;
+            box-shadow: 0 6px 16px rgba(42, 82, 152, 0.3);
         }
 
-        .btn-stream:active {
-            transform: scale(0.97);
-            opacity: 0.9;
-        }
-
-        .btn-stream.active {
-            background: var(--apple-green);
-            box-shadow: 0 10px 25px rgba(52, 199, 89, 0.4);
+        .btn-interactive.active {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #000;
         }
 
         .btn-camera {
-            background: var(--apple-gray);
+            background: rgba(255, 255, 255, 0.06);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 16px;
-            font-size: 15px;
+            border-radius: 14px;
+            padding: 13px;
+            font-size: 13px;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             cursor: pointer;
         }
 
-        /* Car Cockpit Controls */
+        /* Interactive Dashboard Mini-Controls on Phone */
+        .interactive-dock {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 10px;
+            display: none;
+        }
+
+        .interactive-dock.visible {
+            display: block;
+        }
+
+        .dock-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .media-controller {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .media-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .media-title {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .media-artist {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .media-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav-switch-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .nav-app-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .nav-app-btn.active {
+            border-color: var(--primary);
+            background: rgba(61, 220, 132, 0.1);
+        }
+
+        /* Remote Car Panel */
         .remote-card {
-            background: var(--apple-dark);
-            border-radius: 18px;
-            padding: 16px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 12px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             margin-top: 10px;
         }
 
         .remote-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            color: #8e8e93;
-            margin-bottom: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
         }
@@ -176,16 +324,16 @@
         .remote-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
 
         .remote-btn {
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 10px;
             color: #fff;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -198,11 +346,10 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
-        /* Hidden Video and Canvas elements for processing */
         #localVideo {
             width: 100%;
-            height: 180px;
-            border-radius: 14px;
+            height: 160px;
+            border-radius: 12px;
             object-fit: cover;
             display: none;
             margin: 10px 0;
@@ -211,46 +358,95 @@
 
         footer {
             text-align: center;
-            font-size: 12px;
-            color: #636366;
-            padding: 10px 0;
+            font-size: 11px;
+            color: #55627a;
+            padding: 8px 0;
         }
     </style>
 </head>
 <body>
 
     <div>
+        <!-- Mode Seçici (CarPlay və ya Android Auto) -->
+        <div class="os-switch-bar">
+            <button class="os-pill" id="btnModeApple" onclick="switchMode('apple')">
+                <span>🍏</span> Apple CarPlay
+            </button>
+            <button class="os-pill active" id="btnModeAndroid" onclick="switchMode('android')">
+                <span>🤖</span> Android Auto
+            </button>
+        </div>
+
         <div class="header-card">
-            <div class="apple-badge">
-                <span>🍏</span> Apple CarPlay Transmitter
+            <div class="device-badge" id="deviceBadge">
+                <span id="badgeIcon">🤖</span> <span id="badgeText">Android Auto Transmitter</span>
             </div>
-            <h1>Simsiz Avtomobil Əlaqəsi</h1>
-            <p class="subtitle">Bu telefonun ekranını real vaxtda kompüterinizdəki virtual BYD monitoruna ötürün.</p>
+            <h1 id="pageTitle">Simsiz Avtomobil Əlaqəsi</h1>
+            <p class="subtitle" id="pageSubtitle">Android telefonunuzun ekranını və ya Android Auto interfeysini virtual avtomobil monitoruna yansıtın.</p>
         </div>
 
         <div class="status-box">
             <div class="status-icon" id="statusIcon">📡</div>
             <div class="status-text">
                 <h4 id="statusTitle">Monitor Hazırdır</h4>
-                <p id="statusDesc">Aşağıdakı düymə ilə yayımı başladın</p>
+                <p id="statusDesc">Aşağıdakı düymələrdən birini seçərək yayımı başladın</p>
             </div>
         </div>
 
         <video id="localVideo" autoplay playsinline muted></video>
 
         <div class="action-group">
+            <!-- 1. Real Ekran Yansıtma (Android & iPhone getDisplayMedia) -->
             <button class="btn-stream" id="btnScreen" onclick="startScreenShare()">
                 <span>📱</span>
-                <span id="btnScreenText">Ekranımı Yansıt (Screen Share)</span>
+                <span id="btnScreenText">Telefonumun Ekranını Yansıt</span>
             </button>
 
+            <!-- 2. İnteraktiv Android Auto / CarPlay Dashboard Generatoru -->
+            <button class="btn-interactive" id="btnInteractive" onclick="toggleInteractiveDashboard()">
+                <span id="interactiveBtnIcon">🚗</span>
+                <span id="interactiveBtnText">Canlı Android Auto UI Yayımla</span>
+            </button>
+
+            <!-- 3. Kamera ilə Test -->
             <button class="btn-camera" id="btnCamera" onclick="startCameraShare()">
                 <span>📷</span>
                 <span>Kamera ilə Test Et</span>
             </button>
         </div>
 
-        <!-- Cockpit Remote Control -->
+        <!-- İnteraktiv Android Auto / CarPlay İdarəetmə Pultu -->
+        <div class="interactive-dock" id="interactiveDock">
+            <div class="dock-title">
+                <span id="dockTitleLabel">CANLI ANDROID AUTO İDARƏETMƏSİ</span>
+                <span style="color: var(--primary);">CANLI YAYIM</span>
+            </div>
+
+            <div class="media-controller">
+                <div class="media-info">
+                    <span class="media-title" id="musicTitle">Mahnı: Qarabağ Şikəstəsi</span>
+                    <span class="media-artist" id="musicArtist">Spotify • Alim Qasımov</span>
+                </div>
+                <div class="media-btns">
+                    <button class="mini-btn" onclick="togglePlayPause()"><span id="playIcon">⏸️</span></button>
+                    <button class="mini-btn" onclick="nextSong()">⏭️</button>
+                </div>
+            </div>
+
+            <div class="nav-switch-grid">
+                <button class="nav-app-btn active" id="btnAppMaps" onclick="setAppMode('maps')">
+                    <span>🗺️</span> Google Xəritə
+                </button>
+                <button class="nav-app-btn" id="btnAppMusic" onclick="setAppMode('music')">
+                    <span>🎵</span> YouTube Music
+                </button>
+                <button class="nav-app-btn" id="btnAppWaze" onclick="setAppMode('waze')">
+                    <span>🚗</span> Waze Naviqasiya
+                </button>
+            </div>
+        </div>
+
+        <!-- Avtomobil Bort Pultu -->
         <div class="remote-card">
             <div class="remote-title">
                 <span>Avtomobil Monitoru İdarəsi</span>
@@ -258,7 +454,7 @@
             </div>
             <div class="remote-grid">
                 <button class="remote-btn" onclick="sendRemoteCmd('rotate')">🔄 Monitoru Fırlat</button>
-                <button class="remote-btn" onclick="sendRemoteCmd('siri')">🎙️ Siri / Aura AI</button>
+                <button class="remote-btn" onclick="sendRemoteCmd('assistant')">🎙️ Google Assistant / Siri</button>
                 <button class="remote-btn" onclick="sendRemoteCmd('vol_up')">🔊 Səs +</button>
                 <button class="remote-btn" onclick="sendRemoteCmd('vol_down')">🔉 Səs -</button>
             </div>
@@ -266,43 +462,114 @@
     </div>
 
     <footer>
-        CarTwin v2.2.0 • Ultra Low Latency Stream
+        CarTwin v2.2.1 • Android Auto & Apple CarPlay Dual Protocol
     </footer>
 
+    <!-- Rendering Canvases -->
     <canvas id="captureCanvas" style="display: none;"></canvas>
+    <canvas id="simCanvas" width="1280" height="720" style="display: none;"></canvas>
 
     <script>
+        let currentMode = 'android'; // 'android' və ya 'apple'
         let currentStream = null;
         let phonePeer = null;
         let frameInterval = null;
+        let simInterval = null;
+        let isSimRunning = false;
+        let isPlaying = true;
+        let songIndex = 0;
+        let activeApp = 'maps';
+        let routeStep = 0;
+
+        const songs = [
+            { title: "Qarabağ Şikəstəsi", artist: "Alim Qasımov • Spotify" },
+            { title: "Sarı Gəlin (Symphonic)", artist: "Üzeyir Hacıbəyli • Apple Music" },
+            { title: "Ayrılıq", artist: "Rəşid Behbudov • YouTube Music" },
+            { title: "Küçələrə Su Səpmişəm", artist: "Azərbaycan Xalq Mahnısı • Hi-Res Audio" }
+        ];
 
         const video = document.getElementById('localVideo');
-        const canvas = document.getElementById('captureCanvas');
-        const ctx = canvas.getContext('2d');
+        const captureCanvas = document.getElementById('captureCanvas');
+        const captureCtx = captureCanvas.getContext('2d');
+        const simCanvas = document.getElementById('simCanvas');
+        const simCtx = simCanvas.getContext('2d');
 
-        // 1. Ekran Yayımını Başlatmaq (getDisplayMedia)
+        // Cihazın Tipini Təyin Edirik
+        function detectDeviceName() {
+            const ua = navigator.userAgent;
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'Apple iPhone';
+            if (/Samsung/i.test(ua)) return 'Samsung Galaxy';
+            if (/Xiaomi|Redmi|POCO/i.test(ua)) return 'Xiaomi / Redmi';
+            if (/Pixel/i.test(ua)) return 'Google Pixel';
+            if (/Huawei|HONOR/i.test(ua)) return 'Huawei / Honor';
+            if (/Android/i.test(ua)) return 'Android Smartfon';
+            return 'Mobil Cihaz';
+        }
+
+        const myDeviceName = detectDeviceName();
+
+        // İlkin yüklənmədə cihazı yoxlayırıq
+        window.addEventListener('DOMContentLoaded', () => {
+            if (/iPhone|iPad/i.test(navigator.userAgent)) {
+                switchMode('apple');
+            } else {
+                switchMode('android');
+            }
+        });
+
+        // Rejimlər arasında keçid (Apple CarPlay <-> Android Auto)
+        function switchMode(mode) {
+            currentMode = mode;
+            const isAndroid = mode === 'android';
+
+            document.getElementById('btnModeAndroid').classList.toggle('active', isAndroid);
+            document.getElementById('btnModeApple').classList.toggle('active', !isAndroid);
+
+            if (isAndroid) {
+                document.documentElement.style.setProperty('--primary', '#3DDC84');
+                document.documentElement.style.setProperty('--primary-glow', 'rgba(61, 220, 132, 0.4)');
+                document.getElementById('badgeIcon').innerText = '🤖';
+                document.getElementById('badgeText').innerText = myDeviceName + ' • Android Auto';
+                document.getElementById('pageTitle').innerText = 'Android Auto Simsiz Əlaqə';
+                document.getElementById('pageSubtitle').innerText = 'Android telefonunuzun ekranını və ya Android Auto interfeysini maşın monitoruna yansıtın.';
+                document.getElementById('interactiveBtnText').innerText = 'Canlı Android Auto UI Yayımla';
+                document.getElementById('dockTitleLabel').innerText = 'CANLI ANDROID AUTO İDARƏETMƏSİ';
+            } else {
+                document.documentElement.style.setProperty('--primary', '#007AFF');
+                document.documentElement.style.setProperty('--primary-glow', 'rgba(0, 122, 255, 0.4)');
+                document.getElementById('badgeIcon').innerText = '🍏';
+                document.getElementById('badgeText').innerText = myDeviceName + ' • Apple CarPlay';
+                document.getElementById('pageTitle').innerText = 'Apple CarPlay Simsiz Əlaqə';
+                document.getElementById('pageSubtitle').innerText = 'iPhone ekranını və CarPlay interfeysini maşın monitoruna yansıtın.';
+                document.getElementById('interactiveBtnText').innerText = 'Canlı Apple CarPlay UI Yayımla';
+                document.getElementById('dockTitleLabel').innerText = 'CANLI APPLE CARPLAY İDARƏETMƏSİ';
+            }
+        }
+
+        // 1. Ekran Yayımını Başlatmaq (getDisplayMedia - Real Ekran Paylaşımı)
         async function startScreenShare() {
+            stopAllStreams();
             try {
                 if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
                     currentStream = await navigator.mediaDevices.getDisplayMedia({
-                        video: { frameRate: 60 },
+                        video: { frameRate: 60, width: { ideal: 1920 }, height: { ideal: 1080 } },
                         audio: true
                     });
                 } else {
-                    // Fallback to camera if iOS restrictions prevent getDisplayMedia in normal HTTP
                     currentStream = await navigator.mediaDevices.getUserMedia({
                         video: { facingMode: 'environment' }
                     });
                 }
                 handleStreamStarted('Ekran');
             } catch (err) {
-                console.warn('Ekran icazəsi alınmadı, kameraya keçilir:', err);
-                startCameraShare();
+                console.warn('Ekran icazəsi alınmadı, interaktiv simulyatora keçilir:', err);
+                toggleInteractiveDashboard();
             }
         }
 
         // 2. Kamera Yayımını Başlatmaq (getUserMedia)
         async function startCameraShare() {
+            stopAllStreams();
             try {
                 currentStream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -310,115 +577,383 @@
                 });
                 handleStreamStarted('Kamera');
             } catch (err) {
-                alert('Xəta: Kamera/Ekran icazəsi verilmədi: ' + err.message);
+                alert('Xəta: Kamera icazəsi verilmədi: ' + err.message);
             }
+        }
+
+        // 3. İnteraktiv Android Auto / CarPlay Dashboard Simulyatoru (Telefonun özündən 60fps axın)
+        function toggleInteractiveDashboard() {
+            if (isSimRunning) {
+                stopAllStreams();
+                return;
+            }
+
+            stopAllStreams();
+            isSimRunning = true;
+
+            document.getElementById('interactiveDock').classList.add('visible');
+            document.getElementById('btnInteractive').classList.add('active');
+            document.getElementById('interactiveBtnText').innerText = 'Yayımı Dayandır';
+            document.getElementById('interactiveBtnIcon').innerText = '⏹️';
+
+            document.getElementById('statusIcon').innerText = '🟢';
+            document.getElementById('statusTitle').innerText = (currentMode === 'android' ? 'Android Auto' : 'Apple CarPlay') + ' Aktivdir!';
+            document.getElementById('statusDesc').innerText = 'İnteraktiv interfeys maşın monitorunda canlı görünür';
+
+            // Simulyasiya kadrlarını yaratmaq və serverə göndərmək
+            simInterval = setInterval(renderSimulatedFrame, 50); // 20 fps yüksək keyfiyyət
+        }
+
+        function renderSimulatedFrame() {
+            const w = simCanvas.width;
+            const h = simCanvas.height;
+
+            // Arxa fon (Tünd Modern Kokpit Teması)
+            simCtx.fillStyle = '#10141e';
+            simCtx.fillRect(0, 0, w, h);
+
+            if (currentMode === 'android') {
+                renderAndroidAutoCoolwalk(w, h);
+            } else {
+                renderAppleCarPlayUI(w, h);
+            }
+
+            const base64 = simCanvas.toDataURL('image/jpeg', 0.70);
+            sendFrameToServer(base64, myDeviceName + (currentMode === 'android' ? ' (Android Auto)' : ' (CarPlay)'));
+        }
+
+        // Android Auto Coolwalk İnterfeysinin Canlı Rəsmi
+        function renderAndroidAutoCoolwalk(w, h) {
+            routeStep = (routeStep + 0.05) % 100;
+            const dockH = 64;
+
+            // 1. Sol Tərəf: Google Xəritə (Böyük Kart)
+            const mapW = w * 0.65;
+            const mapH = h - dockH;
+
+            // Xəritə arxa fonu (Gecə rejimi xəritə)
+            simCtx.fillStyle = '#1e2430';
+            simCtx.fillRect(0, 0, mapW, mapH);
+
+            // Yollar
+            simCtx.strokeStyle = '#2b3445';
+            simCtx.lineWidth = 14;
+            simCtx.beginPath();
+            simCtx.moveTo(0, mapH * 0.7);
+            simCtx.lineTo(mapW, mapH * 0.3);
+            simCtx.stroke();
+
+            // Naviqasiya Yaşıl Marşrut Xətti
+            simCtx.strokeStyle = '#00e676';
+            simCtx.lineWidth = 10;
+            simCtx.beginPath();
+            simCtx.moveTo(mapW * 0.2, mapH * 0.85);
+            simCtx.lineTo(mapW * 0.45, mapH * 0.55);
+            simCtx.lineTo(mapW * 0.8, mapH * 0.25);
+            simCtx.stroke();
+
+            // Avtomobil İkonu
+            simCtx.fillStyle = '#4285F4';
+            simCtx.beginPath();
+            simCtx.arc(mapW * 0.45, mapH * 0.55, 12, 0, Math.PI * 2);
+            simCtx.fill();
+            simCtx.strokeStyle = '#fff';
+            simCtx.lineWidth = 3;
+            simCtx.stroke();
+
+            // Naviqasiya İstiqamət Kartı (Yuxarı Sol)
+            simCtx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            simCtx.roundRect(24, 24, 380, 110, 16);
+            simCtx.fill();
+            simCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            simCtx.stroke();
+
+            simCtx.fillStyle = '#00e676';
+            simCtx.font = 'bold 36px sans-serif';
+            simCtx.fillText('↱', 48, 80);
+
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 20px Roboto, sans-serif';
+            simCtx.fillText('450 m sonra sağa dönün', 100, 65);
+            simCtx.fillStyle = '#94a3b8';
+            simCtx.font = '14px Roboto, sans-serif';
+            simCtx.fillText('Nizami küçəsi • Heydər Əliyev pr.', 100, 95);
+
+            // Spidometr və Sürət Həddi Nişanı
+            simCtx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            simCtx.roundRect(24, mapH - 90, 150, 68, 14);
+            simCtx.fill();
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 28px Roboto, sans-serif';
+            simCtx.fillText('54', 44, mapH - 46);
+            simCtx.font = '12px Roboto, sans-serif';
+            simCtx.fillStyle = '#94a3b8';
+            simCtx.fillText('km/h', 82, mapH - 46);
+
+            // 2. Sağ Tərəf: Media Pleyer və Bildirişlər
+            const rightX = mapW + 12;
+            const rightW = w - mapW - 24;
+
+            // Media Kartı
+            simCtx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+            simCtx.roundRect(rightX, 12, rightW, (mapH / 2) - 18, 18);
+            simCtx.fill();
+
+            simCtx.fillStyle = '#3DDC84';
+            simCtx.font = 'bold 12px Roboto, sans-serif';
+            simCtx.fillText('🎵 SPOTIFY • İNDİ OXUNUR', rightX + 20, 42);
+
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 18px Roboto, sans-serif';
+            simCtx.fillText(songs[songIndex].title, rightX + 20, 80);
+            simCtx.fillStyle = '#94a3b8';
+            simCtx.font = '14px Roboto, sans-serif';
+            simCtx.fillText(songs[songIndex].artist, rightX + 20, 110);
+
+            // Playback Düymələri
+            simCtx.fillStyle = '#fff';
+            simCtx.font = '24px sans-serif';
+            simCtx.fillText(isPlaying ? '⏸' : '▶', rightX + 160, 170);
+            simCtx.fillText('⏮', rightX + 100, 170);
+            simCtx.fillText('⏭', rightX + 220, 170);
+
+            // Alt Bildiriş Kartı (WhatsApp / Zəng)
+            const notifY = (mapH / 2) + 6;
+            simCtx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+            simCtx.roundRect(rightX, notifY, rightW, (mapH / 2) - 18, 18);
+            simCtx.fill();
+
+            simCtx.fillStyle = '#25D366';
+            simCtx.font = 'bold 12px Roboto, sans-serif';
+            simCtx.fillText('💬 WHATSAPP BİLDİRİŞİ', rightX + 20, notifY + 36);
+
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 16px Roboto, sans-serif';
+            simCtx.fillText('Murad Əliyev', rightX + 20, notifY + 70);
+            simCtx.fillStyle = '#94a3b8';
+            simCtx.font = '13px Roboto, sans-serif';
+            simCtx.fillText('"Maşına çatdın? CarPlay işlədi?"', rightX + 20, notifY + 98);
+
+            // 3. Ən Alt Dock Zolağı (Coolwalk Taskbar)
+            simCtx.fillStyle = '#0a0d14';
+            simCtx.fillRect(0, h - dockH, w, dockH);
+            simCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            simCtx.lineWidth = 1;
+            simCtx.strokeRect(0, h - dockH, w, 1);
+
+            // Proqram Menyusu Düyməsi (9 nöqtə)
+            simCtx.fillStyle = '#fff';
+            simCtx.font = '24px sans-serif';
+            simCtx.fillText('⠿', 24, h - 22);
+
+            // Google Assistant Mikrofonu
+            simCtx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+            simCtx.roundRect(70, h - dockH + 12, 180, 40, 20);
+            simCtx.fill();
+            simCtx.fillStyle = '#4285F4';
+            simCtx.font = 'bold 13px Roboto, sans-serif';
+            simCtx.fillText('🎙️ "Hey Google"', 95, h - 26);
+
+            // Tətbiq Qısayolları (Mərkəzdə)
+            simCtx.font = '24px sans-serif';
+            simCtx.fillText('🗺️', w * 0.45, h - 22);
+            simCtx.fillText('🎵', w * 0.52, h - 22);
+            simCtx.fillText('📞', w * 0.59, h - 22);
+
+            // Saat və Batareya (Sağda)
+            const now = new Date();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 15px Roboto, sans-serif';
+            simCtx.fillText(timeStr, w - 120, h - 25);
+            simCtx.fillStyle = '#3DDC84';
+            simCtx.font = '12px sans-serif';
+            simCtx.fillText('5G 🔋88%', w - 75, h - 25);
+        }
+
+        // Apple CarPlay İnterfeysinin Canlı Rəsmi
+        function renderAppleCarPlayUI(w, h) {
+            const sideBarW = 70;
+
+            // Sol İdarəetmə Zolağı (Home & Status)
+            simCtx.fillStyle = '#000';
+            simCtx.fillRect(0, 0, sideBarW, h);
+
+            const now = new Date();
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 15px -apple-system, sans-serif';
+            simCtx.fillText(timeStr, 14, 35);
+            simCtx.fillStyle = '#34c759';
+            simCtx.font = '11px sans-serif';
+            simCtx.fillText('5G 🔋', 18, 55);
+
+            // Home Düyməsi
+            simCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            simCtx.lineWidth = 3;
+            simCtx.strokeRect(18, h - 56, 34, 34);
+
+            // Qalan Hissə: CarPlay Dashboard Split Screen
+            const mainW = w - sideBarW;
+
+            // Xəritə (Sol Hissə)
+            simCtx.fillStyle = '#1c2438';
+            simCtx.fillRect(sideBarW, 0, mainW * 0.6, h);
+
+            simCtx.fillStyle = '#007aff';
+            simCtx.font = 'bold 22px -apple-system, sans-serif';
+            simCtx.fillText('🗺️ Apple Maps (Bakı)', sideBarW + 24, 45);
+
+            // Sağ Üst Media
+            simCtx.fillStyle = '#1c1c1e';
+            simCtx.roundRect(sideBarW + (mainW * 0.6) + 12, 12, (mainW * 0.4) - 24, (h / 2) - 18, 20);
+            simCtx.fill();
+
+            simCtx.fillStyle = '#ff2d55';
+            simCtx.font = 'bold 13px sans-serif';
+            simCtx.fillText('🎵 APPLE MUSIC', sideBarW + (mainW * 0.6) + 30, 42);
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 18px sans-serif';
+            simCtx.fillText(songs[songIndex].title, sideBarW + (mainW * 0.6) + 30, 85);
+
+            // Sağ Alt Təqvim / Ev
+            simCtx.fillStyle = '#1c1c1e';
+            simCtx.roundRect(sideBarW + (mainW * 0.6) + 12, (h / 2) + 6, (mainW * 0.4) - 24, (h / 2) - 18, 20);
+            simCtx.fill();
+            simCtx.fillStyle = '#fff';
+            simCtx.font = 'bold 15px sans-serif';
+            simCtx.fillText('📅 Növbəti Görüş', sideBarW + (mainW * 0.6) + 30, (h / 2) + 45);
+            simCtx.fillStyle = '#8e8e93';
+            simCtx.font = '13px sans-serif';
+            simCtx.fillText('15:00 • Şəhər Mərkəzi', sideBarW + (mainW * 0.6) + 30, (h / 2) + 75);
+        }
+
+        // Kadrı Serverə Göndərmə
+        function sendFrameToServer(base64, model) {
+            fetch('/api/frame/push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ frame: base64, model: model })
+            }).catch(() => {});
+        }
+
+        // Musiqi İdarəsi
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            document.getElementById('playIcon').innerText = isPlaying ? '⏸️' : '▶️';
+        }
+
+        function nextSong() {
+            songIndex = (songIndex + 1) % songs.length;
+            document.getElementById('musicTitle').innerText = 'Mahnı: ' + songs[songIndex].title;
+            document.getElementById('musicArtist').innerText = songs[songIndex].artist;
+        }
+
+        function setAppMode(app) {
+            activeApp = app;
+            document.querySelectorAll('.nav-app-btn').forEach(b => b.classList.remove('active'));
+            if (app === 'maps') document.getElementById('btnAppMaps').classList.add('active');
+            if (app === 'music') document.getElementById('btnAppMusic').classList.add('active');
+            if (app === 'waze') document.getElementById('btnAppWaze').classList.add('active');
         }
 
         function handleStreamStarted(type) {
             video.srcObject = currentStream;
             video.style.display = 'block';
 
-            document.getElementById('statusIcon').classList.add('connected');
             document.getElementById('statusIcon').innerText = '🟢';
-            document.getElementById('statusTitle').innerText = 'Yayim Aktivdir!';
-            document.getElementById('statusDesc').innerText = `${type} axını monitora canlı ötürülür`;
+            document.getElementById('statusTitle').innerText = type + ' Yayımı Aktivdir!';
+            document.getElementById('statusDesc').innerText = `${myDeviceName} ekranı maşın monitorunda yayımlanır`;
 
             document.getElementById('btnScreen').classList.add('active');
             document.getElementById('btnScreenText').innerText = 'Yayımı Dayandır';
-            document.getElementById('btnScreen').onclick = stopStream;
+            document.getElementById('btnScreen').onclick = stopAllStreams;
 
-            // Kadrları arxa fonda serverə itələyirik (Dual pipeline: WebRTC + Canvas fallback)
-            startPushingFrames();
+            startPushingCameraOrScreenFrames();
             startPhoneWebRtc(currentStream);
         }
 
-        function stopStream() {
+        function startPushingCameraOrScreenFrames() {
+            if (frameInterval) clearInterval(frameInterval);
+            frameInterval = setInterval(() => {
+                if (!video.videoWidth) return;
+                captureCanvas.width = Math.min(video.videoWidth, 800);
+                captureCanvas.height = (captureCanvas.width / video.videoWidth) * video.videoHeight;
+                captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+                const base64 = captureCanvas.toDataURL('image/jpeg', 0.65);
+                sendFrameToServer(base64, myDeviceName);
+            }, 50);
+        }
+
+        function stopAllStreams() {
             if (currentStream) {
                 currentStream.getTracks().forEach(t => t.stop());
                 currentStream = null;
             }
             if (frameInterval) clearInterval(frameInterval);
+            if (simInterval) clearInterval(simInterval);
+            isSimRunning = false;
             video.style.display = 'none';
 
-            document.getElementById('statusIcon').classList.remove('connected');
+            document.getElementById('interactiveDock').classList.remove('visible');
+            document.getElementById('btnInteractive').classList.remove('active');
+            document.getElementById('interactiveBtnText').innerText = currentMode === 'android' ? 'Canlı Android Auto UI Yayımla' : 'Canlı Apple CarPlay UI Yayımla';
+            document.getElementById('interactiveBtnIcon').innerText = '🚗';
+
             document.getElementById('statusIcon').innerText = '📡';
             document.getElementById('statusTitle').innerText = 'Monitor Hazırdır';
-            document.getElementById('statusDesc').innerText = 'Aşağıdakı düymə ilə yayımı başladın';
+            document.getElementById('statusDesc').innerText = 'Aşağıdakı düymələrdən birini seçərək yayımı başladın';
 
             document.getElementById('btnScreen').classList.remove('active');
-            document.getElementById('btnScreenText').innerText = 'Ekranımı Yansıt (Screen Share)';
+            document.getElementById('btnScreenText').innerText = 'Telefonumun Ekranını Yansıt';
             document.getElementById('btnScreen').onclick = startScreenShare;
 
             fetch('/api/reset');
         }
 
-        // Kadr göndərmə (Yüksək keyfiyyətli JPEG axını)
-        function startPushingFrames() {
-            if (frameInterval) clearInterval(frameInterval);
-            frameInterval = setInterval(() => {
-                if (!video.videoWidth) return;
-                canvas.width = Math.min(video.videoWidth, 800);
-                canvas.height = (canvas.width / video.videoWidth) * video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const base64 = canvas.toDataURL('image/jpeg', 0.65);
-
-                fetch('/api/frame/push', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        frame: base64,
-                        model: navigator.userAgent.includes('iPhone') ? 'Apple iPhone' : 'Mobil Cihaz'
-                    })
-                }).catch(() => {});
-            }, 50); // ~20 fps kadr tezliyi
-        }
-
         // WebRTC P2P Bağlantısı
         async function startPhoneWebRtc(stream) {
-            phonePeer = new RTCPeerConnection({
-                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-            });
+            try {
+                phonePeer = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                stream.getTracks().forEach(track => phonePeer.addTrack(track, stream));
 
-            stream.getTracks().forEach(track => phonePeer.addTrack(track, stream));
-
-            phonePeer.onicecandidate = (e) => {
-                if (e.candidate) {
-                    fetch('/api/signal/candidate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ from: 'phone', candidate: e.candidate })
-                    });
-                }
-            };
-
-            const offer = await phonePeer.createOffer();
-            await phonePeer.setLocalDescription(offer);
-
-            await fetch('/api/signal/offer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sdp: offer.sdp })
-            });
-
-            // Answer gözlənilir
-            const answerPoll = setInterval(async () => {
-                try {
-                    const res = await fetch('/api/signal/answer');
-                    const data = await res.json();
-                    if (data.sdp && phonePeer.signalingState !== 'stable') {
-                        clearInterval(answerPoll);
-                        await phonePeer.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
-                        console.log('🎉 WebRTC P2P CarPlay kanalı yaradıldı!');
+                phonePeer.onicecandidate = (e) => {
+                    if (e.candidate) {
+                        fetch('/api/signal/candidate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ from: 'phone', candidate: e.candidate })
+                        });
                     }
-                } catch (e) {}
-            }, 800);
+                };
+
+                const offer = await phonePeer.createOffer();
+                await phonePeer.setLocalDescription(offer);
+
+                await fetch('/api/signal/offer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sdp: offer.sdp })
+                });
+
+                const answerPoll = setInterval(async () => {
+                    try {
+                        const res = await fetch('/api/signal/answer');
+                        const data = await res.json();
+                        if (data.sdp && phonePeer.signalingState !== 'stable') {
+                            clearInterval(answerPoll);
+                            await phonePeer.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
+                        }
+                    } catch (e) {}
+                }, 800);
+            } catch (e) {}
         }
 
-        // Avtomobil pult komandaları
+        // Bort Pultu Komandaları
         function sendRemoteCmd(cmd) {
-            if (navigator.vibrate) navigator.vibrate(30);
-            if (cmd === 'siri') {
-                alert('🎙️ Siri / Aura AI aktivləşdirildi!');
+            if (navigator.vibrate) navigator.vibrate(25);
+            if (cmd === 'assistant') {
+                alert(currentMode === 'android' ? '🎙️ Google Assistant aktivləşdirildi!' : '🎙️ Siri aktivləşdirildi!');
             }
         }
     </script>

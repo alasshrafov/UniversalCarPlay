@@ -1213,8 +1213,10 @@
         // Telefon qoşulanda monitorun canlanması
         function onPhoneConnected(info) {
             document.getElementById('connectionDot').classList.add('active');
-            document.getElementById('connectionStatusText').innerText = '🟢 ' + (info.model || 'iPhone') + ' Qoşuldu';
-            document.getElementById('phoneModeBadge').innerText = 'CarPlay Canlı Axın';
+            const modelName = info.model || 'Mobil Cihaz';
+            const isAndroid = modelName.toLowerCase().includes('android') || modelName.toLowerCase().includes('samsung') || modelName.toLowerCase().includes('xiaomi') || modelName.toLowerCase().includes('pixel') || modelName.toLowerCase().includes('redmi');
+            document.getElementById('connectionStatusText').innerText = (isAndroid ? '🤖 ' : '🍏 ') + modelName + ' Qoşuldu';
+            document.getElementById('phoneModeBadge').innerText = isAndroid ? 'Android Auto Canlı Axın' : 'CarPlay Canlı Axın';
             document.getElementById('standbyOverlay').classList.add('hidden');
             document.getElementById('metricsBadge').style.display = 'block';
         }
